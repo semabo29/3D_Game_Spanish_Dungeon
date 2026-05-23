@@ -40,33 +40,28 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 direction = Vector3.zero;
 
-        // Mapeo para cámara isométrica a 45º:
-        // W (Arriba) -> Salta hacia arriba-derecha (Eje X+)
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            direction = Vector3.right;
-        }
-        // S (Abajo) -> Salta hacia abajo-izquierda (Eje X-)
-        else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            direction = Vector3.left;
-        }
-        // A (Izquierda) -> Salta hacia arriba-izquierda (Eje Z+)
-        else if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            direction = Vector3.forward;
-        }
-        // D (Derecha) -> Salta hacia abajo-derecha (Eje Z-)
-        else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            direction = Vector3.back;
-        }
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) direction = Vector3.right;
+        else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) direction = Vector3.left;
+        else if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) direction = Vector3.forward;
+        else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) direction = Vector3.back;
 
         if (direction != Vector3.zero)
         {
-            targetPosition = transform.position + (direction * gridSize);
-            targetRotation = Quaternion.LookRotation(direction);
-            isMoving = true;
+            Vector3 proposedPosition = transform.position + (direction * gridSize);
+
+            // Lanzamos un rayo desde arriba hacia abajo en la casilla objetivo. 
+            // Si choca con algo (el suelo), nos movemos.
+            if (Physics.Raycast(proposedPosition + Vector3.up, Vector3.down, 2f))
+            {
+                targetPosition = proposedPosition;
+                targetRotation = Quaternion.LookRotation(direction);
+                isMoving = true;
+            }
+            else
+            {
+                // Si no hay suelo (borde del mapa), giramos para mirar hacia allí pero NO saltamos
+                transform.rotation = Quaternion.LookRotation(direction);
+            }
         }
     }
 }

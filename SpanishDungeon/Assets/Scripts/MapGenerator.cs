@@ -3,17 +3,17 @@ using UnityEngine;
 public class MapGenerator : MonoBehaviour
 {
     [Header("Prefabs del Mapa")]
-    [SerializeField] private GameObject tilePrefab; // Baldosa normal
-    [SerializeField] private GameObject trapPrefab; // Baldosa trampa
+    [SerializeField] private GameObject tilePrefab;
+    [SerializeField] private GameObject trapPrefab;
+    [SerializeField] private GameObject enemyPrefab; // <- Nuevo Prefab para el enemigo
 
     [Header("Dimensiones")]
-    // Se mantienen vuestras dimensiones y variables anteriores
     [SerializeField] private int width = 5;
     [SerializeField] private int length = 15;
 
     [Header("Configuración del Peligro")]
-    [Range(0f, 100f)]
-    [SerializeField] private float trapChance = 15f; // % de probabilidad de que salga una trampa
+    [Range(0f, 100f)][SerializeField] private float trapChance = 15f;
+    [Range(0f, 100f)][SerializeField] private float enemyChance = 5f; // <- % de probabilidad de enemigos (más bajo que trampas)
 
     void Start()
     {
@@ -22,31 +22,35 @@ public class MapGenerator : MonoBehaviour
 
     void GenerateFloor()
     {
-        // Respetamos tus bucles exactos: Z para el ancho, X para la longitud/avance
         for (int z = -width / 2; z <= width / 2; z++)
         {
             for (int x = 0; x < length; x++)
             {
-                // Protegemos la casilla inicial (0,0,0) para que el jugador no empiece muerto
                 bool isStartingPosition = (x == 0 && z == 0);
-
-                // Vuestra posición de spawn corregida para la cámara de diamante
                 Vector3 spawnPos = new Vector3(x, 0f, z);
-                GameObject objectToSpawn;
+                GameObject objectToSpawn = tilePrefab; // Por defecto es baldosa normal
 
-                // Si no es el inicio y el número aleatorio cae en el %, elegimos trampa
-                if (!isStartingPosition && Random.Range(0f, 100f) < trapChance)
+                if (!isStartingPosition)
                 {
-                    objectToSpawn = trapPrefab;
-                }
-                else
-                {
-                    objectToSpawn = tilePrefab;
+                    float randomValue = Random.Range(0f, 100f);
+
+                    // Lógica para decidir si spawnea trampa o enemigo sobre una baldosa
+                    if (randomValue < enemyChance)
+                    {
+                        // Spawneamos el enemigo un poco elevado (Y: 0.5) para que no se entierre
+                        Vector3 enemyPos = new Vector3(x, 0.5f, z);
+                        GameObject newEnemy = Instantiate(enemyPrefab, enemyPos, Quaternion.identity);
+                        newEnemy.transform.parent = this.transform;
+                    }
+                    else if (randomValue < enemyChance + trapChance)
+                    {
+                        objectToSpawn = trapPrefab;
+                    }
                 }
 
-                // Instanciamos el objeto correspondiente manteniendo vuestros ejes
-                GameObject newObject = Instantiate(objectToSpawn, spawnPos, Quaternion.identity);
-                newObject.transform.parent = this.transform;
+                // Siempre instanciamos la baldosa (normal o trampa) debajo
+                GameObject newTile = Instantiate(objectToSpawn, spawnPos, Quaternion.identity);
+                newTile.transform.parent = this.transform;
             }
         }
     }

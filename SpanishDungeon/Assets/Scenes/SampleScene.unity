@@ -366,8 +366,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 3493668173262148316, guid: 0414e1357ca5e554c8b5b46481c444f2, type: 3}
+  trapPrefab: {fileID: 1088815067306731086, guid: 3e255bb062382384285fa725aeb8e3cd, type: 3}
+  enemyPrefab: {fileID: 3549751317363112814, guid: 851c9f1a88165104f9c503c964526d0a, type: 3}
   width: 5
   length: 15
+  trapChance: 10
+  enemyChance: 5.3
 --- !u!4 &758473719
 Transform:
   m_ObjectHideFlags: 0
@@ -469,13 +473,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.23911765, y: 0.3696438, z: -0.09904577, w: 0.89239913}
+  m_LocalRotation: {x: 0.21828581, y: 0.51899153, z: -0.13906339, w: 0.81465364}
   m_LocalPosition: {x: -10, y: 10, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 30, y: 45, z: 0}
+  m_LocalEulerAnglesHint: {x: 30, y: 65, z: 0}
 --- !u!114 &963194229
 MonoBehaviour:
   m_ObjectHideFlags: 0
