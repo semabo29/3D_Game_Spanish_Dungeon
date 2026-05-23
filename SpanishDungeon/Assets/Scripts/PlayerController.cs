@@ -2,37 +2,35 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    // Tamaño de la casilla en metros (en Unity, 1 unidad = 1 metro)
     [SerializeField] private float gridSize = 1f;
-
-    // Velocidad a la que el personaje se desplazará visualmente hacia la siguiente casilla
     [SerializeField] private float moveSpeed = 5f;
 
     private Vector3 targetPosition;
+    private Quaternion targetRotation; // Guarda la rotación a la que queremos llegar
     private bool isMoving = false;
 
     void Start()
     {
-        // Al arrancar, nuestra posición objetivo inicial es donde hayamos colocado el cubo
         targetPosition = transform.position;
+        targetRotation = transform.rotation; // Empezamos con la rotación inicial
     }
 
     void Update()
     {
-        // Si el personaje ya se está desplazando hacia una casilla, no le dejamos pulsar otra tecla
         if (!isMoving)
         {
             CheckInput();
         }
         else
         {
-            // Mueve al personaje suavemente desde su posición actual hacia la posición de la casilla objetivo
+            // Movimiento suave hacia la casilla
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
 
-            // Si ya ha llegado (o está virtualmente al lado), detenemos el movimiento
+            // Rotación suave hacia la dirección del movimiento
+            transform.rotation = targetRotation;
             if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
             {
-                transform.position = targetPosition; // Clavamos la posición exacta
+                transform.position = targetPosition;
                 isMoving = false;
             }
         }
@@ -42,28 +40,32 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 direction = Vector3.zero;
 
-        // Capturamos la pulsación única de la tecla (GetKeyDown)
+        // Mapeo para cámara isométrica a 45º:
+        // W (Arriba) -> Salta hacia arriba-derecha (Eje X+)
         if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
         {
-            direction = Vector3.forward; // Mover hacia adelante (Z+)
+            direction = Vector3.right;
         }
+        // S (Abajo) -> Salta hacia abajo-izquierda (Eje X-)
         else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
         {
-            direction = Vector3.back;    // Mover hacia atrás (Z-)
+            direction = Vector3.left;
         }
+        // A (Izquierda) -> Salta hacia arriba-izquierda (Eje Z+)
         else if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            direction = Vector3.left;    // Mover hacia la izquierda (X-)
+            direction = Vector3.forward;
         }
+        // D (Derecha) -> Salta hacia abajo-derecha (Eje Z-)
         else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
         {
-            direction = Vector3.right;   // Mover hacia la derecha (X+)
+            direction = Vector3.back;
         }
 
-        // Si se ha pulsado alguna dirección, calculamos la casilla de destino
         if (direction != Vector3.zero)
         {
             targetPosition = transform.position + (direction * gridSize);
+            targetRotation = Quaternion.LookRotation(direction);
             isMoving = true;
         }
     }
