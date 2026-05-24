@@ -90,4 +90,10 @@ public class EnemyPatrol : MonoBehaviour
             }
         }
     }
+    // TRUCO TEMPORAL PARA PRUEBAS: Matar al enemigo al hacerle clic
+    private void OnMouseDown()
+    {
+        Debug.Log("Enemigo destruido con el ratón.");
+        Destroy(gameObject);
+    }
 }

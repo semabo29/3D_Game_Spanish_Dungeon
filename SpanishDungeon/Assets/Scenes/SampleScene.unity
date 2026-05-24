@@ -368,6 +368,8 @@ MonoBehaviour:
   tilePrefab: {fileID: 3493668173262148316, guid: 0414e1357ca5e554c8b5b46481c444f2, type: 3}
   trapPrefab: {fileID: 1088815067306731086, guid: 3e255bb062382384285fa725aeb8e3cd, type: 3}
   enemyPrefab: {fileID: 3549751317363112814, guid: 851c9f1a88165104f9c503c964526d0a, type: 3}
+  wallPrefab: {fileID: 2291476901822650681, guid: 881113eeb4288814e850103e1e46aae4, type: 3}
+  doorPrefab: {fileID: 5374787224776609004, guid: 9db0bf8b9c86ea748b6561ec11e74b8f, type: 3}
   width: 5
   length: 15
   trapChance: 10
