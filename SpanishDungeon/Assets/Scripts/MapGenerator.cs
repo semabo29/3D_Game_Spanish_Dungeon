@@ -8,14 +8,16 @@ public class MapGenerator : MonoBehaviour
     [SerializeField] private GameObject enemyPrefab;
     [SerializeField] private GameObject wallPrefab; // Muros
     [SerializeField] private GameObject doorPrefab; // Puerta
+    [SerializeField] private GameObject coinPrefab; // Moneda
 
     [Header("Dimensiones de la Sala")]
     [SerializeField] private int width = 5;
     [SerializeField] private int length = 10; // Hacemos la sala más corta para probar rápido
 
-    [Header("Configuración del Peligro")]
+    [Header("Configuración del Peligro y Recompensas")]
     [Range(0f, 100f)][SerializeField] private float trapChance = 10f;
     [Range(0f, 100f)][SerializeField] private float enemyChance = 15f;
+    [Range(0f, 100f)][SerializeField] private float coinChance = 20f; // Probabilidad de moneda
 
     void Start()
     {
@@ -24,7 +26,7 @@ public class MapGenerator : MonoBehaviour
 
     void GenerateRoom()
     {
-        // 1. Generamos el SUELO, TRAMPAS y ENEMIGOS
+        // 1. Generamos el SUELO, TRAMPAS, ENEMIGOS y MONEDAS
         for (int z = -width / 2; z <= width / 2; z++)
         {
             for (int x = 0; x < length; x++)
@@ -36,18 +38,29 @@ public class MapGenerator : MonoBehaviour
                 if (!isStartingPosition)
                 {
                     float randomValue = Random.Range(0f, 100f);
+
                     if (randomValue < enemyChance)
                     {
+                        // Instanciamos enemigo
                         Vector3 enemyPos = new Vector3(x, 0.5f, z);
                         GameObject newEnemy = Instantiate(enemyPrefab, enemyPos, Quaternion.identity);
                         newEnemy.transform.parent = this.transform;
                     }
                     else if (randomValue < enemyChance + trapChance)
                     {
+                        // Cambiamos la baldosa normal por una trampa
                         objectToSpawn = trapPrefab;
+                    }
+                    else if (randomValue < enemyChance + trapChance + coinChance)
+                    {
+                        // Dejamos la baldosa normal, pero ponemos una moneda encima
+                        Vector3 coinPos = new Vector3(x, 0.5f, z);
+                        GameObject newCoin = Instantiate(coinPrefab, coinPos, Quaternion.identity);
+                        newCoin.transform.parent = this.transform;
                     }
                 }
 
+                // Generamos la baldosa (ya sea la normal o la trampa)
                 GameObject newTile = Instantiate(objectToSpawn, spawnPos, Quaternion.identity);
                 newTile.transform.parent = this.transform;
             }

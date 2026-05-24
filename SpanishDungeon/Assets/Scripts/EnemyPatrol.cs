@@ -86,7 +86,11 @@ public class EnemyPatrol : MonoBehaviour
 
             if (distanceX < 0.3f && distanceZ < 0.3f)
             {
-                Debug.LogError("¡BOOM! El enemigo ha atropellado al jugador.");
+                // Quitamos vida al jugador
+                player.GetComponent<PlayerStats>().TakeDamage();
+
+                // Destruimos al enemigo para que no te quite los 3 corazones de golpe en un segundo
+                Destroy(gameObject);
             }
         }
     }
