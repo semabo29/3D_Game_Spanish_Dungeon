@@ -2,37 +2,76 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private float gridSize = 1f;
-    [SerializeField] private float moveSpeed = 5f;
+    public float moveSpeed = 5f;
+    public float gridSize = 1f;
 
-    private Vector3 targetPosition;
-    private Quaternion targetRotation; // Guarda la rotación a la que queremos llegar
+    [HideInInspector] public Vector3 targetPosition;
     private bool isMoving = false;
+    private bool isFalling = false; // Control de caída
+    private Rigidbody rb;
 
     void Start()
     {
         targetPosition = transform.position;
-        targetRotation = transform.rotation; // Empezamos con la rotación inicial
+        rb = GetComponent<Rigidbody>(); // Obtenemos el componente físico
     }
 
     void Update()
     {
+        if (isFalling) return; // Si ya está cayendo, no hacemos nada más
+
         if (!isMoving)
         {
-            CheckInput();
+            CheckFloorBeneath(); // Comprobamos si el suelo ha desaparecido
+
+            if (!isFalling) // Si sigue habiendo suelo, puede moverse
+            {
+                CheckInput();
+            }
         }
         else
         {
-            // Movimiento suave hacia la casilla
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
 
-            // Rotación suave hacia la dirección del movimiento
-            transform.rotation = targetRotation;
             if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
             {
                 transform.position = targetPosition;
                 isMoving = false;
             }
+        }
+    }
+
+    // --- NUEVA LÓGICA DE DETECCIÓN DE PRECIPICIO ---
+    private void CheckFloorBeneath()
+    {
+        // Lanzamos un rayo hacia abajo y guardamos TODOS los objetos que toca
+        RaycastHit[] hits = Physics.RaycastAll(transform.position + Vector3.up, Vector3.down, 2f);
+        bool floorFound = false;
+
+        foreach (RaycastHit hit in hits)
+        {
+            // Si el objeto que tocamos NO es el propio jugador y NO es un trigger (como zonas invisibles)
+            if (hit.collider.gameObject != gameObject && !hit.collider.isTrigger)
+            {
+                floorFound = true;
+                break; // Encontramos suelo real, dejamos de buscar
+            }
+        }
+
+        if (!floorFound)
+        {
+            // ¡NO HAY SUELO REAL!
+            isFalling = true;
+
+            if (rb != null)
+            {
+                // Le quitamos el Kinematic y le activamos la gravedad para que caiga
+                rb.isKinematic = false;
+                rb.useGravity = true;
+            }
+
+            // Llamamos a PlayerStats para forzar el Game Over instantáneo
+            GetComponent<PlayerStats>().FallToDeath();
         }
     }
 
@@ -49,23 +88,17 @@ public class PlayerController : MonoBehaviour
         {
             Vector3 proposedPosition = transform.position + (direction * gridSize);
 
-            // 1. Siempre giramos para mirar hacia donde hemos pulsado
             transform.rotation = Quaternion.LookRotation(direction);
 
-            // 2. Comprobamos si hay un enemigo en la casilla objetivo
             EnemyPatrol enemyInTarget = GetEnemyAtPosition(proposedPosition);
 
             if (enemyInTarget != null)
             {
-                // ¡ATAQUE! Matamos al enemigo y NO nos movemos de nuestra casilla
                 Debug.Log("¡ZAS! Has atacado y eliminado al enemigo.");
                 Destroy(enemyInTarget.gameObject);
-
-                // (Más adelante, aquí activaremos la animación de tu espada)
             }
             else
             {
-                // 3. Si la casilla está libre, comprobamos si hay suelo para saltar
                 if (Physics.Raycast(proposedPosition + Vector3.up, Vector3.down, 2f))
                 {
                     targetPosition = proposedPosition;
@@ -75,25 +108,21 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Nueva función matemática para buscar enemigos en una coordenada exacta
     private EnemyPatrol GetEnemyAtPosition(Vector3 targetPos)
     {
-        // Buscamos a todos los enemigos activos en la escena
         EnemyPatrol[] enemies = FindObjectsByType<EnemyPatrol>(FindObjectsSortMode.None);
 
         foreach (EnemyPatrol enemy in enemies)
         {
-            // Comparamos posiciones ignorando la altura (Y)
             float distanceX = Mathf.Abs(enemy.transform.position.x - targetPos.x);
             float distanceZ = Mathf.Abs(enemy.transform.position.z - targetPos.z);
 
-            // Si la distancia es casi 0, significa que el enemigo está en esa baldosa
             if (distanceX < 0.1f && distanceZ < 0.1f)
             {
                 return enemy;
             }
         }
 
-        return null; // No hay nadie en esa casilla
+        return null;
     }
 }

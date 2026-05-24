@@ -1,7 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
-using System.Collections; // Necesario para hacer el parpadeo en el tiempo
+using System.Collections;
 
 public class PlayerStats : MonoBehaviour
 {
@@ -9,19 +9,19 @@ public class PlayerStats : MonoBehaviour
     public int maxHealth = 3;
     private int currentHealth;
     private int coins = 0;
+    public int currentRoom = 1; // Añadimos la sala actual
 
     [Header("Referencias UI")]
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI coinText;
+    [SerializeField] private TextMeshProUGUI roomText; // Añadimos el texto de la sala
 
     [Header("Invulnerabilidad")]
-    [SerializeField] private float invincibilityTime = 1.5f; // Cuánto dura el escudo
-    [SerializeField] private float blinkInterval = 0.1f;     // Velocidad del parpadeo
+    [SerializeField] private float invincibilityTime = 1.5f;
+    [SerializeField] private float blinkInterval = 0.1f;
 
     private bool isDead = false;
     private bool isInvincible = false;
-
-    // Referencia al renderizador para apagar/encender el modelo
     private Renderer playerRenderer;
 
     void Start()
@@ -33,7 +33,6 @@ public class PlayerStats : MonoBehaviour
 
     public void TakeDamage()
     {
-        // Si ya está muerto o tiene el escudo de invulnerabilidad, cancelamos el daño
         if (isDead || isInvincible) return;
 
         currentHealth--;
@@ -47,36 +46,24 @@ public class PlayerStats : MonoBehaviour
         }
         else
         {
-            // Si sobrevivimos, activamos el parpadeo de invulnerabilidad
             StartCoroutine(InvincibilityRoutine());
         }
     }
 
-    // Esta rutina se ejecuta en segundo plano durante 1.5 segundos
     private IEnumerator InvincibilityRoutine()
     {
         isInvincible = true;
         float timer = 0f;
 
-        // Bucle que alterna la visibilidad mientras dure el tiempo
         while (timer < invincibilityTime)
         {
-            if (playerRenderer != null)
-            {
-                playerRenderer.enabled = !playerRenderer.enabled; // Apaga/Enciende
-            }
-
+            if (playerRenderer != null) playerRenderer.enabled = !playerRenderer.enabled;
             yield return new WaitForSeconds(blinkInterval);
             timer += blinkInterval;
         }
 
-        // Al terminar, nos aseguramos de que el cubo vuelva a ser visible
-        if (playerRenderer != null)
-        {
-            playerRenderer.enabled = true;
-        }
-
-        isInvincible = false; // Ya le pueden volver a hacer daño
+        if (playerRenderer != null) playerRenderer.enabled = true;
+        isInvincible = false;
     }
 
     public void AddCoin()
@@ -86,22 +73,38 @@ public class PlayerStats : MonoBehaviour
         UpdateUI();
     }
 
+    // Nueva función para avanzar de sala
+    public void AddRoom()
+    {
+        if (isDead) return;
+        currentRoom++;
+        UpdateUI();
+    }
+
     private void UpdateUI()
     {
         if (healthText != null) healthText.text = "Corazones: " + currentHealth;
         if (coinText != null) coinText.text = "Monedas: " + coins;
+        // Actualizamos también el texto de la sala aquí
+        if (roomText != null) roomText.text = "Sala: " + currentRoom;
     }
+    public void FallToDeath()
+    {
+        if (isDead) return;
 
+        currentHealth = 0; // Vaciamos los corazones
+        UpdateUI();
+
+        Debug.Log("¡Te has caído al vacío!");
+        Die();
+    }
     private void Die()
     {
         isDead = true;
         Debug.Log("¡GAME OVER! Reiniciando el nivel...");
 
         PlayerController controller = GetComponent<PlayerController>();
-        if (controller != null)
-        {
-            controller.enabled = false;
-        }
+        if (controller != null) controller.enabled = false;
 
         Invoke("RestartScene", 1f);
     }
