@@ -54,30 +54,19 @@ public class SpikeTrap : MonoBehaviour
 
     private void CheckPlayerCollision()
     {
-        // Buscamos al jugador en la escena por su componente PlayerController
-        // (Esto es supersencillo y limpio para prototipos)
         PlayerController player = FindFirstObjectByType<PlayerController>();
 
         if (player != null)
         {
-            // Comparamos la posición X y Z de la trampa con las del jugador
-            // Ignoramos la Y porque el jugador está un poco más arriba (0.5f) sobre el suelo
             float distanceX = Mathf.Abs(transform.position.x - player.transform.position.x);
             float distanceZ = Mathf.Abs(transform.position.z - player.transform.position.z);
 
-            // Si ambos están en la misma baldosa (distancia muy cercana a 0)
+            // Si el jugador pisa la trampa
             if (distanceX < 0.1f && distanceZ < 0.1f)
             {
-                TriggerDamage();
+                // Le aplicamos el daño (la invulnerabilidad decidirá si entra o no)
+                player.GetComponent<PlayerStats>().TakeDamage();
             }
         }
-    }
-
-    private void TriggerDamage()
-    {
-        // Por ahora, como no tenemos sistema de vidas, ponemos un aviso en consola
-        Debug.LogWarning("¡ZAS! El jugador ha pisado los pinchos y ha recibido daño.");
-
-        // Aquí podrías destruir al jugador, restarle vida, etc.
     }
 }

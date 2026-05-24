@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
-using UnityEngine.SceneManagement; // Necesario para reiniciar el nivel
+using UnityEngine.SceneManagement;
+using System.Collections; // Necesario para hacer el parpadeo en el tiempo
 
 public class PlayerStats : MonoBehaviour
 {
@@ -13,17 +14,27 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI coinText;
 
-    private bool isDead = false; // Control para evitar que muera dos veces a la vez
+    [Header("Invulnerabilidad")]
+    [SerializeField] private float invincibilityTime = 1.5f; // Cuánto dura el escudo
+    [SerializeField] private float blinkInterval = 0.1f;     // Velocidad del parpadeo
+
+    private bool isDead = false;
+    private bool isInvincible = false;
+
+    // Referencia al renderizador para apagar/encender el modelo
+    private Renderer playerRenderer;
 
     void Start()
     {
         currentHealth = maxHealth;
+        playerRenderer = GetComponent<Renderer>();
         UpdateUI();
     }
 
     public void TakeDamage()
     {
-        if (isDead) return; // Si ya está muerto, ignoramos el daño
+        // Si ya está muerto o tiene el escudo de invulnerabilidad, cancelamos el daño
+        if (isDead || isInvincible) return;
 
         currentHealth--;
         UpdateUI();
@@ -34,12 +45,43 @@ public class PlayerStats : MonoBehaviour
         {
             Die();
         }
+        else
+        {
+            // Si sobrevivimos, activamos el parpadeo de invulnerabilidad
+            StartCoroutine(InvincibilityRoutine());
+        }
+    }
+
+    // Esta rutina se ejecuta en segundo plano durante 1.5 segundos
+    private IEnumerator InvincibilityRoutine()
+    {
+        isInvincible = true;
+        float timer = 0f;
+
+        // Bucle que alterna la visibilidad mientras dure el tiempo
+        while (timer < invincibilityTime)
+        {
+            if (playerRenderer != null)
+            {
+                playerRenderer.enabled = !playerRenderer.enabled; // Apaga/Enciende
+            }
+
+            yield return new WaitForSeconds(blinkInterval);
+            timer += blinkInterval;
+        }
+
+        // Al terminar, nos aseguramos de que el cubo vuelva a ser visible
+        if (playerRenderer != null)
+        {
+            playerRenderer.enabled = true;
+        }
+
+        isInvincible = false; // Ya le pueden volver a hacer daño
     }
 
     public void AddCoin()
     {
         if (isDead) return;
-
         coins++;
         UpdateUI();
     }
@@ -55,20 +97,17 @@ public class PlayerStats : MonoBehaviour
         isDead = true;
         Debug.Log("¡GAME OVER! Reiniciando el nivel...");
 
-        // Desactivamos el script de movimiento para que no pueda escapar estando muerto
         PlayerController controller = GetComponent<PlayerController>();
         if (controller != null)
         {
             controller.enabled = false;
         }
 
-        // Llamamos a la función RestartScene después de 1 segundo de retraso
         Invoke("RestartScene", 1f);
     }
 
     private void RestartScene()
     {
-        // Vuelve a cargar la escena en la que estamos actualmente
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

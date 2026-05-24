@@ -49,19 +49,51 @@ public class PlayerController : MonoBehaviour
         {
             Vector3 proposedPosition = transform.position + (direction * gridSize);
 
-            // Lanzamos un rayo desde arriba hacia abajo en la casilla objetivo. 
-            // Si choca con algo (el suelo), nos movemos.
-            if (Physics.Raycast(proposedPosition + Vector3.up, Vector3.down, 2f))
+            // 1. Siempre giramos para mirar hacia donde hemos pulsado
+            transform.rotation = Quaternion.LookRotation(direction);
+
+            // 2. Comprobamos si hay un enemigo en la casilla objetivo
+            EnemyPatrol enemyInTarget = GetEnemyAtPosition(proposedPosition);
+
+            if (enemyInTarget != null)
             {
-                targetPosition = proposedPosition;
-                targetRotation = Quaternion.LookRotation(direction);
-                isMoving = true;
+                // ¡ATAQUE! Matamos al enemigo y NO nos movemos de nuestra casilla
+                Debug.Log("¡ZAS! Has atacado y eliminado al enemigo.");
+                Destroy(enemyInTarget.gameObject);
+
+                // (Más adelante, aquí activaremos la animación de tu espada)
             }
             else
             {
-                // Si no hay suelo (borde del mapa), giramos para mirar hacia allí pero NO saltamos
-                transform.rotation = Quaternion.LookRotation(direction);
+                // 3. Si la casilla está libre, comprobamos si hay suelo para saltar
+                if (Physics.Raycast(proposedPosition + Vector3.up, Vector3.down, 2f))
+                {
+                    targetPosition = proposedPosition;
+                    isMoving = true;
+                }
             }
         }
+    }
+
+    // Nueva función matemática para buscar enemigos en una coordenada exacta
+    private EnemyPatrol GetEnemyAtPosition(Vector3 targetPos)
+    {
+        // Buscamos a todos los enemigos activos en la escena
+        EnemyPatrol[] enemies = FindObjectsByType<EnemyPatrol>(FindObjectsSortMode.None);
+
+        foreach (EnemyPatrol enemy in enemies)
+        {
+            // Comparamos posiciones ignorando la altura (Y)
+            float distanceX = Mathf.Abs(enemy.transform.position.x - targetPos.x);
+            float distanceZ = Mathf.Abs(enemy.transform.position.z - targetPos.z);
+
+            // Si la distancia es casi 0, significa que el enemigo está en esa baldosa
+            if (distanceX < 0.1f && distanceZ < 0.1f)
+            {
+                return enemy;
+            }
+        }
+
+        return null; // No hay nadie en esa casilla
     }
 }
