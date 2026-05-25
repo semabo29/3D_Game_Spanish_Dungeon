@@ -548,20 +548,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e89cf4991834224180e27da3012a28f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mapFiles:
+  - {fileID: 4900000, guid: ccfbce8cf9f1bbc47939f697655b8077, type: 3}
+  - {fileID: 4900000, guid: 976e5440621a3e745a9ff6ad09dd551c, type: 3}
+  - {fileID: 4900000, guid: 51f7bd143f8a78a42ac1aee2ac20e87c, type: 3}
+  - {fileID: 4900000, guid: 9dfd6236f2ff83048b38b393c2a50115, type: 3}
+  - {fileID: 4900000, guid: c92f6aba6146b7d4fa7b3133bcba9b63, type: 3}
+  - {fileID: 4900000, guid: a79d633137a259f4d8be2a56e7ec950f, type: 3}
+  - {fileID: 4900000, guid: 3601f5e33d52aa54abcd0f2f1f5e6941, type: 3}
+  - {fileID: 4900000, guid: f14c376d160308d47ad0c39e0181ec5b, type: 3}
+  - {fileID: 4900000, guid: 5db3295e313f0d349b432b26283af7ea, type: 3}
+  - {fileID: 4900000, guid: 70673c258cb4cec4f9d9e48864280611, type: 3}
   tilePrefab: {fileID: 3493668173262148316, guid: 0414e1357ca5e554c8b5b46481c444f2, type: 3}
-  trapPrefab: {fileID: 1088815067306731086, guid: 3e255bb062382384285fa725aeb8e3cd, type: 3}
-  enemyPrefab: {fileID: 3549751317363112814, guid: 851c9f1a88165104f9c503c964526d0a, type: 3}
   wallPrefab: {fileID: 2291476901822650681, guid: 881113eeb4288814e850103e1e46aae4, type: 3}
   doorPrefab: {fileID: 5374787224776609004, guid: 9db0bf8b9c86ea748b6561ec11e74b8f, type: 3}
-  coinPrefab: {fileID: 7654256707274367480, guid: 00f14f64c9b36af49afb46fa6085bf9a, type: 3}
   exitTriggerPrefab: {fileID: 1346147184488918132, guid: 84ec468f9c9f1834eb0e8ef7aad4e7d0, type: 3}
-  baseWidth: 5
-  baseLength: 10
-  baseTrapChance: 10
-  baseEnemyChance: 15
-  coinChance: 20
+  coinPrefab: {fileID: 7654256707274367480, guid: 00f14f64c9b36af49afb46fa6085bf9a, type: 3}
+  enemy1Prefab: {fileID: 3549751317363112814, guid: 851c9f1a88165104f9c503c964526d0a, type: 3}
+  enemy2Prefab: {fileID: 7654256707274367480, guid: 3ae860c8166f0174687ef603b172a997, type: 3}
+  enemy3Prefab: {fileID: 7654256707274367480, guid: 3ae860c8166f0174687ef603b172a997, type: 3}
+  bossPrefab: {fileID: 7654256707274367480, guid: 3ae860c8166f0174687ef603b172a997, type: 3}
+  trap1Prefab: {fileID: 1088815067306731086, guid: 3e255bb062382384285fa725aeb8e3cd, type: 3}
+  trap2Prefab: {fileID: 7654256707274367480, guid: 3ae860c8166f0174687ef603b172a997, type: 3}
+  trap3Prefab: {fileID: 1999691079468746523, guid: 3472cc0030222764d9ac68e98a670618, type: 3}
+  decorPrefabs:
+  - {fileID: 7654256707274367480, guid: 3ae860c8166f0174687ef603b172a997, type: 3}
+  - {fileID: 7654256707274367480, guid: 3ae860c8166f0174687ef603b172a997, type: 3}
+  - {fileID: 7654256707274367480, guid: 3ae860c8166f0174687ef603b172a997, type: 3}
+  - {fileID: 7654256707274367480, guid: 3ae860c8166f0174687ef603b172a997, type: 3}
+  - {fileID: 7654256707274367480, guid: 3ae860c8166f0174687ef603b172a997, type: 3}
   timeBeforeFalling: 3
-  fallSpeed: 1
+  fallSpeed: 1.5
 --- !u!4 &758473719
 Transform:
   m_ObjectHideFlags: 0
