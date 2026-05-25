@@ -6,21 +6,21 @@ public class PlayerController : MonoBehaviour
     public float gridSize = 1f;
 
     [HideInInspector] public Vector3 targetPosition;
-    private Quaternion targetRotation; // Guarda la rotaciÛn a la que queremos llegar suavemente
+    private Quaternion targetRotation; // Guarda la rotaci√≥n a la que queremos llegar suavemente
     private bool isMoving = false;
-    private bool isFalling = false; // Control de caÌda
+    private bool isFalling = false; // Control de ca√≠da
     private Rigidbody rb;
 
     void Start()
     {
         targetPosition = transform.position;
-        targetRotation = transform.rotation; // Empezamos con la rotaciÛn actual
-        rb = GetComponent<Rigidbody>(); // Obtenemos el componente fÌsico
+        targetRotation = transform.rotation; // Empezamos con la rotaci√≥n actual
+        rb = GetComponent<Rigidbody>(); // Obtenemos el componente f√≠sico
     }
 
     void Update()
     {
-        if (isFalling) return; // Si ya est· cayendo, bloqueamos todo lo dem·s
+        if (isFalling) return; // Si ya est√° cayendo, bloqueamos todo lo dem√°s
 
         if (!isMoving)
         {
@@ -36,30 +36,30 @@ public class PlayerController : MonoBehaviour
             // 1. Movimiento suave hacia la casilla objetivo
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
 
-            // 2. RotaciÛn suave hacia la direcciÛn hacia la que miramos
+            // 2. Rotaci√≥n suave hacia la direcci√≥n hacia la que miramos
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 15f * Time.deltaTime);
 
-            // 3. Si estamos ya casi en el ·ngulo correcto, forzamos el ·ngulo exacto al 100%
+            // 3. Si estamos ya casi en el √°ngulo correcto, forzamos el √°ngulo exacto al 100%
             if (Quaternion.Angle(transform.rotation, targetRotation) < 1f)
             {
                 transform.rotation = targetRotation;
             }
 
-            // --- LA CORRECCI”N CLAVE ---
-            // Solo dejamos de movernos si fÌsicamente estamos en la casilla Y ADEM¡S la rotaciÛn ya es perfecta
+            // --- LA CORRECCI√ìN CLAVE ---
+            // Solo dejamos de movernos si f√≠sicamente estamos en la casilla Y ADEM√ÅS la rotaci√≥n ya es perfecta
             bool reachedPosition = Vector3.Distance(transform.position, targetPosition) < 0.01f;
             bool reachedRotation = Quaternion.Angle(transform.rotation, targetRotation) < 0.1f;
 
             if (reachedPosition && reachedRotation)
             {
                 transform.position = targetPosition;
-                transform.rotation = targetRotation; // Aseguramos el ·ngulo limpio
+                transform.rotation = targetRotation; // Aseguramos el √°ngulo limpio
                 isMoving = false;
             }
         }
     }
 
-    // --- LOGICA DE DETECCI”N DE PRECIPICIO (EVITA LEVITAR) ---
+    // --- LOGICA DE DETECCI√ìN DE PRECIPICIO (EVITA LEVITAR) ---
     private void CheckFloorBeneath()
     {
         RaycastHit[] hits = Physics.RaycastAll(transform.position + Vector3.up, Vector3.down, 2f);
@@ -82,7 +82,7 @@ public class PlayerController : MonoBehaviour
             if (rb != null)
             {
                 rb.isKinematic = false;
-                rb.useGravity = true; // El motor de fÌsicas toma el control y cae al vacÌo
+                rb.useGravity = true; // El motor de f√≠sicas toma el control y cae al vac√≠o
             }
 
             GetComponent<PlayerStats>().FallToDeath();
@@ -102,33 +102,31 @@ public class PlayerController : MonoBehaviour
         {
             Vector3 proposedPosition = transform.position + (direction * gridSize);
 
-            // Calculamos la rotaciÛn deseada en base a la direcciÛn pulsada
+            // Calculamos la rotaci√≥n deseada en base a la direcci√≥n pulsada
             targetRotation = Quaternion.LookRotation(direction);
 
-            // --- SOLUCI”N AL BUG: COMPROBACI”N DE OBST¡CULOS (MUROS Y PUERTAS) ---
+            // --- SOLUCI√ìN AL BUG: COMPROBACI√ìN DE OBST√ÅCULOS (MUROS Y PUERTAS) ---
             // Lanzamos un rayo hacia adelante desde el pecho del jugador. Si choca con algo a 1 casilla de distancia...
             if (Physics.Raycast(transform.position + new Vector3(0, 0.5f, 0), direction, out RaycastHit hit, gridSize))
             {
-                // Si el obst·culo NO es un trigger (monedas/salidas) y NO es un enemigo, es un muro o puerta cerrada
+                // Si el obst√°culo NO es un trigger (monedas/salidas) y NO es un enemigo, es un muro o puerta cerrada
                 if (!hit.collider.isTrigger && hit.collider.GetComponent<EnemyPatrol>() == null)
                 {
-                    Debug.Log("Movimiento bloqueado por obst·culo sÛlido: " + hit.collider.gameObject.name);
-                    return; // Detenemos la funciÛn aquÌ. El jugador gira pero NO se mueve.
+                    Debug.Log("Movimiento bloqueado por obst√°culo s√≥lido: " + hit.collider.gameObject.name);
+                    return; // Detenemos la funci√≥n aqu√≠. El jugador gira pero NO se mueve.
                 }
             }
 
-            // 2. Comprobamos si hay un enemigo en la casilla objetivo
-            EnemyPatrol enemyInTarget = GetEnemyAtPosition(proposedPosition);
+            GameObject enemyInTarget = GetEnemyAtPosition(proposedPosition);
 
             if (enemyInTarget != null)
             {
-                Debug.Log("°ZAS! Has atacado y eliminado al enemigo.");
-                Destroy(enemyInTarget.gameObject);
-                // AquÌ se girar· hacia el enemigo y se quedar· quieto atacando
+                Debug.Log("¬°ZAS! Has atacado y eliminado al enemigo.");
+                Destroy(enemyInTarget);
             }
             else
             {
-                // 3. Si la casilla est· libre, nos aseguramos de lanzar el rayo hacia abajo antes de saltar
+                // 3. Si la casilla est√° libre, nos aseguramos de lanzar el rayo hacia abajo antes de saltar
                 RaycastHit[] floorHits = Physics.RaycastAll(proposedPosition + Vector3.up, Vector3.down, 2f);
                 bool targetFloorFound = false;
 
@@ -150,19 +148,24 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private EnemyPatrol GetEnemyAtPosition(Vector3 targetPos)
+    private GameObject GetEnemyAtPosition(Vector3 targetPos)
     {
+        // Busca si hay un EnemyPatrol normal
         EnemyPatrol[] enemies = FindObjectsByType<EnemyPatrol>(FindObjectsSortMode.None);
-
         foreach (EnemyPatrol enemy in enemies)
         {
             float distanceX = Mathf.Abs(enemy.transform.position.x - targetPos.x);
             float distanceZ = Mathf.Abs(enemy.transform.position.z - targetPos.z);
+            if (distanceX < 0.1f && distanceZ < 0.1f) return enemy.gameObject;
+        }
 
-            if (distanceX < 0.1f && distanceZ < 0.1f)
-            {
-                return enemy;
-            }
+        // Busca si hay un Enemigo_basico
+        Enemigo_basico[] basicos = FindObjectsByType<Enemigo_basico>(FindObjectsSortMode.None);
+        foreach (Enemigo_basico basico in basicos)
+        {
+            float distanceX = Mathf.Abs(basico.transform.position.x - targetPos.x);
+            float distanceZ = Mathf.Abs(basico.transform.position.z - targetPos.z);
+            if (distanceX < 0.1f && distanceZ < 0.1f) return basico.gameObject;
         }
 
         return null;

@@ -4,7 +4,7 @@ using System.Collections;
 public class MapGenerator : MonoBehaviour
 {
     [Header("Archivos de Mapas (.txt)")]
-    [Tooltip("Arrastra aquí tus archivos txt en orden (Sala 1 a 10)")]
+    [Tooltip("Arrastra aquÃ­ tus archivos txt en orden (Sala 1 a 10)")]
     [SerializeField] private TextAsset[] mapFiles;
 
     [Header("Prefabs de Estructura")]
@@ -17,7 +17,7 @@ public class MapGenerator : MonoBehaviour
     [Header("Prefabs de Enemigos")]
     [SerializeField] private GameObject enemy1Prefab; // Patrulla
     [SerializeField] private GameObject enemy2Prefab; // Perseguidor/Toro
-    [SerializeField] private GameObject enemy3Prefab; // Trampero/Telarañas
+    [SerializeField] private GameObject enemy3Prefab; // Trampero/TelaraÃ±as
     [SerializeField] private GameObject bossPrefab;   // Jefe Sala 10
 
     [Header("Prefabs de Trampas")]
@@ -25,10 +25,10 @@ public class MapGenerator : MonoBehaviour
     [SerializeField] private GameObject trap2Prefab; // Fuego/Flechas
     [SerializeField] private GameObject trap3Prefab; // Foso/Agua
 
-    [Header("Prefabs de Decoración")]
+    [Header("Prefabs de DecoraciÃ³n")]
     [SerializeField] private GameObject[] decorPrefabs; // Array para meter las 5 decoraciones
 
-    [Header("Configuración del Suelo (Caída)")]
+    [Header("ConfiguraciÃ³n del Suelo (CaÃ­da)")]
     [SerializeField] private float timeBeforeFalling = 3f;
     [SerializeField] private float fallSpeed = 1.5f;
 
