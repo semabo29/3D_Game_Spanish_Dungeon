@@ -21,9 +21,9 @@ public class MapGenerator : MonoBehaviour
     [SerializeField] private GameObject bossPrefab;   // Jefe Sala 10
 
     [Header("Prefabs de Trampas")]
-    [SerializeField] private GameObject trap1Prefab; // Pinchos
-    [SerializeField] private GameObject trap2Prefab; // Fuego/Flechas
-    [SerializeField] private GameObject trap3Prefab; // Foso/Agua
+    [SerializeField] private GameObject trap1Prefab;
+    [SerializeField] private GameObject trap2Prefab;
+    [SerializeField] private GameObject trap3Prefab; // Este es el ArrowTrap
 
     [Header("Prefabs de Decoración")]
     [SerializeField] private GameObject[] decorPrefabs; // Array para meter las 5 decoraciones
@@ -95,30 +95,28 @@ public class MapGenerator : MonoBehaviour
             for (int zIndex = 0; zIndex < line.Length; zIndex++)
             {
                 char tileChar = line[zIndex];
-                int z = zIndex - (line.Length / 2);
+
+                // --- ARREGLO DEL EFECTO ESPEJO ---
+                // Invertimos el cálculo para que la izquierda del texto coincida con la izquierda visual (+Z)
+                int z = (line.Length / 2) - zIndex;
 
                 Vector3 floorPos = new Vector3(x, 0f, z);
                 Vector3 objectPos = new Vector3(x, 0.5f, z);
                 Vector3 wallPos = new Vector3(x, 1f, z);
 
-                // --- LEYENDA DEL MAPA ---
                 switch (tileChar)
                 {
-                    case '.': // Suelo normal
-                        Instantiate(tilePrefab, floorPos, Quaternion.identity, transform);
-                        break;
-                    case '#': // Muro
-                        Instantiate(wallPrefab, wallPos, Quaternion.identity, transform);
-                        break;
-                    case 'D': // Puerta
+                    case '.': Instantiate(tilePrefab, floorPos, Quaternion.identity, transform); break;
+                    case '#': Instantiate(wallPrefab, wallPos, Quaternion.identity, transform); break;
+                    case 'D':
                         Instantiate(tilePrefab, floorPos, Quaternion.identity, transform);
                         Instantiate(doorPrefab, wallPos, Quaternion.identity, transform);
                         break;
-                    case 'X': // Salida invisible
+                    case 'X':
                         Instantiate(tilePrefab, floorPos, Quaternion.identity, transform);
                         Instantiate(exitTriggerPrefab, objectPos, Quaternion.identity, transform);
                         break;
-                    case 'S': // Spawn del Jugador
+                    case 'S':
                         Instantiate(tilePrefab, floorPos, Quaternion.identity, transform);
                         PlayerController player = FindFirstObjectByType<PlayerController>();
                         if (player != null)
@@ -127,23 +125,41 @@ public class MapGenerator : MonoBehaviour
                             player.targetPosition = objectPos;
                         }
                         break;
-                    case 'C': // Moneda
+                    case 'C':
                         Instantiate(tilePrefab, floorPos, Quaternion.identity, transform);
                         Instantiate(coinPrefab, objectPos, Quaternion.identity, transform);
                         break;
 
-                    // Enemigos
                     case '1': Instantiate(tilePrefab, floorPos, Quaternion.identity, transform); Instantiate(enemy1Prefab, objectPos, Quaternion.identity, transform); break;
                     case '2': Instantiate(tilePrefab, floorPos, Quaternion.identity, transform); Instantiate(enemy2Prefab, objectPos, Quaternion.identity, transform); break;
                     case '3': Instantiate(tilePrefab, floorPos, Quaternion.identity, transform); Instantiate(enemy3Prefab, objectPos, Quaternion.identity, transform); break;
                     case 'B': Instantiate(tilePrefab, floorPos, Quaternion.identity, transform); Instantiate(bossPrefab, objectPos, Quaternion.identity, transform); break;
 
-                    // Trampas
                     case 'T': Instantiate(trap1Prefab, floorPos, Quaternion.identity, transform); break;
                     case 'Y': Instantiate(trap2Prefab, floorPos, Quaternion.identity, transform); break;
-                    case 'U': Instantiate(trap3Prefab, floorPos, Quaternion.identity, transform); break;
 
-                    // Decoraciones (O, P, Q, R, V)
+                    // --- ARREGLO DE LAS FLECHAS (Adaptadas a tus controles) ---
+                    // U: Dispara Adelante (En tu cámara, adelante es Vector3.right)
+                    case 'U':
+                        GameObject trapU = Instantiate(trap3Prefab, floorPos, Quaternion.identity, transform);
+                        trapU.GetComponent<ArrowTrap>().SetDirection(Vector3.right);
+                        break;
+                    // H: Dispara Atrás (En tu cámara, atrás es Vector3.left)
+                    case 'H':
+                        GameObject tpH = Instantiate(trap3Prefab, floorPos, Quaternion.identity, transform);
+                        tpH.GetComponent<ArrowTrap>().SetDirection(Vector3.left);
+                        break;
+                    // J: Dispara Izquierda (En tu cámara, izquierda es Vector3.forward)
+                    case 'J':
+                        GameObject tpJ = Instantiate(trap3Prefab, floorPos, Quaternion.identity, transform);
+                        tpJ.GetComponent<ArrowTrap>().SetDirection(Vector3.forward);
+                        break;
+                    // K: Dispara Derecha (En tu cámara, derecha es Vector3.back)
+                    case 'K':
+                        GameObject tpK = Instantiate(trap3Prefab, floorPos, Quaternion.identity, transform);
+                        tpK.GetComponent<ArrowTrap>().SetDirection(Vector3.back);
+                        break;
+
                     case 'O': Instantiate(tilePrefab, floorPos, Quaternion.identity, transform); if (decorPrefabs.Length > 0) Instantiate(decorPrefabs[0], objectPos, Quaternion.identity, transform); break;
                     case 'P': Instantiate(tilePrefab, floorPos, Quaternion.identity, transform); if (decorPrefabs.Length > 1) Instantiate(decorPrefabs[1], objectPos, Quaternion.identity, transform); break;
                     case 'Q': Instantiate(tilePrefab, floorPos, Quaternion.identity, transform); if (decorPrefabs.Length > 2) Instantiate(decorPrefabs[2], objectPos, Quaternion.identity, transform); break;
