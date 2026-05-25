@@ -4,7 +4,7 @@ using System.Collections;
 public class MapGenerator : MonoBehaviour
 {
     [Header("Archivos de Mapas (.txt)")]
-    [Tooltip("Arrastra aquÌ tus archivos txt en orden (Sala 1 a 10)")]
+    [Tooltip("Arrastra aqu√≠ tus archivos txt en orden (Sala 1 a 10)")]
     [SerializeField] private TextAsset[] mapFiles;
 
     [Header("Prefabs de Estructura")]
@@ -15,20 +15,20 @@ public class MapGenerator : MonoBehaviour
     [SerializeField] private GameObject coinPrefab;
 
     [Header("Prefabs de Enemigos")]
-    [SerializeField] private GameObject enemy1Prefab;
-    [SerializeField] private GameObject enemy2Prefab;
-    [SerializeField] private GameObject enemy3Prefab;
-    [SerializeField] private GameObject bossPrefab;
+    [SerializeField] private GameObject enemy1Prefab; // Patrulla
+    [SerializeField] private GameObject enemy2Prefab; // Perseguidor/Toro
+    [SerializeField] private GameObject enemy3Prefab; // Trampero/Telara√±as
+    [SerializeField] private GameObject bossPrefab;   // Jefe Sala 10
 
     [Header("Prefabs de Trampas")]
     [SerializeField] private GameObject trap1Prefab;
     [SerializeField] private GameObject trap2Prefab;
     [SerializeField] private GameObject trap3Prefab; // Este es el ArrowTrap
 
-    [Header("Prefabs de DecoraciÛn")]
-    [SerializeField] private GameObject[] decorPrefabs;
+    [Header("Prefabs de Decoraci√≥n")]
+    [SerializeField] private GameObject[] decorPrefabs; // Array para meter las 5 decoraciones
 
-    [Header("ConfiguraciÛn del Suelo (CaÌda)")]
+    [Header("Configuraci√≥n del Suelo (Ca√≠da)")]
     [SerializeField] private float timeBeforeFalling = 3f;
     [SerializeField] private float fallSpeed = 1.5f;
 
@@ -97,7 +97,7 @@ public class MapGenerator : MonoBehaviour
                 char tileChar = line[zIndex];
 
                 // --- ARREGLO DEL EFECTO ESPEJO ---
-                // Invertimos el c·lculo para que la izquierda del texto coincida con la izquierda visual (+Z)
+                // Invertimos el c√°lculo para que la izquierda del texto coincida con la izquierda visual (+Z)
                 int z = (line.Length / 2) - zIndex;
 
                 Vector3 floorPos = new Vector3(x, 0f, z);
@@ -139,22 +139,22 @@ public class MapGenerator : MonoBehaviour
                     case 'Y': Instantiate(trap2Prefab, floorPos, Quaternion.identity, transform); break;
 
                     // --- ARREGLO DE LAS FLECHAS (Adaptadas a tus controles) ---
-                    // U: Dispara Adelante (En tu c·mara, adelante es Vector3.right)
+                    // U: Dispara Adelante (En tu c√°mara, adelante es Vector3.right)
                     case 'U':
                         GameObject trapU = Instantiate(trap3Prefab, floorPos, Quaternion.identity, transform);
                         trapU.GetComponent<ArrowTrap>().SetDirection(Vector3.right);
                         break;
-                    // H: Dispara Atr·s (En tu c·mara, atr·s es Vector3.left)
+                    // H: Dispara Atr√°s (En tu c√°mara, atr√°s es Vector3.left)
                     case 'H':
                         GameObject tpH = Instantiate(trap3Prefab, floorPos, Quaternion.identity, transform);
                         tpH.GetComponent<ArrowTrap>().SetDirection(Vector3.left);
                         break;
-                    // J: Dispara Izquierda (En tu c·mara, izquierda es Vector3.forward)
+                    // J: Dispara Izquierda (En tu c√°mara, izquierda es Vector3.forward)
                     case 'J':
                         GameObject tpJ = Instantiate(trap3Prefab, floorPos, Quaternion.identity, transform);
                         tpJ.GetComponent<ArrowTrap>().SetDirection(Vector3.forward);
                         break;
-                    // K: Dispara Derecha (En tu c·mara, derecha es Vector3.back)
+                    // K: Dispara Derecha (En tu c√°mara, derecha es Vector3.back)
                     case 'K':
                         GameObject tpK = Instantiate(trap3Prefab, floorPos, Quaternion.identity, transform);
                         tpK.GetComponent<ArrowTrap>().SetDirection(Vector3.back);
