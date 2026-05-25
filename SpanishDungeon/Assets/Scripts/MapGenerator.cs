@@ -3,53 +3,46 @@ using System.Collections;
 
 public class MapGenerator : MonoBehaviour
 {
-    [Header("Prefabs del Mapa")]
+    [Header("Archivos de Mapas (.txt)")]
+    [Tooltip("Arrastra aquí tus archivos txt en orden (Sala 1 a 10)")]
+    [SerializeField] private TextAsset[] mapFiles;
+
+    [Header("Prefabs de Estructura")]
     [SerializeField] private GameObject tilePrefab;
-    [SerializeField] private GameObject trapPrefab;
-    [SerializeField] private GameObject enemyPrefab;
     [SerializeField] private GameObject wallPrefab;
     [SerializeField] private GameObject doorPrefab;
-    [SerializeField] private GameObject coinPrefab;
     [SerializeField] private GameObject exitTriggerPrefab;
+    [SerializeField] private GameObject coinPrefab;
 
-    [Header("Configuración Base de Sala")]
-    [SerializeField] private int baseWidth = 5;
-    [SerializeField] private int baseLength = 10;
+    [Header("Prefabs de Enemigos")]
+    [SerializeField] private GameObject enemy1Prefab; // Patrulla
+    [SerializeField] private GameObject enemy2Prefab; // Perseguidor/Toro
+    [SerializeField] private GameObject enemy3Prefab; // Trampero/Telarañas
+    [SerializeField] private GameObject bossPrefab;   // Jefe Sala 10
 
-    // Variables actuales que cambian con la dificultad
-    private int width;
-    private int length;
+    [Header("Prefabs de Trampas")]
+    [SerializeField] private GameObject trap1Prefab; // Pinchos
+    [SerializeField] private GameObject trap2Prefab; // Fuego/Flechas
+    [SerializeField] private GameObject trap3Prefab; // Foso/Agua
 
-    [Header("Dificultad Dinámica")]
-    [SerializeField] private float baseTrapChance = 10f;
-    [SerializeField] private float baseEnemyChance = 15f;
-    [SerializeField] private float coinChance = 20f;
-
-    private float trapChance;
-    private float enemyChance;
+    [Header("Prefabs de Decoración")]
+    [SerializeField] private GameObject[] decorPrefabs; // Array para meter las 5 decoraciones
 
     [Header("Configuración del Suelo (Caída)")]
     [SerializeField] private float timeBeforeFalling = 3f;
-    [SerializeField] private float fallSpeed = 1.5f; // Lo hemos cambiado a 1.5s para que sea más justo
+    [SerializeField] private float fallSpeed = 1.5f;
 
     private Coroutine crumbleCoroutine;
+    private int currentMapLength = 0;
 
     void Start()
     {
-        // Inicializamos los valores en la sala 1
-        width = baseWidth;
-        length = baseLength;
-        trapChance = baseTrapChance;
-        enemyChance = baseEnemyChance;
-
-        GenerateRoom();
+        LoadMapFromFile(0);
         crumbleCoroutine = StartCoroutine(CrumbleFloorRoutine(1));
     }
 
     void Update()
     {
-        // REQUISITO PDF: Teclas del '0' al '9' para ir directamente al nivel correspondiente
-        // Asumimos que '1' es la sala 1, '2' la sala 2... y '0' la sala 10 (Boss)
         if (Input.GetKeyDown(KeyCode.Alpha1)) JumpToRoom(1);
         if (Input.GetKeyDown(KeyCode.Alpha2)) JumpToRoom(2);
         if (Input.GetKeyDown(KeyCode.Alpha3)) JumpToRoom(3);
@@ -62,26 +55,14 @@ public class MapGenerator : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha0)) JumpToRoom(10);
     }
 
-    // Método para los atajos de teclado
     private void JumpToRoom(int targetRoom)
     {
-        Debug.Log("Saltando a la sala: " + targetRoom);
-
         PlayerController player = FindFirstObjectByType<PlayerController>();
         if (player != null)
         {
             PlayerStats stats = player.GetComponent<PlayerStats>();
-
-            // Forzamos el número de sala en el jugador
             stats.currentRoom = targetRoom - 1;
-            stats.AddRoom(); // Esto lo pondrá en targetRoom y actualizará la UI
-
-            // Calculamos la dificultad basada en la sala destino
-            length = baseLength + (2 * (targetRoom - 1));
-            trapChance = baseTrapChance + (2f * (targetRoom - 1));
-            enemyChance = baseEnemyChance + (3f * (targetRoom - 1));
-
-            // Cargamos el mapa
+            stats.AddRoom();
             LoadNextRoom(player, targetRoom);
         }
     }
@@ -95,84 +76,80 @@ public class MapGenerator : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        // Si venimos del trigger normal, subimos la dificultad paso a paso
-        // Si venimos del atajo (JumpToRoom), ya lo hemos calculado arriba
-        if (roomNumber > 1 && Input.anyKeyDown == false)
-        {
-            length += 2;
-            trapChance += 2f;
-            enemyChance += 3f;
-        }
-
-        GenerateRoom();
-
-        player.transform.position = new Vector3(0, 0.5f, 0);
-        player.targetPosition = player.transform.position;
-
+        LoadMapFromFile(roomNumber - 1);
         crumbleCoroutine = StartCoroutine(CrumbleFloorRoutine(roomNumber));
     }
 
-    void GenerateRoom()
+    private void LoadMapFromFile(int mapIndex)
     {
-        for (int z = -width / 2; z <= width / 2; z++)
-        {
-            for (int x = 0; x < length; x++)
-            {
-                bool isSafeZone = (x < 2);
-                Vector3 spawnPos = new Vector3(x, 0f, z);
-                GameObject objectToSpawn = tilePrefab;
+        if (mapIndex < 0 || mapIndex >= mapFiles.Length) return;
 
-                if (!isSafeZone)
+        string[] lines = mapFiles[mapIndex].text.Trim().Split('\n');
+        currentMapLength = lines.Length;
+
+        for (int i = 0; i < lines.Length; i++)
+        {
+            string line = lines[i].Trim();
+            int x = (lines.Length - 1) - i;
+
+            for (int zIndex = 0; zIndex < line.Length; zIndex++)
+            {
+                char tileChar = line[zIndex];
+                int z = zIndex - (line.Length / 2);
+
+                Vector3 floorPos = new Vector3(x, 0f, z);
+                Vector3 objectPos = new Vector3(x, 0.5f, z);
+                Vector3 wallPos = new Vector3(x, 1f, z);
+
+                // --- LEYENDA DEL MAPA ---
+                switch (tileChar)
                 {
-                    float randomValue = Random.Range(0f, 100f);
+                    case '.': // Suelo normal
+                        Instantiate(tilePrefab, floorPos, Quaternion.identity, transform);
+                        break;
+                    case '#': // Muro
+                        Instantiate(wallPrefab, wallPos, Quaternion.identity, transform);
+                        break;
+                    case 'D': // Puerta
+                        Instantiate(tilePrefab, floorPos, Quaternion.identity, transform);
+                        Instantiate(doorPrefab, wallPos, Quaternion.identity, transform);
+                        break;
+                    case 'X': // Salida invisible
+                        Instantiate(tilePrefab, floorPos, Quaternion.identity, transform);
+                        Instantiate(exitTriggerPrefab, objectPos, Quaternion.identity, transform);
+                        break;
+                    case 'S': // Spawn del Jugador
+                        Instantiate(tilePrefab, floorPos, Quaternion.identity, transform);
+                        PlayerController player = FindFirstObjectByType<PlayerController>();
+                        if (player != null)
+                        {
+                            player.transform.position = objectPos;
+                            player.targetPosition = objectPos;
+                        }
+                        break;
+                    case 'C': // Moneda
+                        Instantiate(tilePrefab, floorPos, Quaternion.identity, transform);
+                        Instantiate(coinPrefab, objectPos, Quaternion.identity, transform);
+                        break;
 
-                    if (randomValue < enemyChance)
-                    {
-                        Vector3 enemyPos = new Vector3(x, 0.5f, z);
-                        Instantiate(enemyPrefab, enemyPos, Quaternion.identity, transform);
-                    }
-                    else if (randomValue < enemyChance + trapChance)
-                    {
-                        objectToSpawn = trapPrefab;
-                    }
-                    else if (randomValue < enemyChance + trapChance + coinChance)
-                    {
-                        Vector3 coinPos = new Vector3(x, 0.5f, z);
-                        Instantiate(coinPrefab, coinPos, Quaternion.identity, transform);
-                    }
+                    // Enemigos
+                    case '1': Instantiate(tilePrefab, floorPos, Quaternion.identity, transform); Instantiate(enemy1Prefab, objectPos, Quaternion.identity, transform); break;
+                    case '2': Instantiate(tilePrefab, floorPos, Quaternion.identity, transform); Instantiate(enemy2Prefab, objectPos, Quaternion.identity, transform); break;
+                    case '3': Instantiate(tilePrefab, floorPos, Quaternion.identity, transform); Instantiate(enemy3Prefab, objectPos, Quaternion.identity, transform); break;
+                    case 'B': Instantiate(tilePrefab, floorPos, Quaternion.identity, transform); Instantiate(bossPrefab, objectPos, Quaternion.identity, transform); break;
+
+                    // Trampas
+                    case 'T': Instantiate(trap1Prefab, floorPos, Quaternion.identity, transform); break;
+                    case 'Y': Instantiate(trap2Prefab, floorPos, Quaternion.identity, transform); break;
+                    case 'U': Instantiate(trap3Prefab, floorPos, Quaternion.identity, transform); break;
+
+                    // Decoraciones (O, P, Q, R, V)
+                    case 'O': Instantiate(tilePrefab, floorPos, Quaternion.identity, transform); if (decorPrefabs.Length > 0) Instantiate(decorPrefabs[0], objectPos, Quaternion.identity, transform); break;
+                    case 'P': Instantiate(tilePrefab, floorPos, Quaternion.identity, transform); if (decorPrefabs.Length > 1) Instantiate(decorPrefabs[1], objectPos, Quaternion.identity, transform); break;
+                    case 'Q': Instantiate(tilePrefab, floorPos, Quaternion.identity, transform); if (decorPrefabs.Length > 2) Instantiate(decorPrefabs[2], objectPos, Quaternion.identity, transform); break;
+                    case 'R': Instantiate(tilePrefab, floorPos, Quaternion.identity, transform); if (decorPrefabs.Length > 3) Instantiate(decorPrefabs[3], objectPos, Quaternion.identity, transform); break;
+                    case 'V': Instantiate(tilePrefab, floorPos, Quaternion.identity, transform); if (decorPrefabs.Length > 4) Instantiate(decorPrefabs[4], objectPos, Quaternion.identity, transform); break;
                 }
-
-                Instantiate(objectToSpawn, spawnPos, Quaternion.identity, transform);
-            }
-        }
-
-        GenerateWallsAndDoor();
-    }
-
-    void GenerateWallsAndDoor()
-    {
-        for (int x = 0; x <= length + 1; x++)
-        {
-            Vector3 leftWallPos = new Vector3(x, 1f, (width / 2) + 1);
-            Instantiate(wallPrefab, leftWallPos, Quaternion.identity, transform);
-        }
-
-        for (int z = -width / 2; z <= width / 2; z++)
-        {
-            Vector3 frontPos = new Vector3(length, 1f, z);
-
-            if (z == 0)
-            {
-                Instantiate(doorPrefab, frontPos, Quaternion.identity, transform);
-                Instantiate(tilePrefab, new Vector3(length, 0f, 0), Quaternion.identity, transform);
-
-                Vector3 exitPos = new Vector3(length + 1, 0.5f, 0);
-                Instantiate(exitTriggerPrefab, exitPos, Quaternion.identity, transform);
-                Instantiate(tilePrefab, new Vector3(length + 1, 0f, 0), Quaternion.identity, transform);
-            }
-            else
-            {
-                Instantiate(wallPrefab, frontPos, Quaternion.identity, transform);
             }
         }
     }
@@ -183,17 +160,14 @@ public class MapGenerator : MonoBehaviour
 
         yield return new WaitForSeconds(timeBeforeFalling);
 
-        for (int x = -1; x <= length; x++)
+        for (int x = -1; x <= currentMapLength; x++)
         {
             foreach (Transform child in transform)
             {
                 if (Mathf.RoundToInt(child.position.x) == x)
                 {
                     Rigidbody rb = child.GetComponent<Rigidbody>();
-                    if (rb == null)
-                    {
-                        rb = child.gameObject.AddComponent<Rigidbody>();
-                    }
+                    if (rb == null) rb = child.gameObject.AddComponent<Rigidbody>();
 
                     rb.isKinematic = false;
                     rb.useGravity = true;

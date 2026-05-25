@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
     public float gridSize = 1f;
 
     [HideInInspector] public Vector3 targetPosition;
+    private Quaternion targetRotation; // Guarda la rotación a la que queremos llegar suavemente
     private bool isMoving = false;
     private bool isFalling = false; // Control de caída
     private Rigidbody rb;
@@ -13,64 +14,77 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         targetPosition = transform.position;
+        targetRotation = transform.rotation; // Empezamos con la rotación actual
         rb = GetComponent<Rigidbody>(); // Obtenemos el componente físico
     }
 
     void Update()
     {
-        if (isFalling) return; // Si ya está cayendo, no hacemos nada más
+        if (isFalling) return; // Si ya está cayendo, bloqueamos todo lo demás
 
         if (!isMoving)
         {
-            CheckFloorBeneath(); // Comprobamos si el suelo ha desaparecido
+            CheckFloorBeneath(); // Comprobamos si el suelo bajo nuestros pies ha desaparecido
 
-            if (!isFalling) // Si sigue habiendo suelo, puede moverse
+            if (!isFalling) // Si sigue habiendo suelo, procesamos el teclado
             {
                 CheckInput();
             }
         }
         else
         {
+            // 1. Movimiento suave hacia la casilla objetivo
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
 
-            if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
+            // 2. Rotación suave hacia la dirección hacia la que miramos
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 15f * Time.deltaTime);
+
+            // 3. Si estamos ya casi en el ángulo correcto, forzamos el ángulo exacto al 100%
+            if (Quaternion.Angle(transform.rotation, targetRotation) < 1f)
+            {
+                transform.rotation = targetRotation;
+            }
+
+            // --- LA CORRECCIÓN CLAVE ---
+            // Solo dejamos de movernos si físicamente estamos en la casilla Y ADEMÁS la rotación ya es perfecta
+            bool reachedPosition = Vector3.Distance(transform.position, targetPosition) < 0.01f;
+            bool reachedRotation = Quaternion.Angle(transform.rotation, targetRotation) < 0.1f;
+
+            if (reachedPosition && reachedRotation)
             {
                 transform.position = targetPosition;
+                transform.rotation = targetRotation; // Aseguramos el ángulo limpio
                 isMoving = false;
             }
         }
     }
 
-    // --- NUEVA LÓGICA DE DETECCIÓN DE PRECIPICIO ---
+    // --- LOGICA DE DETECCIÓN DE PRECIPICIO (EVITA LEVITAR) ---
     private void CheckFloorBeneath()
     {
-        // Lanzamos un rayo hacia abajo y guardamos TODOS los objetos que toca
         RaycastHit[] hits = Physics.RaycastAll(transform.position + Vector3.up, Vector3.down, 2f);
         bool floorFound = false;
 
         foreach (RaycastHit hit in hits)
         {
-            // Si el objeto que tocamos NO es el propio jugador y NO es un trigger (como zonas invisibles)
+            // Ignoramos al propio jugador y ignoramos los disparadores/triggers invisibles
             if (hit.collider.gameObject != gameObject && !hit.collider.isTrigger)
             {
                 floorFound = true;
-                break; // Encontramos suelo real, dejamos de buscar
+                break;
             }
         }
 
         if (!floorFound)
         {
-            // ¡NO HAY SUELO REAL!
             isFalling = true;
 
             if (rb != null)
             {
-                // Le quitamos el Kinematic y le activamos la gravedad para que caiga
                 rb.isKinematic = false;
-                rb.useGravity = true;
+                rb.useGravity = true; // El motor de físicas toma el control y cae al vacío
             }
 
-            // Llamamos a PlayerStats para forzar el Game Over instantáneo
             GetComponent<PlayerStats>().FallToDeath();
         }
     }
@@ -88,18 +102,46 @@ public class PlayerController : MonoBehaviour
         {
             Vector3 proposedPosition = transform.position + (direction * gridSize);
 
-            transform.rotation = Quaternion.LookRotation(direction);
+            // Calculamos la rotación deseada en base a la dirección pulsada
+            targetRotation = Quaternion.LookRotation(direction);
 
+            // --- SOLUCIÓN AL BUG: COMPROBACIÓN DE OBSTÁCULOS (MUROS Y PUERTAS) ---
+            // Lanzamos un rayo hacia adelante desde el pecho del jugador. Si choca con algo a 1 casilla de distancia...
+            if (Physics.Raycast(transform.position + new Vector3(0, 0.5f, 0), direction, out RaycastHit hit, gridSize))
+            {
+                // Si el obstáculo NO es un trigger (monedas/salidas) y NO es un enemigo, es un muro o puerta cerrada
+                if (!hit.collider.isTrigger && hit.collider.GetComponent<EnemyPatrol>() == null)
+                {
+                    Debug.Log("Movimiento bloqueado por obstáculo sólido: " + hit.collider.gameObject.name);
+                    return; // Detenemos la función aquí. El jugador gira pero NO se mueve.
+                }
+            }
+
+            // 2. Comprobamos si hay un enemigo en la casilla objetivo
             EnemyPatrol enemyInTarget = GetEnemyAtPosition(proposedPosition);
 
             if (enemyInTarget != null)
             {
                 Debug.Log("¡ZAS! Has atacado y eliminado al enemigo.");
                 Destroy(enemyInTarget.gameObject);
+                // Aquí se girará hacia el enemigo y se quedará quieto atacando
             }
             else
             {
-                if (Physics.Raycast(proposedPosition + Vector3.up, Vector3.down, 2f))
+                // 3. Si la casilla está libre, nos aseguramos de lanzar el rayo hacia abajo antes de saltar
+                RaycastHit[] floorHits = Physics.RaycastAll(proposedPosition + Vector3.up, Vector3.down, 2f);
+                bool targetFloorFound = false;
+
+                foreach (RaycastHit fHit in floorHits)
+                {
+                    if (fHit.collider.gameObject != gameObject && !fHit.collider.isTrigger)
+                    {
+                        targetFloorFound = true;
+                        break;
+                    }
+                }
+
+                if (targetFloorFound)
                 {
                     targetPosition = proposedPosition;
                     isMoving = true;
