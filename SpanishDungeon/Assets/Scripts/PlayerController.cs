@@ -89,6 +89,14 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private bool esObstaculoSolido(RaycastHit hit)
+    {
+        // Un obstáculo sólido es aquel que NO es un trigger y NO es un enemigo
+        return !hit.collider.isTrigger &&
+               hit.collider.GetComponent<EnemyPatrol>() == null &&
+               hit.collider.GetComponent<Enemigo_basico>() == null;
+    }
+
     private void CheckInput()
     {
         Vector3 direction = Vector3.zero;
@@ -105,12 +113,12 @@ public class PlayerController : MonoBehaviour
             // Calculamos la rotación deseada en base a la dirección pulsada
             targetRotation = Quaternion.LookRotation(direction);
 
-            // --- SOLUCIÓN AL BUG: COMPROBACIÓN DE OBSTÁCULOS (MUROS Y PUERTAS) ---
+            // COMPROBACIÓN DE OBSTÁCULOS (MUROS Y PUERTAS) ---
             // Lanzamos un rayo hacia adelante desde el pecho del jugador. Si choca con algo a 1 casilla de distancia...
             if (Physics.Raycast(transform.position + new Vector3(0, 0.5f, 0), direction, out RaycastHit hit, gridSize))
             {
                 // Si el obstáculo NO es un trigger (monedas/salidas) y NO es un enemigo, es un muro o puerta cerrada
-                if (!hit.collider.isTrigger && hit.collider.GetComponent<EnemyPatrol>() == null)
+                if (esObstaculoSolido(hit))
                 {
                     Debug.Log("Movimiento bloqueado por obstáculo sólido: " + hit.collider.gameObject.name);
                     return; // Detenemos la función aquí. El jugador gira pero NO se mueve.
