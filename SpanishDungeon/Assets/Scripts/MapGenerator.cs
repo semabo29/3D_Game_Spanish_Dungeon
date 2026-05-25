@@ -7,6 +7,7 @@ public class MapGenerator : MonoBehaviour
     [SerializeField] private GameObject tilePrefab;
     [SerializeField] private GameObject trapPrefab;
     [SerializeField] private GameObject enemyPrefab;
+    [SerializeField] private GameObject enemigoBasicoPrefab;
     [SerializeField] private GameObject wallPrefab;
     [SerializeField] private GameObject doorPrefab;
     [SerializeField] private GameObject coinPrefab;
@@ -144,6 +145,17 @@ public class MapGenerator : MonoBehaviour
 
                 Instantiate(objectToSpawn, spawnPos, Quaternion.identity, transform);
             }
+        }
+        if (enemigoBasicoPrefab != null)
+        {
+            // Elegimos un número al azar para la X (evitando el 0 para no caer en el jugador)
+            int randomX = Random.Range(1, length);
+            // Elegimos un número al azar para la Z (dentro de los límites de las paredes)
+            int randomZ = Random.Range(-width / 2 + 1, width / 2);
+
+            // Lo colocamos en esa posición al azar
+            Vector3 randomPos = new Vector3(randomX, 0.5f, randomZ);
+            Instantiate(enemigoBasicoPrefab, randomPos, Quaternion.identity, transform);
         }
 
         GenerateWallsAndDoor();

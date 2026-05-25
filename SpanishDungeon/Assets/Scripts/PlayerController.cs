@@ -90,12 +90,12 @@ public class PlayerController : MonoBehaviour
 
             transform.rotation = Quaternion.LookRotation(direction);
 
-            EnemyPatrol enemyInTarget = GetEnemyAtPosition(proposedPosition);
+            GameObject enemyInTarget = GetEnemyAtPosition(proposedPosition);
 
             if (enemyInTarget != null)
             {
                 Debug.Log("¡ZAS! Has atacado y eliminado al enemigo.");
-                Destroy(enemyInTarget.gameObject);
+                Destroy(enemyInTarget);
             }
             else
             {
@@ -108,19 +108,24 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private EnemyPatrol GetEnemyAtPosition(Vector3 targetPos)
+    private GameObject GetEnemyAtPosition(Vector3 targetPos)
     {
+        // Busca si hay un EnemyPatrol normal
         EnemyPatrol[] enemies = FindObjectsByType<EnemyPatrol>(FindObjectsSortMode.None);
-
         foreach (EnemyPatrol enemy in enemies)
         {
             float distanceX = Mathf.Abs(enemy.transform.position.x - targetPos.x);
             float distanceZ = Mathf.Abs(enemy.transform.position.z - targetPos.z);
+            if (distanceX < 0.1f && distanceZ < 0.1f) return enemy.gameObject;
+        }
 
-            if (distanceX < 0.1f && distanceZ < 0.1f)
-            {
-                return enemy;
-            }
+        // Busca si hay un Enemigo_basico
+        Enemigo_basico[] basicos = FindObjectsByType<Enemigo_basico>(FindObjectsSortMode.None);
+        foreach (Enemigo_basico basico in basicos)
+        {
+            float distanceX = Mathf.Abs(basico.transform.position.x - targetPos.x);
+            float distanceZ = Mathf.Abs(basico.transform.position.z - targetPos.z);
+            if (distanceX < 0.1f && distanceZ < 0.1f) return basico.gameObject;
         }
 
         return null;

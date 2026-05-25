@@ -73,6 +73,14 @@ public class PlayerStats : MonoBehaviour
         UpdateUI();
     }
 
+    public void LoseCoins(int amount)
+    {
+        if (isDead) return;
+        coins -= amount;
+        if (coins < 0) coins = 0; //Evita que bajen de cero
+        UpdateUI();
+    }
+
     // Nueva función para avanzar de sala
     public void AddRoom()
     {
