@@ -25,11 +25,14 @@ public class DoorController : MonoBehaviour
 
     private void CheckEnemies()
     {
-        // Busca a todos los enemigos activos en la escena
-        EnemyPatrol[] activeEnemies = FindObjectsByType<EnemyPatrol>(FindObjectsSortMode.None);
+        //Busca los enemigos de tipo patrulla
+        EnemyPatrol[] activePatrols = FindObjectsByType<EnemyPatrol>(FindObjectsSortMode.None);
 
-        // Si ya no queda ninguno, abrimos la puerta
-        if (activeEnemies.Length == 0)
+        //Busca los enemigos de tipo básico
+        Enemigo_basico[] activeBasics = FindObjectsByType<Enemigo_basico>(FindObjectsSortMode.None);
+
+        //Si no queda ninguno de ningún tipo, abrimos la puerta
+        if (activePatrols.Length == 0 && activeBasics.Length == 0)
         {
             OpenDoor();
         }
