@@ -118,3 +118,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e5362ac8c69e414aad93b09ea327186, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SonidoAgarrarMoneda: {fileID: 8300000, guid: f77741e1523822943b3276caa0013dc0, type: 3}
