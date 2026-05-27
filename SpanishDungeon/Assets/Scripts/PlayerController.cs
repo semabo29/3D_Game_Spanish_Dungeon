@@ -11,6 +11,11 @@ public class PlayerController : MonoBehaviour
     private bool isFalling = false; // Control de caída
     private Rigidbody rb;
 
+    [Header("Sonidos")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip stepSound;
+    [SerializeField] private AudioClip SonidoAtaque;
+
     void Start()
     {
         targetPosition = transform.position;
@@ -131,6 +136,12 @@ public class PlayerController : MonoBehaviour
             {
                 Debug.Log("¡ZAS! Has atacado y eliminado al enemigo.");
                 Destroy(enemyInTarget);
+
+                //Reproducimos el sonido de ataque si el AudioSource y el propio audio estan assignados
+                if (audioSource != null && SonidoAtaque != null)
+                {
+                    audioSource.PlayOneShot(SonidoAtaque);
+                }
             }
             else
             {
@@ -151,6 +162,11 @@ public class PlayerController : MonoBehaviour
                 {
                     targetPosition = proposedPosition;
                     isMoving = true;
+                    //Reproducimos el sonido de paso al iniciar el movimiento si el AudioSource y el propio audio estan assignados
+                    if (audioSource != null && stepSound != null)
+                    {
+                        audioSource.PlayOneShot(stepSound);
+                    }
                 }
             }
         }

@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class Coin : MonoBehaviour
 {
+    [Header("Sonidos")]
+    [SerializeField] private AudioClip SonidoAgarrarMoneda;
     void Update()
     {
         // Gira sobre sí misma para destacar
@@ -23,6 +25,12 @@ public class Coin : MonoBehaviour
                 // Buscamos el script de stats y le sumamos la moneda
                 player.GetComponent<PlayerStats>().AddCoin();
                 Destroy(gameObject); // La moneda desaparece
+
+                if (SonidoAgarrarMoneda != null)//Reproducimos el sonido de coger una moneda si existe
+                {
+                    //Crea un "altavoz" (fuente de audio) temporal en la posición de la camara (oidos del juego) a 70% volumen , ja que borramos la moneda
+                    AudioSource.PlayClipAtPoint(SonidoAgarrarMoneda, Camera.main.transform.position, 1f);
+                }
             }
         }
     }

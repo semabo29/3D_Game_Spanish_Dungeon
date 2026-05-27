@@ -120,4 +120,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 3
   gridSize: 1
-  patrolRange: 2
+  waitTimePerTile: 1

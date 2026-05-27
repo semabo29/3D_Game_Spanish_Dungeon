@@ -4,6 +4,9 @@ public class DoorController : MonoBehaviour
 {
     private bool isOpen = false;
 
+    [Header("Sonidos")]
+    [SerializeField] private AudioClip SonidoPuerta;
+
     void Start()
     {
         // Cambiamos el color de la puerta a amarillo/dorado para que destaque
@@ -42,6 +45,12 @@ public class DoorController : MonoBehaviour
     {
         isOpen = true;
         Debug.Log("¡Sala despejada! La puerta se ha abierto.");
+
+        if (SonidoPuerta != null)//Reproducimos el sonido de ataque si existe
+        {
+            //Crea un "altavoz" (fuente de audio) temporal en la posición de la camara (oidos del juego) a 70% volumen , ja que borramos la puerta
+            AudioSource.PlayClipAtPoint(SonidoPuerta, Camera.main.transform.position, 0.7f);
+        }
 
         // Desactivamos la puerta físicamente para que el jugador pueda cruzar al siguiente nivel
         gameObject.SetActive(false);
