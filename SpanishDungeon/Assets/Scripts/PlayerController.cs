@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
     [Header("Sonidos")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip stepSound;
+    [SerializeField] private AudioClip SonidoAtaque;
 
     void Start()
     {
@@ -135,6 +136,12 @@ public class PlayerController : MonoBehaviour
             {
                 Debug.Log("¡ZAS! Has atacado y eliminado al enemigo.");
                 Destroy(enemyInTarget);
+
+                //Reproducimos el sonido de ataque si el AudioSource y el propio audio estan assignados
+                if (audioSource != null && SonidoAtaque != null)
+                {
+                    audioSource.PlayOneShot(SonidoAtaque);
+                }
             }
             else
             {
