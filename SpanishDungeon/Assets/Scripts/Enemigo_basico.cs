@@ -14,6 +14,9 @@ public class Enemigo_basico : MonoBehaviour
     private bool isMoving = false;
     private float waitTimer = 0f;
 
+    [Header("Sonidos")]
+    [SerializeField] private AudioClip attackSound;
+
     void Start()
     {
         targetPosition = transform.position;
@@ -101,7 +104,7 @@ public class Enemigo_basico : MonoBehaviour
     {
         Vector3 nextPos = transform.position + dir * gridSize;
 
-        // 1. Muro bloqueando de frente
+        // Muro bloqueando de frente
         if (Physics.Raycast(transform.position + new Vector3(0, 0.5f, 0), dir, out RaycastHit hit, gridSize))
         {
             if (!hit.collider.isTrigger && hit.collider.GetComponent<PlayerController>() == null)
@@ -110,7 +113,7 @@ public class Enemigo_basico : MonoBehaviour
             }
         }
 
-        // 2. Falta de suelo (caída)
+        // Falta de suelo (caída)
         if (!Physics.Raycast(nextPos + Vector3.up, Vector3.down, 2f))
         {
             return false;
@@ -134,6 +137,11 @@ public class Enemigo_basico : MonoBehaviour
                 {
                     stats.LoseCoins(coinsToSteal);
                     stats.TakeDamage();
+                    if (attackSound != null)//Reproducimos el sonido de ataque si existe
+                    {
+                        //Crea un "altavoz" (fuente de audio) temporal en la posición de la camara (oidos del juego) a 70% volumen , ja que borramos al personaje
+                        AudioSource.PlayClipAtPoint(attackSound, Camera.main.transform.position, 0.7f);
+                    }
                 }
                 Destroy(gameObject);
             }
