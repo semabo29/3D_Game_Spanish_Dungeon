@@ -11,6 +11,10 @@ public class PlayerController : MonoBehaviour
     private bool isFalling = false; // Control de caída
     private Rigidbody rb;
 
+    [Header("Sonidos")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip stepSound;
+
     void Start()
     {
         targetPosition = transform.position;
@@ -151,6 +155,11 @@ public class PlayerController : MonoBehaviour
                 {
                     targetPosition = proposedPosition;
                     isMoving = true;
+                    //Reproducimos el sonido de paso al iniciar el movimiento si el AudioSource y el propio audio estan assignados
+                    if (audioSource != null && stepSound != null)
+                    {
+                        audioSource.PlayOneShot(stepSound);
+                    }
                 }
             }
         }
