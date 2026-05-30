@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections; // Añadido para poder usar Corrutinas
 
 public class DoorController : MonoBehaviour
 {
@@ -6,6 +7,10 @@ public class DoorController : MonoBehaviour
 
     [Header("Sonidos")]
     [SerializeField] private AudioClip SonidoPuerta;
+
+    [Header("Animación de Ascenso")]
+    [SerializeField] private float alturaSubida = 3f; // Cuántos metros sube
+    [SerializeField] private float velocidadSubida = 2f; // A qué velocidad
 
     void Start()
     {
@@ -52,7 +57,33 @@ public class DoorController : MonoBehaviour
             AudioSource.PlayClipAtPoint(SonidoPuerta, Camera.main.transform.position, 0.7f);
         }
 
-        // Desactivamos la puerta físicamente para que el jugador pueda cruzar al siguiente nivel
+        // Desactivamos el collider INMEDIATAMENTE para que el jugador pueda pasar sin chocarse mientras la puerta sube
+        Collider myCollider = GetComponent<Collider>();
+        if (myCollider != null)
+        {
+            myCollider.enabled = false;
+        }
+
+        // Iniciamos la animación visual de subir
+        StartCoroutine(AscenderPuerta());
+    }
+
+    private IEnumerator AscenderPuerta()
+    {
+        Vector3 posicionInicial = transform.position;
+        // Calculamos la posición final sumándole la altura que queremos que suba en el eje Y
+        Vector3 posicionFinal = posicionInicial + new Vector3(0, alturaSubida, 0);
+        float progreso = 0;
+
+        // Bucle que mueve la puerta suavemente frame a frame
+        while (progreso < 1f)
+        {
+            progreso += Time.deltaTime * velocidadSubida;
+            transform.position = Vector3.Lerp(posicionInicial, posicionFinal, progreso);
+            yield return null;
+        }
+
+        // Desactivamos la puerta físicamente cuando ya ha terminado de subir (respetando tu código original)
         gameObject.SetActive(false);
     }
 }

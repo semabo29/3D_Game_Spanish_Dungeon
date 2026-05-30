@@ -267,11 +267,11 @@ GameObject:
   - component: {fileID: 632052165}
   - component: {fileID: 632052164}
   - component: {fileID: 632052163}
-  - component: {fileID: 632052162}
   - component: {fileID: 632052161}
   - component: {fileID: 632052166}
   - component: {fileID: 632052167}
   - component: {fileID: 632052168}
+  - component: {fileID: 632052169}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -297,27 +297,6 @@ MonoBehaviour:
   audioSource: {fileID: 632052168}
   stepSound: {fileID: 8300000, guid: 64b0af0cc6c69b74ab5a0343259c8b25, type: 3}
   SonidoAtaque: {fileID: 8300000, guid: a9fd13b6bceace548833f4453ec23efd, type: 3}
---- !u!65 &632052162
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 632052160}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &632052163
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -525,6 +504,29 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!136 &632052169
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 632052160}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.35
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -669,7 +671,7 @@ MonoBehaviour:
   enemy3Prefab: {fileID: 7654256707274367480, guid: 3ae860c8166f0174687ef603b172a997, type: 3}
   bossPrefab: {fileID: 7654256707274367480, guid: 3ae860c8166f0174687ef603b172a997, type: 3}
   trap1Prefab: {fileID: 1088815067306731086, guid: 3e255bb062382384285fa725aeb8e3cd, type: 3}
-  trap2Prefab: {fileID: 7654256707274367480, guid: 3ae860c8166f0174687ef603b172a997, type: 3}
+  trap2Prefab: {fileID: 6897045804244087036, guid: 273e5a0b009a3f846a1b7bad1caacd51, type: 3}
   trap3Prefab: {fileID: 1999691079468746523, guid: 3472cc0030222764d9ac68e98a670618, type: 3}
   decorPrefabs:
   - {fileID: 7654256707274367480, guid: 3ae860c8166f0174687ef603b172a997, type: 3}
