@@ -42,12 +42,24 @@ public class EnemyPatrol : MonoBehaviour
         }
         else
         {
+            // 1. Movimiento suave hacia la casilla objetivo
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
-            transform.rotation = targetRotation;
 
+            // 2. Rotación suave (Slerp) copiada de tu PlayerController
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 15f * Time.deltaTime);
+
+            // 3. Ajuste fino para evitar vibraciones al final del giro
+            if (Quaternion.Angle(transform.rotation, targetRotation) < 1f)
+            {
+                transform.rotation = targetRotation;
+            }
+
+            // Comprobamos si hemos llegado a la casilla
             if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
             {
                 transform.position = targetPosition;
+                // Opcional: Aseguramos la rotación exacta al terminar el movimiento
+                transform.rotation = targetRotation;
                 isMoving = false;
                 waitTimer = waitTimePerTile;
             }
@@ -58,16 +70,24 @@ public class EnemyPatrol : MonoBehaviour
 
     private void PrepareNextStep()
     {
+        bool hitWall = false;
+
+        // 1. Lanzamos un rayo hacia adelante para ver si hay un muro o puerta
+        if (Physics.Raycast(transform.position + new Vector3(0, 0.5f, 0), currentDirection, out RaycastHit hit, gridSize))
+        {
+            if (!hit.collider.isTrigger && hit.collider.GetComponent<PlayerController>() == null)
+            {
+                hitWall = true; // ¡Hemos chocado con algo sólido!
+            }
+        }
+
         Vector3 nextPos = transform.position + (currentDirection * gridSize);
 
-        // Si NO hay suelo en la siguiente baldosa (lanzamos rayo hacia abajo)
-        if (!Physics.Raycast(nextPos + Vector3.up, Vector3.down, 2f))
+        // 2. Si hay muro DELANTE, o NO hay suelo en la siguiente baldosa, damos la vuelta
+        if (hitWall || !Physics.Raycast(nextPos + Vector3.up, Vector3.down, 2f))
         {
-            // Invertimos la dirección (se choca con el límite y da la vuelta)
             currentDirection = -currentDirection;
             targetRotation = Quaternion.LookRotation(currentDirection);
-
-            // Calculamos la nueva posición hacia el lado contrario
             nextPos = transform.position + (currentDirection * gridSize);
         }
 
@@ -93,5 +113,5 @@ public class EnemyPatrol : MonoBehaviour
                 Destroy(gameObject);
             }
         }
-    }    
+    }
 }
