@@ -126,7 +126,6 @@ MonoBehaviour:
   chaseRange: 2
   waitTimePerTile: 1
   coinsToSteal: 3
-  enemyAudioSource: {fileID: 957469569178863173}
   attackSound: {fileID: 8300000, guid: 4b4370f392669b94995891ab1b357dd1, type: 3}
 --- !u!82 &957469569178863173
 AudioSource:
