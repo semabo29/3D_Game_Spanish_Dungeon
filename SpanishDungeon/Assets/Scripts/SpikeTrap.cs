@@ -18,6 +18,12 @@ public class SpikeTrap : MonoBehaviour
 
     [SerializeField] private float tiempoAviso = 1f;
 
+    // --- AÑADIDO: CONFIGURACIÓN DE AUDIO ---
+    [Header("Sonidos")]
+    [SerializeField] private AudioClip sonidoAtaque;
+    [SerializeField] private float volumenSonido = 0.8f;
+    // ---------------------------------------
+
     private bool isDangerous = false;
     private bool isWarning = false;
     private float timer = 0f;
@@ -80,6 +86,14 @@ public class SpikeTrap : MonoBehaviour
             // ATAQUE: En vez de teletransportar, usamos la corrutina con un tiempo casi nulo (0.05s)
             // Esto da el efecto de latigazo rápido pero manteniendo la transición visual
             StartCoroutine(MoverPinchos(alturaAtaque, 0.05f));
+
+            // --- AÑADIDO: REPRODUCCIÓN DEL SONIDO ---
+            if (sonidoAtaque != null)
+            {
+                // Suena en la posición de la trampa
+                AudioSource.PlayClipAtPoint(sonidoAtaque, Camera.main.transform.position, volumenSonido);
+            }
+            // ----------------------------------------
         }
         else
         {
