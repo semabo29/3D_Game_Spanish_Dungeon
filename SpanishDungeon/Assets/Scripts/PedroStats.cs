@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic; // REQUERIDO: Para poder usar listas dinámicas
 
 public class PedroStats : MonoBehaviour
 {
@@ -13,13 +14,23 @@ public class PedroStats : MonoBehaviour
 
     private bool isDead = false;
     private bool isInvincible = false;
-    private Renderer[] renderers;
+
+    // Cambiado a una lista para almacenar únicamente los renderers inicialmente activos
+    private List<Renderer> activeRenderers = new List<Renderer>();
 
     void Start()
     {
         vidasActuales = maxVidas;
-        // Obtenemos los renderers del modelo (tanto el principal como hijos si tuviera)
-        renderers = GetComponentsInChildren<Renderer>();
+
+        // Obtenemos todos los renderers pero filtramos rigurosamente los que están desactivados
+        Renderer[] allRenderers = GetComponentsInChildren<Renderer>();
+        foreach (Renderer ren in allRenderers)
+        {
+            if (ren != null && ren.enabled)
+            {
+                activeRenderers.Add(ren); // Solo añadimos mallas visibles al principio
+            }
+        }
     }
 
     public void TakeDamage()
@@ -54,7 +65,8 @@ public class PedroStats : MonoBehaviour
 
         while (timer < invincibilityTime)
         {
-            foreach (Renderer ren in renderers)
+            // Solo parpadean los renderers que debían estar encendidos
+            foreach (Renderer ren in activeRenderers)
             {
                 if (ren != null) ren.enabled = !ren.enabled;
             }
@@ -62,8 +74,8 @@ public class PedroStats : MonoBehaviour
             timer += blinkInterval;
         }
 
-        // Devolvemos la visibilidad a todos al terminar el cooldown
-        foreach (Renderer ren in renderers)
+        // Al finalizar, solo devolvemos la visibilidad activa a los permitidos originales
+        foreach (Renderer ren in activeRenderers)
         {
             if (ren != null) ren.enabled = true;
         }

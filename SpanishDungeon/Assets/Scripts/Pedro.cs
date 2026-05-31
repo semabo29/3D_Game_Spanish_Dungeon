@@ -3,9 +3,9 @@ using UnityEngine;
 public class Pedro : MonoBehaviour
 {
     [Header("Movimiento Inteligente (1x1)")]
-    public float moveSpeed = 2.5f;
+    public float moveSpeed = 7.5f;
     public float gridSize = 1f;
-    public float waitTimePerTile = 1.2f;
+    public float waitTimePerTile = 0.15f;
 
     [Header("Lógica de Huida")]
     public float fleeDuration = 3f;
