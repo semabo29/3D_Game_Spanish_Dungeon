@@ -3,9 +3,9 @@ using UnityEngine;
 public class Pedro : MonoBehaviour
 {
     [Header("Movimiento Inteligente (1x1)")]
-    public float moveSpeed = 7.5f;
+    public float moveSpeed = 5f;
     public float gridSize = 1f;
-    public float waitTimePerTile = 0.15f;
+    public float waitTimePerTile = 0.5f;
 
     [Header("Lógica de Huida")]
     public float fleeDuration = 3f;
@@ -19,6 +19,7 @@ public class Pedro : MonoBehaviour
     [Header("Sonidos")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip SonidoAtaque;
+    [SerializeField] private AudioClip SonidoRisa;
 
     private PedroStats stats;
 
@@ -27,6 +28,10 @@ public class Pedro : MonoBehaviour
         targetPosition = transform.position;
         targetRotation = transform.rotation;
         stats = GetComponent<PedroStats>();
+        if (audioSource != null && SonidoRisa != null)
+        {
+            audioSource.PlayOneShot(SonidoRisa, 2.0f);
+        }
     }
 
     void Update()
@@ -173,7 +178,7 @@ public class Pedro : MonoBehaviour
 
                 if (audioSource != null && SonidoAtaque != null)
                 {
-                    audioSource.PlayOneShot(SonidoAtaque, 0.3f);
+                    audioSource.PlayOneShot(SonidoAtaque, 2.0f);
                 }
 
                 GatillarHuidaEInmunidad();

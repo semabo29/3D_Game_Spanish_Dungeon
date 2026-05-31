@@ -217,13 +217,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 659be4ea2999b474b975efa422eb51e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 2.5
+  moveSpeed: 5
   gridSize: 1
-  waitTimePerTile: 1.2
+  waitTimePerTile: 0.5
   fleeDuration: 3
   targetPosition: {x: 0, y: 0, z: 0}
   audioSource: {fileID: 957469569178863173}
-  SonidoAtaque: {fileID: 8300000, guid: 4b4370f392669b94995891ab1b357dd1, type: 3}
+  SonidoAtaque: {fileID: 8300000, guid: a311a1a7a2da80d4aaa6bb5b4264adcd, type: 3}
+  SonidoRisa: {fileID: 8300000, guid: 30738cd549ee2f14699263933c0eb8e7, type: 3}
 --- !u!114 &1250256827027041587
 MonoBehaviour:
   m_ObjectHideFlags: 0
