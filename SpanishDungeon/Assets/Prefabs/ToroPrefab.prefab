@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4472297554609160575}
   - component: {fileID: 8456502410566103400}
   m_Layer: 0
-  m_Name: EnemyPrefab
+  m_Name: ToroPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

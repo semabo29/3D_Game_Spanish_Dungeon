@@ -114,7 +114,8 @@ public class PlayerController : MonoBehaviour
         return !hit.collider.isTrigger &&
                hit.collider.GetComponent<EnemyPatrol>() == null &&
                hit.collider.GetComponent<Enemigo_basico>() == null &&
-               hit.collider.GetComponent<Guiri>() == null;
+               hit.collider.GetComponent<Guiri>() == null &&
+               hit.collider.GetComponent<Pedro>() == null;
     }
 
     private void CheckInput()
@@ -156,8 +157,18 @@ public class PlayerController : MonoBehaviour
 
             if (enemyInTarget != null)
             {
-                Debug.Log("¡ZAS! Has atacado y eliminado al enemigo.");
-                Destroy(enemyInTarget);
+                Pedro pedro = enemyInTarget.GetComponent<Pedro>();
+
+                if (pedro != null)//Si elenemigo es el rei, no lo matamos, le quitamos una vida
+                {
+                    pedro.RecibirDano();
+                }
+
+                else//Si el enemigo no es el jefe pedro, lo eliminamos directamente
+                {
+                    Debug.Log("¡ZAS! Has atacado y eliminado al enemigo.");
+                    Destroy(enemyInTarget);
+                }
 
                 //Reproducimos el sonido de ataque si el AudioSource y el propio audio estan assignados
                 if (audioSource != null && SonidoAtaque != null)
@@ -220,6 +231,14 @@ public class PlayerController : MonoBehaviour
             float distanceX = Mathf.Abs(guiri.transform.position.x - targetPos.x);
             float distanceZ = Mathf.Abs(guiri.transform.position.z - targetPos.z);
             if (distanceX < 0.1f && distanceZ < 0.1f) return guiri.gameObject;
+        }
+
+        Pedro[] pedros = FindObjectsByType<Pedro>(FindObjectsSortMode.None);
+        foreach (Pedro pedro in pedros)
+        {
+            float distanceX = Mathf.Abs(pedro.transform.position.x - targetPos.x);
+            float distanceZ = Mathf.Abs(pedro.transform.position.z - targetPos.z);
+            if (distanceX < 0.1f && distanceZ < 0.1f) return pedro.gameObject;
         }
 
         return null;
