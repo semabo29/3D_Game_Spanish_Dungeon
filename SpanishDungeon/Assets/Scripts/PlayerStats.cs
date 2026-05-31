@@ -19,6 +19,7 @@ public class PlayerStats : MonoBehaviour
 
     [Header("Pantallas UI")]
     [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private GameObject victoryPanel;
 
     [Header("Invulnerabilidad")]
     [SerializeField] private float invincibilityTime = 1.5f;
@@ -50,8 +51,26 @@ public class PlayerStats : MonoBehaviour
         }
 
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (victoryPanel != null) victoryPanel.SetActive(false);
 
         UpdateUI();
+    }
+
+    public void WinGame()
+    {
+        if (isDead) return; //Si ya morimos en el último segundo, no ganamos
+
+        //Quitamos el control al jugador
+        PlayerController controller = GetComponent<PlayerController>();
+        if (controller != null) controller.enabled = false;
+
+        AudioListener.pause = true; //Silenciamos el juego
+
+        //Mostramos el panel
+        if (victoryPanel != null) victoryPanel.SetActive(true);
+
+        // Congelamos el tiempo
+        Time.timeScale = 0f;
     }
 
     public void TakeDamage()
