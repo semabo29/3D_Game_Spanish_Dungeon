@@ -2,7 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
 using System.Collections;
-using System.Collections.Generic; // IMPORTANTE: Necesario para usar listas (List<Renderer>)
+using System.Collections.Generic;
 
 public class PlayerStats : MonoBehaviour
 {
@@ -18,7 +18,7 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private TextMeshProUGUI roomText;
 
     [Header("Pantallas UI")]
-    [SerializeField] private GameObject gameOverPanel; // <--- Arrastra aquí el panel rojo
+    [SerializeField] private GameObject gameOverPanel;
 
     [Header("Invulnerabilidad")]
     [SerializeField] private float invincibilityTime = 1.5f;
@@ -32,29 +32,24 @@ public class PlayerStats : MonoBehaviour
     private bool isDead = false;
     private bool isInvincible = false;
 
-    // CORRECCIÓN CLAVE: Usamos una lista para guardar SOLO las mallas que deben verse
     private List<Renderer> activeRenderers = new List<Renderer>();
 
     void Start()
     {
-        // 1. Aseguramos que el tiempo fluya al iniciar (por si venimos de un Game Over)
         Time.timeScale = 1f;
-
-        // 2. Nos aseguramos de que el sonido global esté activo al empezar
         AudioListener.pause = false;
-
         currentHealth = maxHealth;
 
-        // Buscamos todas las mallas, pero FILTRAMOS las que tienes desactivadas adrede
         Renderer[] allRenderers = GetComponentsInChildren<Renderer>();
         foreach (Renderer ren in allRenderers)
         {
             if (ren != null && ren.enabled)
             {
-                activeRenderers.Add(ren); // Solo se añaden las piezas visibles de tu .vox
+                activeRenderers.Add(ren);
             }
         }
-        if (gameOverPanel != null) gameOverPanel.SetActive(false); // Ocultamos el panel al inicio
+
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
 
         UpdateUI();
     }
@@ -68,7 +63,8 @@ public class PlayerStats : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-            Die();
+            // Para ataques de enemigos, damos un pequeño margen de 0.5s para que se vea el impacto
+            StartCoroutine(DieRoutine(0.5f));
         }
         else
         {
@@ -87,7 +83,6 @@ public class PlayerStats : MonoBehaviour
 
         while (timer < invincibilityTime)
         {
-            // Solo hacemos parpadear la lista filtrada pura
             foreach (Renderer ren in activeRenderers)
             {
                 if (ren != null) ren.enabled = !ren.enabled;
@@ -97,7 +92,6 @@ public class PlayerStats : MonoBehaviour
             timer += blinkInterval;
         }
 
-        // Al terminar, nos aseguramos de que esas mismas piezas vuelvan a verse
         foreach (Renderer ren in activeRenderers)
         {
             if (ren != null) ren.enabled = true;
@@ -117,7 +111,7 @@ public class PlayerStats : MonoBehaviour
     {
         if (isDead) return;
         coins -= amount;
-        if (coins < 0) coins = 0; // Evita que bajen de cero
+        if (coins < 0) coins = 0;
         UpdateUI();
     }
 
@@ -140,51 +134,54 @@ public class PlayerStats : MonoBehaviour
         if (isDead) return;
         currentHealth = 0;
         UpdateUI();
-        Die();
+
+        // Al caer, damos 1.5 segundos para que se aprecie la animación de caída
+        StartCoroutine(DieRoutine(1.5f));
     }
 
-    private void Die()
+    // Convertimos la muerte en una corrutina que recibe el tiempo de espera
+    private IEnumerator DieRoutine(float delayBeforeGameOver)
     {
         isDead = true;
 
-        // 1. SILENCIAMOS TODOS LOS SONIDOS DEL JUEGO
+        // Quitamos el control inmediatamente para que el jugador no pueda moverse mientras cae/muere
+        PlayerController controller = GetComponent<PlayerController>();
+        if (controller != null) controller.enabled = false;
+
+        // Esperamos el tiempo indicado sin congelar el juego todavía
+        yield return new WaitForSeconds(delayBeforeGameOver);
+
+        // A partir de aquí, ejecutamos el Game Over estándar
         AudioListener.pause = true;
 
-        // 2. REPRODUCIMOS EL GAME OVER IGNORANDO EL SILENCIO
         if (sonidoGameOver != null)
         {
             GameObject audioObj = new GameObject("GameOverAudio");
             AudioSource source = audioObj.AddComponent<AudioSource>();
             source.clip = sonidoGameOver;
             source.volume = volumenSonidos;
-            source.ignoreListenerPause = true; // ¡LA MAGIA ESTÁ AQUÍ!
+            source.ignoreListenerPause = true;
             source.Play();
             Destroy(audioObj, sonidoGameOver.length + 0.1f);
         }
 
-        // 3. MOSTRAMOS EL PANEL DE GAME OVER
         if (gameOverPanel != null) gameOverPanel.SetActive(true);
 
-        PlayerController controller = GetComponent<PlayerController>();
-        if (controller != null) controller.enabled = false;
-
-        // 4. CONGELAMOS EL TIEMPO EN LUGAR DE REINICIAR AUTOMÁTICAMENTE
+        // Finalmente, congelamos la pantalla
         Time.timeScale = 0f;
     }
 
-    // --- NUEVAS FUNCIONES PARA LOS BOTONES DEL GAME OVER ---
-
     public void BotonReiniciar()
     {
-        Time.timeScale = 1f; // Descongelamos el tiempo
-        AudioListener.pause = false; // Devolvemos el sonido
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
         SceneManager.LoadScene("SampleScene");
     }
 
     public void BotonMenuPrincipal()
     {
-        Time.timeScale = 1f; // Descongelamos el tiempo
-        AudioListener.pause = false; // Devolvemos el sonido
-        SceneManager.LoadScene("MenuPrincipal"); // Vuelve al menú principal (asegúrate de que tu escena se llama "Menu")
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
+        SceneManager.LoadScene("MenuPrincipal");
     }
 }
