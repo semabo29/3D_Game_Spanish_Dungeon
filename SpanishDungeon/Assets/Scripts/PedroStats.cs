@@ -1,28 +1,25 @@
 using UnityEngine;
 using System.Collections;
 
-public class ReiStats : MonoBehaviour
+public class PedroStats : MonoBehaviour
 {
-    [Header("Estadísticas del Jefe")]
+    [Header("Estadísticas de Pedro")]
     public int maxVidas = 3;
     private int vidasActuales;
 
-    [Header("Invulnerabilidad y Parpadeo")]
-    public float invincibilityTime = 1.5f; // Mismo tiempo que dura la inmunidad
+    [Header("Inmunidad y Efecto Visual")]
+    public float invincibilityTime = 1.5f;
     public float blinkInterval = 0.1f;
 
     private bool isDead = false;
     private bool isInvincible = false;
-
-    // Lista para guardar todos los renderers del modelo del jefe
-    private Renderer[] bossRenderers;
+    private Renderer[] renderers;
 
     void Start()
     {
         vidasActuales = maxVidas;
-
-        // Buscamos TODOS los renderers en el objeto y en sus hijos (cuerpo, ropa, armas, etc.)
-        bossRenderers = GetComponentsInChildren<Renderer>();
+        // Obtenemos los renderers del modelo (tanto el principal como hijos si tuviera)
+        renderers = GetComponentsInChildren<Renderer>();
     }
 
     public void TakeDamage()
@@ -30,7 +27,7 @@ public class ReiStats : MonoBehaviour
         if (isDead || isInvincible) return;
 
         vidasActuales--;
-        Debug.Log("¡El Rey Emérito recibe un golpe! Vidas restantes: " + vidasActuales);
+        Debug.Log("¡Pedro recibe un impacto! Vidas restantes: " + vidasActuales);
 
         if (vidasActuales <= 0)
         {
@@ -38,16 +35,14 @@ public class ReiStats : MonoBehaviour
         }
         else
         {
-            StartInvincibility(); // Activa inmunidad y parpadeo al recibir daño
+            StartInvincibility();
         }
     }
 
-    // Método público para poder activar la invulnerabilidad desde fuera (cuando el rey ataca)
     public void StartInvincibility()
     {
         if (isDead) return;
 
-        // Detenemos cualquier parpadeo previo activo para evitar conflictos
         StopAllCoroutines();
         StartCoroutine(InvincibilityRoutine());
     }
@@ -59,18 +54,16 @@ public class ReiStats : MonoBehaviour
 
         while (timer < invincibilityTime)
         {
-            // Alternamos la visibilidad de TODOS los renderers encontrados
-            foreach (Renderer ren in bossRenderers)
+            foreach (Renderer ren in renderers)
             {
                 if (ren != null) ren.enabled = !ren.enabled;
             }
-
             yield return new WaitForSeconds(blinkInterval);
             timer += blinkInterval;
         }
 
-        // Al terminar, nos aseguramos por seguridad de que todos vuelvan a estar visibles
-        foreach (Renderer ren in bossRenderers)
+        // Devolvemos la visibilidad a todos al terminar el cooldown
+        foreach (Renderer ren in renderers)
         {
             if (ren != null) ren.enabled = true;
         }
@@ -91,7 +84,7 @@ public class ReiStats : MonoBehaviour
     private void Die()
     {
         isDead = true;
-        Debug.Log("¡Jefe derrotado de manera absoluta!");
+        Debug.Log("¡Pedro ha sido derrotado!");
         Destroy(gameObject);
     }
 }

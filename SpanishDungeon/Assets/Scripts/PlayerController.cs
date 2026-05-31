@@ -114,7 +114,8 @@ public class PlayerController : MonoBehaviour
         return !hit.collider.isTrigger &&
                hit.collider.GetComponent<EnemyPatrol>() == null &&
                hit.collider.GetComponent<Enemigo_basico>() == null &&
-               hit.collider.GetComponent<Guiri>() == null;
+               hit.collider.GetComponent<Guiri>() == null &&
+               hit.collider.GetComponent<Pedro>() == null;
     }
 
     private void CheckInput()
@@ -156,14 +157,14 @@ public class PlayerController : MonoBehaviour
 
             if (enemyInTarget != null)
             {
-                ReiEmerito rey = enemyInTarget.GetComponent<ReiEmerito>();
+                Pedro pedro = enemyInTarget.GetComponent<Pedro>();
 
-                if (rey != null)//Si elenemigo es el rei, no lo matamos, le quitamos una vida
+                if (pedro != null)//Si elenemigo es el rei, no lo matamos, le quitamos una vida
                 {
-                    rey.RecibirDano();
+                    pedro.RecibirDano();
                 }
 
-                else//Si el enemigo no es el rey, lo eliminamos directamente
+                else//Si el enemigo no es el jefe pedro, lo eliminamos directamente
                 {
                     Debug.Log("¡ZAS! Has atacado y eliminado al enemigo.");
                     Destroy(enemyInTarget);
@@ -232,12 +233,12 @@ public class PlayerController : MonoBehaviour
             if (distanceX < 0.1f && distanceZ < 0.1f) return guiri.gameObject;
         }
 
-        ReiEmerito[] reyes = FindObjectsByType<ReiEmerito>(FindObjectsSortMode.None);
-        foreach (ReiEmerito rey in reyes)
+        Pedro[] pedros = FindObjectsByType<Pedro>(FindObjectsSortMode.None);
+        foreach (Pedro pedro in pedros)
         {
-            float distanceX = Mathf.Abs(rey.transform.position.x - targetPos.x);
-            float distanceZ = Mathf.Abs(rey.transform.position.z - targetPos.z);
-            if (distanceX < 1.2f && distanceZ < 1.2f) return rey.gameObject;
+            float distanceX = Mathf.Abs(pedro.transform.position.x - targetPos.x);
+            float distanceZ = Mathf.Abs(pedro.transform.position.z - targetPos.z);
+            if (distanceX < 0.1f && distanceZ < 0.1f) return pedro.gameObject;
         }
 
         return null;

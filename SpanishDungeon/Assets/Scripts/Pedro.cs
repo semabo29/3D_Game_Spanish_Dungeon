@@ -1,17 +1,17 @@
 using UnityEngine;
 
-public class ReiEmerito : MonoBehaviour
+public class Pedro : MonoBehaviour
 {
-    [Header("Movimiento Inteligente")]
-    public float moveSpeed = 2f;
+    [Header("Movimiento Inteligente (1x1)")]
+    public float moveSpeed = 2.5f;
     public float gridSize = 1f;
-    public float waitTimePerTile = 1.5f; // Ritmo al que avanza por las baldosas
+    public float waitTimePerTile = 1.2f;
 
     [Header("Lógica de Huida")]
-    public float fleeDuration = 3f; // Segundos que pasará huyendo tras interactuar
+    public float fleeDuration = 3f;
     private float fleeTimer = 0f;
 
-    private Vector3 targetPosition;
+    [HideInInspector] public Vector3 targetPosition;
     private Quaternion targetRotation;
     private bool isMoving = false;
     private float waitTimer = 0f;
@@ -20,20 +20,20 @@ public class ReiEmerito : MonoBehaviour
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip SonidoAtaque;
 
-    private ReiStats stats;
+    private PedroStats stats;
 
     void Start()
     {
         targetPosition = transform.position;
         targetRotation = transform.rotation;
-        stats = GetComponent<ReiStats>(); // Obtenemos las estadísticas heredadas
+        stats = GetComponent<PedroStats>();
     }
 
     void Update()
     {
-        if (stats != null && stats.IsDead()) return; // Si está muerto, bloqueamos todo
+        if (stats != null && stats.IsDead()) return;
 
-        // Reducimos el contador de huida frame a frame
+        // Gestión del temporizador de huida
         if (fleeTimer > 0f)
         {
             fleeTimer -= Time.deltaTime;
@@ -44,7 +44,7 @@ public class ReiEmerito : MonoBehaviour
             waitTimer -= Time.deltaTime;
             if (waitTimer <= 0f)
             {
-                // Si está huyendo, NO se detiene a atacar, prioriza ganar distancia
+                // Si no está huyendo, comprueba si tiene al jugador en su propia casilla destino para atacarle
                 if (fleeTimer <= 0f && CheckPlayerCollision())
                 {
                     waitTimer = waitTimePerTile;
@@ -57,7 +57,6 @@ public class ReiEmerito : MonoBehaviour
         }
         else
         {
-            // Movimiento suave hacia la casilla objetivo
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.deltaTime);
 
@@ -69,42 +68,41 @@ public class ReiEmerito : MonoBehaviour
             }
         }
 
-        // Solo comprueba colisiones físicas reactivas si no está en cooldown de huida
+        // Comprobación reactiva constante en su posición actual si no está huyendo
         if (fleeTimer <= 0f)
         {
             CheckPlayerCollision();
         }
     }
 
-    // PERSECUCIÓN O HUIDA CON EVASIÓN DE OBSTÁCULOS
     private void CalculateNextStep()
     {
         PlayerController player = FindFirstObjectByType<PlayerController>();
         if (player == null) return;
 
-        Vector3 diff = player.transform.position - transform.position;
+        // Comparamos usando la posición lógica de cuadrícula del jugador
+        Vector3 diff = player.targetPosition - transform.position;
         Vector3 stepDir = Vector3.zero;
 
-        // Si el temporizador de huida está activo, invertimos la dirección (-1).
         bool isFleeing = fleeTimer > 0f;
         float directionModifier = isFleeing ? -1f : 1f;
 
-        // Comparamos qué distancia es mayor para acortar camino (o alargarlo si huye)
+        // Elige el eje con mayor distancia para acortar camino (o alargarlo al huir)
         if (Mathf.Abs(diff.x) > Mathf.Abs(diff.z))
         {
-            stepDir = new Vector3(Mathf.Sign(diff.x) * directionModifier, 0, 0); // Eje X
+            stepDir = new Vector3(Mathf.Sign(diff.x) * directionModifier, 0, 0);
             if (!IsPathClear(stepDir))
             {
-                stepDir = new Vector3(0, 0, Mathf.Sign(diff.z) * directionModifier); // Esquiva por Eje Z
+                stepDir = new Vector3(0, 0, Mathf.Sign(diff.z) * directionModifier);
                 if (!IsPathClear(stepDir)) stepDir = Vector3.zero;
             }
         }
         else
         {
-            stepDir = new Vector3(0, 0, Mathf.Sign(diff.z) * directionModifier); // Eje Z
+            stepDir = new Vector3(0, 0, Mathf.Sign(diff.z) * directionModifier);
             if (!IsPathClear(stepDir))
             {
-                stepDir = new Vector3(Mathf.Sign(diff.x) * directionModifier, 0, 0); // Esquiva por Eje X
+                stepDir = new Vector3(Mathf.Sign(diff.x) * directionModifier, 0, 0);
                 if (!IsPathClear(stepDir)) stepDir = Vector3.zero;
             }
         }
@@ -117,7 +115,7 @@ public class ReiEmerito : MonoBehaviour
         }
         else
         {
-            waitTimer = waitTimePerTile; // Se queda quieto si está completamente acorralado
+            waitTimer = waitTimePerTile; // Se bloquea temporalmente si no hay salida válida
         }
     }
 
@@ -127,48 +125,48 @@ public class ReiEmerito : MonoBehaviour
 
         Vector3 nextPos = transform.position + (dir * gridSize);
 
-        // COMPROBACIÓN DE PAREDES
-        Vector3 tamañoCajaBusqueda = new Vector3(0.9f, 0.5f, 0.9f);
-        Collider[] objetosDetectados = Physics.OverlapBox(nextPos + Vector3.up * 0.5f, tamañoCajaBusqueda, Quaternion.identity);
+        // COMPROBACIÓN DE OBSTÁCULOS EXACTA 1x1
+        Vector3 boxSize = new Vector3(0.4f, 0.4f, 0.4f);
+        Collider[] objects = Physics.OverlapBox(nextPos + Vector3.up * 0.5f, boxSize, Quaternion.identity);
 
-        foreach (Collider col in objetosDetectados)
+        foreach (Collider col in objects)
         {
+            // Muros y objetos sólidos bloquean. Ignoramos triggers y al Player
             if (col.gameObject != gameObject && !col.isTrigger && col.GetComponent<PlayerController>() == null)
             {
                 return false;
             }
         }
 
-        // COMPROBACIÓN DE SUELO
-        Vector3 posicionSuelo = nextPos + Vector3.down * 0.5f;
-        Vector3 tamañoCajaSuelo = new Vector3(0.4f, 0.1f, 0.4f);
-        Collider[] sueloDetectado = Physics.OverlapBox(posicionSuelo, tamañoCajaSuelo, Quaternion.identity);
+        // COMPROBACIÓN DE SUELO BAJO LA CASILLA
+        Vector3 floorPos = nextPos + Vector3.down * 0.5f;
+        Collider[] floorObjects = Physics.OverlapBox(floorPos, new Vector3(0.3f, 0.1f, 0.3f), Quaternion.identity);
 
-        bool haySuelo = false;
-        foreach (Collider col in sueloDetectado)
+        bool hasFloor = false;
+        foreach (Collider col in floorObjects)
         {
             if (col.gameObject != gameObject && !col.isTrigger)
             {
-                haySuelo = true;
+                hasFloor = true;
                 break;
             }
         }
 
-        return haySuelo;
+        return hasFloor;
     }
 
-    // ATAQUE AL JUGADOR
     private bool CheckPlayerCollision()
     {
-        if (fleeTimer > 0f) return false; // Si está huyendo, el jefe no ataca de vuelta
+        if (fleeTimer > 0f) return false;
 
         PlayerController player = FindFirstObjectByType<PlayerController>();
         if (player != null)
         {
-            float distanceX = Mathf.Abs(transform.position.x - player.transform.position.x);
-            float distanceZ = Mathf.Abs(transform.position.z - player.transform.position.z);
+            // Al ser 1x1, evaluamos si ocupan de forma efectiva la misma casilla lógica
+            float distanceX = Mathf.Abs(targetPosition.x - player.targetPosition.x);
+            float distanceZ = Mathf.Abs(targetPosition.z - player.targetPosition.z);
 
-            if (distanceX < 1.2f && distanceZ < 1.2f)
+            if (distanceX < 0.1f && distanceZ < 0.1f)
             {
                 PlayerStats playerStats = player.GetComponent<PlayerStats>();
                 if (playerStats != null) playerStats.TakeDamage();
@@ -178,24 +176,24 @@ public class ReiEmerito : MonoBehaviour
                     audioSource.PlayOneShot(SonidoAtaque, 0.3f);
                 }
 
-                fleeTimer = fleeDuration; // ¡Activa la huida tras golpear con éxito!
-
-                // NUEVO: Al golpear al jugador, también se vuelve inmune y empieza a parpadear
-                if (stats != null) stats.StartInvincibility();
-
+                GatillarHuidaEInmunidad();
                 return true;
             }
         }
         return false;
     }
 
-    // --- ENLACE CON SISTEMA DE VIDAS ---
     public void RecibirDano()
     {
-        if (stats == null) return;
-        if (stats.IsInvincible()) return; // Si está en sus frames de parpadeo inmune, ignora el golpe
+        if (stats == null || stats.IsInvincible()) return;
 
-        stats.TakeDamage(); // Esto le resta vida y dispara el parpadeo de forma interna
-        fleeTimer = fleeDuration; // ¡Activa la huida inmediatamente al ser golpeado!
+        stats.TakeDamage();
+        GatillarHuidaEInmunidad();
+    }
+
+    private void GatillarHuidaEInmunidad()
+    {
+        fleeTimer = fleeDuration;
+        if (stats != null) stats.StartInvincibility();
     }
 }
