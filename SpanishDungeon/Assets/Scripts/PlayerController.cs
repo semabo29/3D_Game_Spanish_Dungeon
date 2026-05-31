@@ -113,7 +113,8 @@ public class PlayerController : MonoBehaviour
         // Un obstáculo sólido es aquel que NO es un trigger y NO es un enemigo
         return !hit.collider.isTrigger &&
                hit.collider.GetComponent<EnemyPatrol>() == null &&
-               hit.collider.GetComponent<Enemigo_basico>() == null;
+               hit.collider.GetComponent<Enemigo_basico>() == null &&
+               hit.collider.GetComponent<Guiri>() == null;
     }
 
     private void CheckInput()
@@ -211,6 +212,14 @@ public class PlayerController : MonoBehaviour
             float distanceX = Mathf.Abs(basico.transform.position.x - targetPos.x);
             float distanceZ = Mathf.Abs(basico.transform.position.z - targetPos.z);
             if (distanceX < 0.1f && distanceZ < 0.1f) return basico.gameObject;
+        }
+
+        Guiri[] guiris = FindObjectsByType<Guiri>(FindObjectsSortMode.None);
+        foreach (Guiri guiri in guiris)
+        {
+            float distanceX = Mathf.Abs(guiri.transform.position.x - targetPos.x);
+            float distanceZ = Mathf.Abs(guiri.transform.position.z - targetPos.z);
+            if (distanceX < 0.1f && distanceZ < 0.1f) return guiri.gameObject;
         }
 
         return null;
