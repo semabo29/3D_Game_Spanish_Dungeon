@@ -2,10 +2,11 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System.Collections.Generic; // IMPORTANTE: Necesario para usar listas (List<Renderer>)
 
 public class PlayerStats : MonoBehaviour
 {
-    [Header("EstadÌsticas")]
+    [Header("Estad√≠sticas")]
     public int maxHealth = 3;
     private int currentHealth;
     private int coins = 0;
@@ -17,32 +18,42 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private TextMeshProUGUI roomText;
 
     [Header("Pantallas UI")]
-    [SerializeField] private GameObject gameOverPanel; // <--- Arrastra aquÌ el panel rojo
+    [SerializeField] private GameObject gameOverPanel; // <--- Arrastra aqu√≠ el panel rojo
 
     [Header("Invulnerabilidad")]
     [SerializeField] private float invincibilityTime = 1.5f;
     [SerializeField] private float blinkInterval = 0.1f;
 
     [Header("Sonidos de Estado")]
-    [SerializeField] private AudioClip sonidoDaÒo;
+    [SerializeField] private AudioClip sonidoDa√±o;
     [SerializeField] private AudioClip sonidoGameOver;
     [SerializeField] private float volumenSonidos = 0.8f;
 
     private bool isDead = false;
     private bool isInvincible = false;
-    private Renderer playerRenderer;
+
+    // CORRECCI√ìN CLAVE: Usamos una lista para guardar SOLO las mallas que deben verse
+    private List<Renderer> activeRenderers = new List<Renderer>();
 
     void Start()
     {
         // 1. Aseguramos que el tiempo fluya al iniciar (por si venimos de un Game Over)
         Time.timeScale = 1f;
 
-        // 2. Nos aseguramos de que el sonido global estÈ activo al empezar
+        // 2. Nos aseguramos de que el sonido global est√© activo al empezar
         AudioListener.pause = false;
 
         currentHealth = maxHealth;
-        playerRenderer = GetComponent<Renderer>();
 
+        // Buscamos todas las mallas, pero FILTRAMOS las que tienes desactivadas adrede
+        Renderer[] allRenderers = GetComponentsInChildren<Renderer>();
+        foreach (Renderer ren in allRenderers)
+        {
+            if (ren != null && ren.enabled)
+            {
+                activeRenderers.Add(ren); // Solo se a√±aden las piezas visibles de tu .vox
+            }
+        }
         if (gameOverPanel != null) gameOverPanel.SetActive(false); // Ocultamos el panel al inicio
 
         UpdateUI();
@@ -61,9 +72,9 @@ public class PlayerStats : MonoBehaviour
         }
         else
         {
-            if (sonidoDaÒo != null)
+            if (sonidoDa√±o != null)
             {
-                AudioSource.PlayClipAtPoint(sonidoDaÒo, Camera.main.transform.position, volumenSonidos);
+                AudioSource.PlayClipAtPoint(sonidoDa√±o, Camera.main.transform.position, volumenSonidos);
             }
             StartCoroutine(InvincibilityRoutine());
         }
@@ -76,12 +87,22 @@ public class PlayerStats : MonoBehaviour
 
         while (timer < invincibilityTime)
         {
-            if (playerRenderer != null) playerRenderer.enabled = !playerRenderer.enabled;
+            // Solo hacemos parpadear la lista filtrada pura
+            foreach (Renderer ren in activeRenderers)
+            {
+                if (ren != null) ren.enabled = !ren.enabled;
+            }
+
             yield return new WaitForSeconds(blinkInterval);
             timer += blinkInterval;
         }
 
-        if (playerRenderer != null) playerRenderer.enabled = true;
+        // Al terminar, nos aseguramos de que esas mismas piezas vuelvan a verse
+        foreach (Renderer ren in activeRenderers)
+        {
+            if (ren != null) ren.enabled = true;
+        }
+
         isInvincible = false;
     }
 
@@ -96,7 +117,7 @@ public class PlayerStats : MonoBehaviour
     {
         if (isDead) return;
         coins -= amount;
-        if (coins < 0) coins = 0;
+        if (coins < 0) coins = 0; // Evita que bajen de cero
         UpdateUI();
     }
 
@@ -136,7 +157,7 @@ public class PlayerStats : MonoBehaviour
             AudioSource source = audioObj.AddComponent<AudioSource>();
             source.clip = sonidoGameOver;
             source.volume = volumenSonidos;
-            source.ignoreListenerPause = true; // °LA MAGIA EST¡ AQUÕ!
+            source.ignoreListenerPause = true; // ¬°LA MAGIA EST√Å AQU√ç!
             source.Play();
             Destroy(audioObj, sonidoGameOver.length + 0.1f);
         }
@@ -147,7 +168,7 @@ public class PlayerStats : MonoBehaviour
         PlayerController controller = GetComponent<PlayerController>();
         if (controller != null) controller.enabled = false;
 
-        // 4. CONGELAMOS EL TIEMPO EN LUGAR DE REINICIAR AUTOM¡TICAMENTE
+        // 4. CONGELAMOS EL TIEMPO EN LUGAR DE REINICIAR AUTOM√ÅTICAMENTE
         Time.timeScale = 0f;
     }
 
@@ -164,6 +185,6 @@ public class PlayerStats : MonoBehaviour
     {
         Time.timeScale = 1f; // Descongelamos el tiempo
         AudioListener.pause = false; // Devolvemos el sonido
-        SceneManager.LoadScene("MenuPrincipal"); // Vuelve al men˙ principal (aseg˙rate de que tu escena se llama "Menu")
+        SceneManager.LoadScene("MenuPrincipal"); // Vuelve al men√∫ principal (aseg√∫rate de que tu escena se llama "Menu")
     }
 }
