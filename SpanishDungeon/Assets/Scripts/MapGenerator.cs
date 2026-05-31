@@ -21,9 +21,9 @@ public class MapGenerator : MonoBehaviour
     [SerializeField] private GameObject bossPrefab;   // Jefe Sala 10
 
     [Header("Prefabs de Trampas")]
-    [SerializeField] private GameObject trap1Prefab;
-    [SerializeField] private GameObject trap2Prefab;
-    [SerializeField] private GameObject trap3Prefab; // Este es el ArrowTrap
+    [SerializeField] private GameObject trap1Prefab; // Letra T (Pinchos)
+    [SerializeField] private GameObject trap2Prefab; // Letra Y (El Molino)
+    [SerializeField] private GameObject trap3Prefab; // Letras U,H,J,K (Radar)
 
     [Header("Prefabs de Decoración")]
     [SerializeField] private GameObject[] decorPrefabs; // Array para meter las 5 decoraciones
@@ -110,8 +110,10 @@ public class MapGenerator : MonoBehaviour
                 Vector3 objectPos = new Vector3(x, 0.5f, z);
                 Vector3 wallPos = new Vector3(x, 1f, z);
 
-                // --- CORRECCIÓN: NO PINTAMOS SUELO SI ES UNA TRAMPA 'T' o 'Y' ---
-                if (tileChar != ' ' && tileChar != 'T' && tileChar != 'Y')
+                // --- PINTAR EL SUELO ---
+                // Solo evitamos pintar suelo si es un hueco vacío ' ', o la trampa de pinchos 'T'
+                // Hemos quitado la 'Y' de aquí, así que el molino SÍ tendrá baldosa debajo.
+                if (tileChar != ' ' && tileChar != 'T')
                 {
                     Instantiate(tilePrefab, floorPos, Quaternion.identity, transform);
                 }
@@ -141,9 +143,12 @@ public class MapGenerator : MonoBehaviour
                     case '3': Instantiate(enemy3Prefab, objectPos, Quaternion.identity, transform); break;
                     case 'B': Instantiate(bossPrefab, objectPos, Quaternion.identity, transform); break;
 
-                    // Las trampas ahora están libres de chocar con el suelo
+                    // Las trampas
                     case 'T': Instantiate(trap1Prefab, floorPos, Quaternion.identity, transform); break;
-                    case 'Y': Instantiate(trap2Prefab, floorPos, Quaternion.identity, transform); break;
+
+                    // --- EL MOLINO (Trampa 2 / Letra Y) ---
+                    // Lo instanciamos en objectPos para que descanse SOBRE la baldosa, no enterrado.
+                    case 'Y': Instantiate(trap2Prefab, objectPos + new Vector3(0, 0.5f, 0), Quaternion.identity, transform); break;
 
                     case 'U':
                         GameObject trapU = Instantiate(trap3Prefab, objectPos, Quaternion.identity, transform);
