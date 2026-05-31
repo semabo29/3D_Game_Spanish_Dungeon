@@ -2,8 +2,14 @@ using UnityEngine;
 
 public class ArrowProjectile : MonoBehaviour
 {
+    [Header("Configuración de la Multa")]
     [SerializeField] private float speed = 8f;
-    public int damage = 1;
+    [SerializeField] private int monedasDeMulta = 2; // Cuántas monedas roba
+
+    [Header("Sonido de Impacto")]
+    [SerializeField] private AudioClip sonidoImpacto; // Un sonido tipo "papel" o "error"
+    [SerializeField] private float volumenImpacto = 0.8f;
+
     private Vector3 moveDirection;
 
     public void Setup(Vector3 direction)
@@ -13,6 +19,7 @@ public class ArrowProjectile : MonoBehaviour
         {
             transform.rotation = Quaternion.LookRotation(direction);
         }
+        // Se destruye a los 5 segundos si no choca con nada para no consumir memoria
         Destroy(gameObject, 5f);
     }
 
@@ -23,25 +30,36 @@ public class ArrowProjectile : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
+        // Ignoramos la propia caja del radar para que no choque consigo misma al salir
         if (other.GetComponent<ArrowTrap>() != null) return;
+
         // 1. Si choca con el Jugador
         if (other.CompareTag("Player") || other.GetComponent<PlayerController>() != null)
         {
             PlayerStats stats = other.GetComponent<PlayerStats>();
             if (stats != null)
             {
-                stats.TakeDamage(); // Le quitamos vida
-                Debug.Log("¡El jugador ha sido golpeado por una flecha!");
+                // ¡El combo letal de la DGT!
+                stats.TakeDamage(); // Quita 1 corazón de vida
+                stats.LoseCoins(monedasDeMulta); // Quita las 2 monedas
+
+                Debug.Log("¡Te ha pillado el radar! Pierdes 1 vida y " + monedasDeMulta + " monedas.");
             }
-            Destroy(gameObject);
+
+            // Reproducimos el sonido al chocar contra el jugador en la posición de la cámara
+            if (sonidoImpacto != null)
+            {
+                AudioSource.PlayClipAtPoint(sonidoImpacto, Camera.main.transform.position, volumenImpacto);
+            }
+
+            Destroy(gameObject); // La multa desaparece al darte
         }
-        // 2. Si choca con un muro o una puerta (y no es el propio suelo ni otra trampa)
+        // 2. Si choca con un muro o una puerta (y no es el suelo)
         else if (!other.isTrigger)
         {
-            // Ignoramos el suelo comprobando que el objeto con el que chocamos está por encima de Y=0
             if (other.transform.position.y > 0.1f)
             {
-                Destroy(gameObject);
+                Destroy(gameObject); // La multa se destruye contra la pared
             }
         }
     }

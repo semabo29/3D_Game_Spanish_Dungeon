@@ -3,18 +3,20 @@ using UnityEngine;
 public class ArrowTrap : MonoBehaviour
 {
     [Header("Configuración de Disparo")]
-    [SerializeField] private GameObject arrowPrefab;
+    [SerializeField] private GameObject arrowPrefab; // Aquí va el prefab de la Multa
     [SerializeField] private float fireRate = 2f;
     [SerializeField] private Transform spawnPoint;
 
-    private float timer;
-    private Vector3 shootDirection = Vector3.forward; // Dirección por defecto
+    [Header("Sonido del Radar")]
+    [SerializeField] private AudioClip sonidoFlash; // El sonido de la cámara
+    [SerializeField] private float volumenFlash = 0.8f;
 
-    // El generador llamará a esta función al crear la trampa
+    private float timer;
+    private Vector3 shootDirection = Vector3.forward;
+
     public void SetDirection(Vector3 direction)
     {
         shootDirection = direction;
-        // Rotamos físicamente la torreta para que visualmente mire hacia donde dispara
         transform.rotation = Quaternion.LookRotation(direction);
     }
 
@@ -38,15 +40,21 @@ public class ArrowTrap : MonoBehaviour
     {
         if (arrowPrefab == null) return;
 
-        // Modificado: Ahora la flecha nace un poco más adelante (0.6f) para no chocar con la propia trampa
         Vector3 pos = spawnPoint != null ? spawnPoint.position : transform.position + (shootDirection * 0.6f);
 
         GameObject arrowObj = Instantiate(arrowPrefab, pos, transform.rotation);
-
         ArrowProjectile projectile = arrowObj.GetComponent<ArrowProjectile>();
+
         if (projectile != null)
         {
             projectile.Setup(shootDirection);
+        }
+
+        // --- SONIDO DE FLASH ---
+        if (sonidoFlash != null)
+        {
+            // Reproducimos en las "orejas" del jugador para que suene fuerte
+            AudioSource.PlayClipAtPoint(sonidoFlash, Camera.main.transform.position, volumenFlash);
         }
     }
 }
