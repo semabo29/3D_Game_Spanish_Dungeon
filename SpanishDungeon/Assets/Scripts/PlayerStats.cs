@@ -9,16 +9,24 @@ public class PlayerStats : MonoBehaviour
     public int maxHealth = 3;
     private int currentHealth;
     private int coins = 0;
-    public int currentRoom = 1; // Añadimos la sala actual
+    public int currentRoom = 1;
 
     [Header("Referencias UI")]
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI coinText;
-    [SerializeField] private TextMeshProUGUI roomText; // Añadimos el texto de la sala
+    [SerializeField] private TextMeshProUGUI roomText;
+
+    [Header("Pantallas UI")]
+    [SerializeField] private GameObject gameOverPanel; // <--- Arrastra aquí el panel rojo
 
     [Header("Invulnerabilidad")]
     [SerializeField] private float invincibilityTime = 1.5f;
     [SerializeField] private float blinkInterval = 0.1f;
+
+    [Header("Sonidos de Estado")]
+    [SerializeField] private AudioClip sonidoDaño;
+    [SerializeField] private AudioClip sonidoGameOver;
+    [SerializeField] private float volumenSonidos = 0.8f;
 
     private bool isDead = false;
     private bool isInvincible = false;
@@ -26,8 +34,17 @@ public class PlayerStats : MonoBehaviour
 
     void Start()
     {
+        // 1. Aseguramos que el tiempo fluya al iniciar (por si venimos de un Game Over)
+        Time.timeScale = 1f;
+
+        // 2. Nos aseguramos de que el sonido global esté activo al empezar
+        AudioListener.pause = false;
+
         currentHealth = maxHealth;
         playerRenderer = GetComponent<Renderer>();
+
+        if (gameOverPanel != null) gameOverPanel.SetActive(false); // Ocultamos el panel al inicio
+
         UpdateUI();
     }
 
@@ -38,14 +55,16 @@ public class PlayerStats : MonoBehaviour
         currentHealth--;
         UpdateUI();
 
-        Debug.Log("¡Ouch! Te quedan " + currentHealth + " corazones.");
-
         if (currentHealth <= 0)
         {
             Die();
         }
         else
         {
+            if (sonidoDaño != null)
+            {
+                AudioSource.PlayClipAtPoint(sonidoDaño, Camera.main.transform.position, volumenSonidos);
+            }
             StartCoroutine(InvincibilityRoutine());
         }
     }
@@ -77,11 +96,10 @@ public class PlayerStats : MonoBehaviour
     {
         if (isDead) return;
         coins -= amount;
-        if (coins < 0) coins = 0; //Evita que bajen de cero
+        if (coins < 0) coins = 0;
         UpdateUI();
     }
 
-    // Nueva función para avanzar de sala
     public void AddRoom()
     {
         if (isDead) return;
@@ -93,32 +111,59 @@ public class PlayerStats : MonoBehaviour
     {
         if (healthText != null) healthText.text = "Corazones: " + currentHealth;
         if (coinText != null) coinText.text = "Monedas: " + coins;
-        // Actualizamos también el texto de la sala aquí
         if (roomText != null) roomText.text = "Sala: " + currentRoom;
     }
+
     public void FallToDeath()
     {
         if (isDead) return;
-
-        currentHealth = 0; // Vaciamos los corazones
+        currentHealth = 0;
         UpdateUI();
-
-        Debug.Log("¡Te has caído al vacío!");
         Die();
     }
+
     private void Die()
     {
         isDead = true;
-        Debug.Log("¡GAME OVER! Reiniciando el nivel...");
+
+        // 1. SILENCIAMOS TODOS LOS SONIDOS DEL JUEGO
+        AudioListener.pause = true;
+
+        // 2. REPRODUCIMOS EL GAME OVER IGNORANDO EL SILENCIO
+        if (sonidoGameOver != null)
+        {
+            GameObject audioObj = new GameObject("GameOverAudio");
+            AudioSource source = audioObj.AddComponent<AudioSource>();
+            source.clip = sonidoGameOver;
+            source.volume = volumenSonidos;
+            source.ignoreListenerPause = true; // ¡LA MAGIA ESTÁ AQUÍ!
+            source.Play();
+            Destroy(audioObj, sonidoGameOver.length + 0.1f);
+        }
+
+        // 3. MOSTRAMOS EL PANEL DE GAME OVER
+        if (gameOverPanel != null) gameOverPanel.SetActive(true);
 
         PlayerController controller = GetComponent<PlayerController>();
         if (controller != null) controller.enabled = false;
 
-        Invoke("RestartScene", 1f);
+        // 4. CONGELAMOS EL TIEMPO EN LUGAR DE REINICIAR AUTOMÁTICAMENTE
+        Time.timeScale = 0f;
     }
 
-    private void RestartScene()
+    // --- NUEVAS FUNCIONES PARA LOS BOTONES DEL GAME OVER ---
+
+    public void BotonReiniciar()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        Time.timeScale = 1f; // Descongelamos el tiempo
+        AudioListener.pause = false; // Devolvemos el sonido
+        SceneManager.LoadScene("SampleScene");
+    }
+
+    public void BotonMenuPrincipal()
+    {
+        Time.timeScale = 1f; // Descongelamos el tiempo
+        AudioListener.pause = false; // Devolvemos el sonido
+        SceneManager.LoadScene("Menu"); // Vuelve al menú principal (asegúrate de que tu escena se llama "Menu")
     }
 }
