@@ -6,14 +6,18 @@ public class ReiEmerito : MonoBehaviour
     public int vidas = 3;
 
     [Header("Movimiento Inteligente")]
-    public float moveSpeed = 4f;
+    public float moveSpeed = 2f;
     public float gridSize = 1f;
-    public float waitTimePerTile = 0.5f; //Ritmo al que avanza por las baldosas
+    public float waitTimePerTile = 1.5f; //Ritmo al que avanza por las baldosas
 
     private Vector3 targetPosition;
     private Quaternion targetRotation;
     private bool isMoving = false;
     private float waitTimer = 0f;
+
+    [Header("Sonidos")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip SonidoAtaque;
 
     void Start()
     {
@@ -28,7 +32,15 @@ public class ReiEmerito : MonoBehaviour
             waitTimer -= Time.deltaTime;
             if (waitTimer <= 0f)
             {
-                CalculateNextStep();
+                if (CheckPlayerCollision())
+                {
+                    waitTimer = waitTimePerTile; //Reinicia el tiempo de espera sin moverse ja que ha atacado al jugador
+                }
+                else
+                {
+                    //Si el jugador no está cerca, calcula su ruta y se mueve normalmente
+                    CalculateNextStep();
+                }
             }
         }
         else
@@ -134,7 +146,7 @@ public class ReiEmerito : MonoBehaviour
     }
 
     //ATAQUE AL JUGADOR
-    private void CheckPlayerCollision()
+    private bool CheckPlayerCollision()
     {
         PlayerController player = FindFirstObjectByType<PlayerController>();
         if (player != null)
@@ -148,8 +160,11 @@ public class ReiEmerito : MonoBehaviour
             {
                 PlayerStats stats = player.GetComponent<PlayerStats>();
                 if (stats != null) stats.TakeDamage();
+                audioSource.PlayOneShot(SonidoAtaque, 0.3f);//Reproducimos el sonido de ataque
+                return true; //Sí, ha atacado, por lo que bloqueará el movimiento
             }
         }
+        return false; //No ha atacado, puede moverse
     }
 
     // --- SISTEMA DE VIDAS ---
