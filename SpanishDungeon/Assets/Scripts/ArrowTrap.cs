@@ -38,9 +38,9 @@ public class ArrowTrap : MonoBehaviour
     {
         if (arrowPrefab == null) return;
 
-        Vector3 pos = spawnPoint != null ? spawnPoint.position : transform.position + new Vector3(0, 0.5f, 0);
+        // Modificado: Ahora la flecha nace un poco más adelante (0.6f) para no chocar con la propia trampa
+        Vector3 pos = spawnPoint != null ? spawnPoint.position : transform.position + (shootDirection * 0.6f);
 
-        // Instanciamos la flecha con la rotación de la trampa
         GameObject arrowObj = Instantiate(arrowPrefab, pos, transform.rotation);
 
         ArrowProjectile projectile = arrowObj.GetComponent<ArrowProjectile>();

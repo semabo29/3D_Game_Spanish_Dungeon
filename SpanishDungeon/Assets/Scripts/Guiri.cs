@@ -74,22 +74,37 @@ public class Guiri : MonoBehaviour
         Vector3 chosenStepDir = alternateDir ? dirB : dirA;
         Vector3 proposedPosition = transform.position + (chosenStepDir * gridSize);
 
-        // Comprobamos si hay suelo firme antes de saltar (para no caerse por los mapas dinámicos)
-        if (Physics.Raycast(proposedPosition + Vector3.up, Vector3.down, 2f))
+        bool hayMuro = false;
+        // Lanzamos un Raycast desde el centro del Guiri hacia la dirección del paso para ver si choca con un muro/bloque
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position + Vector3.up * 0.5f, chosenStepDir, out hit, gridSize))
         {
-            // Si el suelo es válido, ejecuta el paso
+            //Si lo que hay delante NO es un trigger y NO es el jugador, lo tratamos como un muro
+            if (!hit.collider.isTrigger && hit.collider.GetComponent<PlayerController>() == null)
+            {
+                hayMuro = true;
+            }
+        }
+
+        //Comprobamos si hay suelo firme antes de saltar (para no caerse por el fin del mapa)
+        bool haySuelo = Physics.Raycast(proposedPosition + Vector3.up, Vector3.down, 2f);
+
+        //Si NO hay muro y SÍ hay suelo firme, el Guiri puede avanzar de forma segura
+        if (!hayMuro && haySuelo)
+        {
+            //Si el paso es válido, ejecuta el paso
             targetPosition = proposedPosition;
             targetRotation = Quaternion.LookRotation(chosenStepDir);
             isMoving = true;
 
-            // Registramos el paso dado y alternamos para el siguiente frame de movimiento
+            //Registramos el paso dado y alternamos para el siguiente frame de movimiento
             alternateDir = !alternateDir;
             currentSteps++;
         }
         else
         {
-            // Como está borracho, si se topa con un muro o un precipicio, cambia de rumbo
-            // instantáneamente a otra diagonal aleatoria para no quedarse atascado.
+            // Como está borracho, si se topa con un muro, un bloque cambiado o un precipicio, 
+            // cambia de rumbo instantáneamente a otra diagonal aleatoria para no quedarse atascado o salirse.
             ChooseNewDiagonalPath();
             waitTimer = waitTimePerTile;
         }

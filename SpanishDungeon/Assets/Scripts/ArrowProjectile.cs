@@ -23,6 +23,7 @@ public class ArrowProjectile : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
+        if (other.GetComponent<ArrowTrap>() != null) return;
         // 1. Si choca con el Jugador
         if (other.CompareTag("Player") || other.GetComponent<PlayerController>() != null)
         {
