@@ -2,13 +2,14 @@ using UnityEngine;
 
 public class ReiEmerito : MonoBehaviour
 {
-    [Header("Estadísticas del Jefe")]
-    public int vidas = 3;
-
     [Header("Movimiento Inteligente")]
     public float moveSpeed = 2f;
     public float gridSize = 1f;
-    public float waitTimePerTile = 1.5f; //Ritmo al que avanza por las baldosas
+    public float waitTimePerTile = 1.5f; // Ritmo al que avanza por las baldosas
+
+    [Header("Lógica de Huida")]
+    public float fleeDuration = 3f; // Segundos que pasará huyendo tras interactuar
+    private float fleeTimer = 0f;
 
     private Vector3 targetPosition;
     private Quaternion targetRotation;
@@ -19,33 +20,44 @@ public class ReiEmerito : MonoBehaviour
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip SonidoAtaque;
 
+    private ReiStats stats;
+
     void Start()
     {
         targetPosition = transform.position;
         targetRotation = transform.rotation;
+        stats = GetComponent<ReiStats>(); // Obtenemos las estadísticas heredadas
     }
 
     void Update()
     {
+        if (stats != null && stats.IsDead()) return; // Si está muerto, bloqueamos todo
+
+        // Reducimos el contador de huida frame a frame
+        if (fleeTimer > 0f)
+        {
+            fleeTimer -= Time.deltaTime;
+        }
+
         if (!isMoving)
         {
             waitTimer -= Time.deltaTime;
             if (waitTimer <= 0f)
             {
-                if (CheckPlayerCollision())
+                // Si está huyendo, NO se detiene a atacar, prioriza ganar distancia
+                if (fleeTimer <= 0f && CheckPlayerCollision())
                 {
-                    waitTimer = waitTimePerTile; //Reinicia el tiempo de espera sin moverse ja que ha atacado al jugador
+                    waitTimer = waitTimePerTile;
                 }
                 else
                 {
-                    //Si el jugador no está cerca, calcula su ruta y se mueve normalmente
                     CalculateNextStep();
                 }
             }
         }
         else
         {
-            //Movimiento suave hacia la casilla objetivo
+            // Movimiento suave hacia la casilla objetivo
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.deltaTime);
 
@@ -57,10 +69,14 @@ public class ReiEmerito : MonoBehaviour
             }
         }
 
-        CheckPlayerCollision();
+        // Solo comprueba colisiones físicas reactivas si no está en cooldown de huida
+        if (fleeTimer <= 0f)
+        {
+            CheckPlayerCollision();
+        }
     }
 
-    //PERSECUCIÓN CON EVASIÓN DE OBSTÁCULOS
+    // PERSECUCIÓN O HUIDA CON EVASIÓN DE OBSTÁCULOS
     private void CalculateNextStep()
     {
         PlayerController player = FindFirstObjectByType<PlayerController>();
@@ -69,27 +85,31 @@ public class ReiEmerito : MonoBehaviour
         Vector3 diff = player.transform.position - transform.position;
         Vector3 stepDir = Vector3.zero;
 
-        //Comparamos qué distancia es mayor para acortar camino primero por ahí
+        // Si el temporizador de huida está activo, invertimos la dirección (-1).
+        bool isFleeing = fleeTimer > 0f;
+        float directionModifier = isFleeing ? -1f : 1f;
+
+        // Comparamos qué distancia es mayor para acortar camino (o alargarlo si huye)
         if (Mathf.Abs(diff.x) > Mathf.Abs(diff.z))
         {
-            stepDir = new Vector3(Mathf.Sign(diff.x), 0, 0); //Intenta avanzar por el eje X
+            stepDir = new Vector3(Mathf.Sign(diff.x) * directionModifier, 0, 0); // Eje X
             if (!IsPathClear(stepDir))
             {
-                stepDir = new Vector3(0, 0, Mathf.Sign(diff.z)); //Chocó, intenta esquivar por el eje Z
-                if (!IsPathClear(stepDir)) stepDir = Vector3.zero; //Todo bloqueado, se queda quieto
+                stepDir = new Vector3(0, 0, Mathf.Sign(diff.z) * directionModifier); // Esquiva por Eje Z
+                if (!IsPathClear(stepDir)) stepDir = Vector3.zero;
             }
         }
         else
         {
-            stepDir = new Vector3(0, 0, Mathf.Sign(diff.z)); //Intenta avanzar por el eje Z
+            stepDir = new Vector3(0, 0, Mathf.Sign(diff.z) * directionModifier); // Eje Z
             if (!IsPathClear(stepDir))
             {
-                stepDir = new Vector3(Mathf.Sign(diff.x), 0, 0); //Chocó, intenta esquivar por el eje X
+                stepDir = new Vector3(Mathf.Sign(diff.x) * directionModifier, 0, 0); // Esquiva por Eje X
                 if (!IsPathClear(stepDir)) stepDir = Vector3.zero;
             }
         }
 
-       if (stepDir != Vector3.zero)
+        if (stepDir != Vector3.zero)
         {
             targetPosition = transform.position + (stepDir * gridSize);
             targetRotation = Quaternion.LookRotation(stepDir);
@@ -97,7 +117,7 @@ public class ReiEmerito : MonoBehaviour
         }
         else
         {
-            waitTimer = waitTimePerTile; //Pierde el turno si está encerrado
+            waitTimer = waitTimePerTile; // Se queda quieto si está completamente acorralado
         }
     }
 
@@ -105,26 +125,21 @@ public class ReiEmerito : MonoBehaviour
     {
         if (dir == Vector3.zero) return false;
 
-        //Calculamos la posición a la que quiere ir
         Vector3 nextPos = transform.position + (dir * gridSize);
 
-        //COMPROBACIÓN DE PAREDES
-        //Definimos una caja flotante del tamaño del jefe (2x2).
-        //Usamos 0.9f de "radio" (la mitad de casi 2) para que quepa bien sin rozar las paredes laterales.
+        // COMPROBACIÓN DE PAREDES
         Vector3 tamañoCajaBusqueda = new Vector3(0.9f, 0.5f, 0.9f);
         Collider[] objetosDetectados = Physics.OverlapBox(nextPos + Vector3.up * 0.5f, tamañoCajaBusqueda, Quaternion.identity);
 
         foreach (Collider col in objetosDetectados)
         {
-            // gnoramos los triggers, al jugador y a NOSOTROS MISMOS
             if (col.gameObject != gameObject && !col.isTrigger && col.GetComponent<PlayerController>() == null)
             {
-                return false; //¡Hemos detectado un muro u obstáculo sólido!
+                return false;
             }
         }
 
-        //COMPROBACIÓN DE SUELO
-        //Lanzamos una pequeña caja hacia abajo justo en la grieta/centro de las 4 baldosas
+        // COMPROBACIÓN DE SUELO
         Vector3 posicionSuelo = nextPos + Vector3.down * 0.5f;
         Vector3 tamañoCajaSuelo = new Vector3(0.4f, 0.1f, 0.4f);
         Collider[] sueloDetectado = Physics.OverlapBox(posicionSuelo, tamañoCajaSuelo, Quaternion.identity);
@@ -132,7 +147,6 @@ public class ReiEmerito : MonoBehaviour
         bool haySuelo = false;
         foreach (Collider col in sueloDetectado)
         {
-            //Buscamos cualquier cosa que no seamos nosotros mismos y que no sea un trigger
             if (col.gameObject != gameObject && !col.isTrigger)
             {
                 haySuelo = true;
@@ -140,43 +154,48 @@ public class ReiEmerito : MonoBehaviour
             }
         }
 
-        if (!haySuelo) return false; //Si esa intersección no tiene suelo debajo, no salta
-
-        return true; // Los carriles están despejados y hay suelo, puede avanzar
+        return haySuelo;
     }
 
-    //ATAQUE AL JUGADOR
+    // ATAQUE AL JUGADOR
     private bool CheckPlayerCollision()
     {
+        if (fleeTimer > 0f) return false; // Si está huyendo, el jefe no ataca de vuelta
+
         PlayerController player = FindFirstObjectByType<PlayerController>();
         if (player != null)
         {
             float distanceX = Mathf.Abs(transform.position.x - player.transform.position.x);
             float distanceZ = Mathf.Abs(transform.position.z - player.transform.position.z);
 
-            //Al ser 2x2 y estar en el centro, la distancia al jugador cuando lo pisa es de 0.5f aprox.
-            //Usamos < 1.2f para dar un margen seguro.
             if (distanceX < 1.2f && distanceZ < 1.2f)
             {
-                PlayerStats stats = player.GetComponent<PlayerStats>();
-                if (stats != null) stats.TakeDamage();
-                audioSource.PlayOneShot(SonidoAtaque, 0.3f);//Reproducimos el sonido de ataque
-                return true; //Sí, ha atacado, por lo que bloqueará el movimiento
+                PlayerStats playerStats = player.GetComponent<PlayerStats>();
+                if (playerStats != null) playerStats.TakeDamage();
+
+                if (audioSource != null && SonidoAtaque != null)
+                {
+                    audioSource.PlayOneShot(SonidoAtaque, 0.3f);
+                }
+
+                fleeTimer = fleeDuration; // ¡Activa la huida tras golpear con éxito!
+
+                // NUEVO: Al golpear al jugador, también se vuelve inmune y empieza a parpadear
+                if (stats != null) stats.StartInvincibility();
+
+                return true;
             }
         }
-        return false; //No ha atacado, puede moverse
+        return false;
     }
 
-    // --- SISTEMA DE VIDAS ---
+    // --- ENLACE CON SISTEMA DE VIDAS ---
     public void RecibirDano()
     {
-        vidas--;
-        Debug.Log("¡El Rey Emérito recibe un golpe! Vidas restantes: " + vidas);
+        if (stats == null) return;
+        if (stats.IsInvincible()) return; // Si está en sus frames de parpadeo inmune, ignora el golpe
 
-        if (vidas <= 0)
-        {
-            Debug.Log("¡Jefe derrotado!");
-            Destroy(gameObject);
-        }
+        stats.TakeDamage(); // Esto le resta vida y dispara el parpadeo de forma interna
+        fleeTimer = fleeDuration; // ¡Activa la huida inmediatamente al ser golpeado!
     }
 }
