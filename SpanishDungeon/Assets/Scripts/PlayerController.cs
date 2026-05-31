@@ -156,8 +156,18 @@ public class PlayerController : MonoBehaviour
 
             if (enemyInTarget != null)
             {
-                Debug.Log("¡ZAS! Has atacado y eliminado al enemigo.");
-                Destroy(enemyInTarget);
+                ReiEmerito rey = enemyInTarget.GetComponent<ReiEmerito>();
+
+                if (rey != null)//Si elenemigo es el rei, no lo matamos, le quitamos una vida
+                {
+                    rey.RecibirDano();
+                }
+
+                else//Si el enemigo no es el rey, lo eliminamos directamente
+                {
+                    Debug.Log("¡ZAS! Has atacado y eliminado al enemigo.");
+                    Destroy(enemyInTarget);
+                }
 
                 //Reproducimos el sonido de ataque si el AudioSource y el propio audio estan assignados
                 if (audioSource != null && SonidoAtaque != null)
@@ -220,6 +230,14 @@ public class PlayerController : MonoBehaviour
             float distanceX = Mathf.Abs(guiri.transform.position.x - targetPos.x);
             float distanceZ = Mathf.Abs(guiri.transform.position.z - targetPos.z);
             if (distanceX < 0.1f && distanceZ < 0.1f) return guiri.gameObject;
+        }
+
+        ReiEmerito[] reyes = FindObjectsByType<ReiEmerito>(FindObjectsSortMode.None);
+        foreach (ReiEmerito rey in reyes)
+        {
+            float distanceX = Mathf.Abs(rey.transform.position.x - targetPos.x);
+            float distanceZ = Mathf.Abs(rey.transform.position.z - targetPos.z);
+            if (distanceX < 1.2f && distanceZ < 1.2f) return rey.gameObject;
         }
 
         return null;
