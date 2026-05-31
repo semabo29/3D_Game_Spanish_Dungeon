@@ -39,8 +39,11 @@ public class DoorController : MonoBehaviour
         //Busca los enemigos de tipo básico
         Enemigo_basico[] activeBasics = FindObjectsByType<Enemigo_basico>(FindObjectsSortMode.None);
 
-        //Si no queda ninguno de ningún tipo, abrimos la puerta
-        if (activePatrols.Length == 0 && activeBasics.Length == 0)
+        //Busca si quedan Guiris activos en la sala
+        Guiri[] activeGuiris = FindObjectsByType<Guiri>(FindObjectsSortMode.None);
+
+        //Si no queda ningun enemigo de ningún tipo, abrimos la puerta
+        if (activePatrols.Length == 0 && activeBasics.Length == 0 && activeGuiris.Length == 0)
         {
             OpenDoor();
         }

@@ -668,7 +668,7 @@ MonoBehaviour:
   coinPrefab: {fileID: 7654256707274367480, guid: 00f14f64c9b36af49afb46fa6085bf9a, type: 3}
   enemy1Prefab: {fileID: 3549751317363112814, guid: 851c9f1a88165104f9c503c964526d0a, type: 3}
   enemy2Prefab: {fileID: 739024526051854699, guid: adcf5e595bb86404eb5a7dcb6f1d4cf5, type: 3}
-  enemy3Prefab: {fileID: 7654256707274367480, guid: 3ae860c8166f0174687ef603b172a997, type: 3}
+  enemy3Prefab: {fileID: 739024526051854699, guid: 034d124f38649a147b2ace72812b8b70, type: 3}
   bossPrefab: {fileID: 7654256707274367480, guid: 3ae860c8166f0174687ef603b172a997, type: 3}
   trap1Prefab: {fileID: 1088815067306731086, guid: 3e255bb062382384285fa725aeb8e3cd, type: 3}
   trap2Prefab: {fileID: 6897045804244087036, guid: 273e5a0b009a3f846a1b7bad1caacd51, type: 3}
