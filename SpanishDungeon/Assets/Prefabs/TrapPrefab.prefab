@@ -127,6 +127,8 @@ MonoBehaviour:
   alturaAviso: -0.85
   alturaAtaque: -0.35
   tiempoAviso: 1
+  sonidoAtaque: {fileID: 8300000, guid: 6994ec6568850c346b7015d8ca8adb1d, type: 3}
+  volumenSonido: 1
 --- !u!1001 &4000290067161321937
 PrefabInstance:
   m_ObjectHideFlags: 0
