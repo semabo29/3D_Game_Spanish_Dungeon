@@ -71,6 +71,13 @@ public class MapGenerator : MonoBehaviour
     {
         if (crumbleCoroutine != null) StopCoroutine(crumbleCoroutine);
 
+        //Buscar todas las cervezas sueltas en el mapa y destruirlas de golpe
+        CervezaRota[] cervezasActivas = FindObjectsByType<CervezaRota>(FindObjectsSortMode.None);
+        foreach (CervezaRota cerveza in cervezasActivas)
+        {
+            Destroy(cerveza.gameObject);
+        }
+
         foreach (Transform child in transform)
         {
             Destroy(child.gameObject);
