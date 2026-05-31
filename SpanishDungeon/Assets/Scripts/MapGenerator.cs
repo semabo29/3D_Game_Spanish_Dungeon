@@ -69,6 +69,13 @@ public class MapGenerator : MonoBehaviour
 
     public void LoadNextRoom(PlayerController player, int roomNumber)
     {
+        //Comprobamos si nos hemos pasado del número de mapas (¡Victoria!)
+        if (roomNumber > mapFiles.Length)
+        {
+            player.GetComponent<PlayerStats>().WinGame();
+            return; // Detenemos la función aquí para que no destruya el suelo ni intente cargar la sala 11
+        }
+
         if (crumbleCoroutine != null) StopCoroutine(crumbleCoroutine);
 
         CervezaRota[] cervezasActivas = FindObjectsByType<CervezaRota>(FindObjectsSortMode.None);
