@@ -7,11 +7,10 @@ public class WindmillTrap : MonoBehaviour
 
     [Header("Efectos al Golpear (Rúbrica)")]
     [SerializeField] private AudioClip hitSound;
-    [SerializeField] private ParticleSystem particulasGolpe; // ¡Añadido para la nota visual!
+    [SerializeField] private ParticleSystem particulasGolpe;
 
     void Update()
     {
-        // Al estar este script en "Rotor_Aspas", solo rotará este grupo. ¡Perfecto!
         transform.Rotate(0, 0, rotationSpeed * Time.deltaTime);
     }
 
@@ -30,7 +29,6 @@ public class WindmillTrap : MonoBehaviour
                     AudioSource.PlayClipAtPoint(hitSound, Camera.main.transform.position, 0.7f);
                 }
 
-                // Reproducimos las partículas si existen
                 if (particulasGolpe != null)
                 {
                     particulasGolpe.Play();

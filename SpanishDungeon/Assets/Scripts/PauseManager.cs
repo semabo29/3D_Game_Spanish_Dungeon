@@ -15,7 +15,6 @@ public class PauseManager : MonoBehaviour
 
     void Update()
     {
-        // Detecta la tecla ESC
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (juegoPausado)
@@ -33,15 +32,15 @@ public class PauseManager : MonoBehaviour
     {
         juegoPausado = true;
         panelPausa.SetActive(true);
-        Time.timeScale = 0f; // Congela el tiempo
-        AudioListener.pause = true; // Silencia los sonidos del juego
+        Time.timeScale = 0f; 
+        AudioListener.pause = true; 
     }
 
     public void ReanudarJuego()
     {
         juegoPausado = false;
         panelPausa.SetActive(false);
-        Time.timeScale = 1f; // Descongela el tiempo
+        Time.timeScale = 1f; 
         AudioListener.pause = false;
     }
 

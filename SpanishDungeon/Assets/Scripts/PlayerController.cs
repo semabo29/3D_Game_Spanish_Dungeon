@@ -6,12 +6,11 @@ public class PlayerController : MonoBehaviour
     public float gridSize = 1f;
 
     [HideInInspector] public Vector3 targetPosition;
-    private Quaternion targetRotation; // Guarda la rotación a la que queremos llegar suavemente
+    private Quaternion targetRotation; 
     private bool isMoving = false;
-    private bool isFalling = false; // Control de caída
+    private bool isFalling = false; 
     private Rigidbody rb;
 
-    //Variables al tocar cerveza rota
     private bool isDrunk = false;
     private float drunkTimer = 0f;
 
@@ -23,15 +22,15 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         targetPosition = transform.position;
-        targetRotation = transform.rotation; // Empezamos con la rotación actual
-        rb = GetComponent<Rigidbody>(); // Obtenemos el componente físico
+        targetRotation = transform.rotation;
+        rb = GetComponent<Rigidbody>(); 
     }
 
     void Update()
     {
-        if (isFalling) return; // Si ya está cayendo, bloqueamos todo lo demás
+        if (isFalling) return; 
 
-        if (isDrunk) //Contador del efecto de la cerveza rota
+        if (isDrunk) 
         {
             drunkTimer -= Time.deltaTime;
             if (drunkTimer <= 0f)
@@ -43,42 +42,36 @@ public class PlayerController : MonoBehaviour
 
         if (!isMoving)
         {
-            CheckFloorBeneath(); // Comprobamos si el suelo bajo nuestros pies ha desaparecido
+            CheckFloorBeneath();
 
-            if (!isFalling) // Si sigue habiendo suelo, procesamos el teclado
+            if (!isFalling) 
             {
                 CheckInput();
             }
         }
         else
         {
-            // 1. Movimiento suave hacia la casilla objetivo
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
 
-            // 2. Rotación suave hacia la dirección hacia la que miramos
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 15f * Time.deltaTime);
 
-            // 3. Si estamos ya casi en el ángulo correcto, forzamos el ángulo exacto al 100%
             if (Quaternion.Angle(transform.rotation, targetRotation) < 1f)
             {
                 transform.rotation = targetRotation;
             }
 
-            // --- LA CORRECCIÓN CLAVE ---
-            // Solo dejamos de movernos si físicamente estamos en la casilla Y ADEMÁS la rotación ya es perfecta
             bool reachedPosition = Vector3.Distance(transform.position, targetPosition) < 0.01f;
             bool reachedRotation = Quaternion.Angle(transform.rotation, targetRotation) < 0.1f;
 
             if (reachedPosition && reachedRotation)
             {
                 transform.position = targetPosition;
-                transform.rotation = targetRotation; // Aseguramos el ángulo limpio
+                transform.rotation = targetRotation; 
                 isMoving = false;
             }
         }
     }
 
-    // --- LOGICA DE DETECCIÓN DE PRECIPICIO (EVITA LEVITAR) ---
     private void CheckFloorBeneath()
     {
         RaycastHit[] hits = Physics.RaycastAll(transform.position + Vector3.up, Vector3.down, 2f);
@@ -86,7 +79,6 @@ public class PlayerController : MonoBehaviour
 
         foreach (RaycastHit hit in hits)
         {
-            // Ignoramos al propio jugador y ignoramos los disparadores/triggers invisibles
             if (hit.collider.gameObject != gameObject && !hit.collider.isTrigger)
             {
                 floorFound = true;
@@ -101,7 +93,7 @@ public class PlayerController : MonoBehaviour
             if (rb != null)
             {
                 rb.isKinematic = false;
-                rb.useGravity = true; // El motor de físicas toma el control y cae al vacío
+                rb.useGravity = true; 
             }
 
             GetComponent<PlayerStats>().FallToDeath();
@@ -110,7 +102,6 @@ public class PlayerController : MonoBehaviour
 
     private bool esObstaculoSolido(RaycastHit hit)
     {
-        // Un obstáculo sólido es aquel que NO es un trigger y NO es un enemigo
         return !hit.collider.isTrigger &&
                hit.collider.GetComponent<EnemyPatrol>() == null &&
                hit.collider.GetComponent<Enemigo_basico>() == null &&
@@ -130,7 +121,6 @@ public class PlayerController : MonoBehaviour
         if (direction != Vector3.zero)
         {
 
-            //Si esta bajo el efecto de la cerveza rota, invertimos la dirección del movimiento
             if (isDrunk)
             {
                 direction = -direction;
@@ -138,18 +128,14 @@ public class PlayerController : MonoBehaviour
 
             Vector3 proposedPosition = transform.position + (direction * gridSize);
 
-            // Calculamos la rotación deseada en base a la dirección pulsada
             targetRotation = Quaternion.LookRotation(direction);
 
-            // COMPROBACIÓN DE OBSTÁCULOS (MUROS Y PUERTAS) ---
-            // Lanzamos un rayo hacia adelante desde el pecho del jugador. Si choca con algo a 1 casilla de distancia...
             if (Physics.Raycast(transform.position + new Vector3(0, 0.5f, 0), direction, out RaycastHit hit, gridSize))
             {
-                // Si el obstáculo NO es un trigger (monedas/salidas) y NO es un enemigo, es un muro o puerta cerrada
                 if (esObstaculoSolido(hit))
                 {
                     Debug.Log("Movimiento bloqueado por obstáculo sólido: " + hit.collider.gameObject.name);
-                    return; // Detenemos la función aquí. El jugador gira pero NO se mueve.
+                    return; 
                 }
             }
 
@@ -159,18 +145,17 @@ public class PlayerController : MonoBehaviour
             {
                 Pedro pedro = enemyInTarget.GetComponent<Pedro>();
 
-                if (pedro != null)//Si elenemigo es el rei, no lo matamos, le quitamos una vida
+                if (pedro != null)
                 {
                     pedro.RecibirDano();
                 }
 
-                else//Si el enemigo no es el jefe pedro, lo eliminamos directamente
+                else
                 {
                     Debug.Log("¡ZAS! Has atacado y eliminado al enemigo.");
                     Destroy(enemyInTarget);
                 }
 
-                //Reproducimos el sonido de ataque si el AudioSource y el propio audio estan assignados
                 if (audioSource != null && SonidoAtaque != null)
                 {
                     audioSource.PlayOneShot(SonidoAtaque);
@@ -178,7 +163,6 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                // 3. Si la casilla está libre, nos aseguramos de lanzar el rayo hacia abajo antes de saltar
                 RaycastHit[] floorHits = Physics.RaycastAll(proposedPosition + Vector3.up, Vector3.down, 2f);
                 bool targetFloorFound = false;
 
@@ -195,7 +179,6 @@ public class PlayerController : MonoBehaviour
                 {
                     targetPosition = proposedPosition;
                     isMoving = true;
-                    //Reproducimos el sonido de paso al iniciar el movimiento si el AudioSource y el propio audio estan assignados
                     if (audioSource != null && stepSound != null)
                     {
                         audioSource.PlayOneShot(stepSound);
@@ -207,7 +190,6 @@ public class PlayerController : MonoBehaviour
 
     private GameObject GetEnemyAtPosition(Vector3 targetPos)
     {
-        // Busca si hay un EnemyPatrol normal
         EnemyPatrol[] enemies = FindObjectsByType<EnemyPatrol>(FindObjectsSortMode.None);
         foreach (EnemyPatrol enemy in enemies)
         {
@@ -216,7 +198,6 @@ public class PlayerController : MonoBehaviour
             if (distanceX < 0.1f && distanceZ < 0.1f) return enemy.gameObject;
         }
 
-        // Busca si hay un Enemigo_basico
         Enemigo_basico[] basicos = FindObjectsByType<Enemigo_basico>(FindObjectsSortMode.None);
         foreach (Enemigo_basico basico in basicos)
         {

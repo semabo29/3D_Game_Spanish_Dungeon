@@ -3,12 +3,12 @@ using UnityEngine;
 public class ArrowTrap : MonoBehaviour
 {
     [Header("Configuración de Disparo")]
-    [SerializeField] private GameObject arrowPrefab; // Aquí va el prefab de la Multa
+    [SerializeField] private GameObject arrowPrefab; 
     [SerializeField] private float fireRate = 2f;
     [SerializeField] private Transform spawnPoint;
 
     [Header("Sonido del Radar")]
-    [SerializeField] private AudioClip sonidoFlash; // El sonido de la cámara
+    [SerializeField] private AudioClip sonidoFlash; 
     [SerializeField] private float volumenFlash = 0.8f;
 
     private float timer;
@@ -50,10 +50,8 @@ public class ArrowTrap : MonoBehaviour
             projectile.Setup(shootDirection);
         }
 
-        // --- SONIDO DE FLASH ---
         if (sonidoFlash != null)
         {
-            // Reproducimos en las "orejas" del jugador para que suene fuerte
             AudioSource.PlayClipAtPoint(sonidoFlash, Camera.main.transform.position, volumenFlash);
         }
     }

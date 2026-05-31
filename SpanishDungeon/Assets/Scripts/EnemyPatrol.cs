@@ -20,12 +20,10 @@ public class EnemyPatrol : MonoBehaviour
     {
         targetPosition = transform.position;
 
-        // 1. DESINCRONIZACIÓN: 50% de probabilidad de empezar yendo a un lado u otro
         currentDirection = Random.value > 0.5f ? Vector3.forward : Vector3.back;
         targetRotation = Quaternion.LookRotation(currentDirection);
         transform.rotation = targetRotation;
 
-        // 2. DESINCRONIZACIÓN: Esperan un tiempo aleatorio antes del primer salto (entre 0 y 1 seg)
         waitTimer = Random.Range(0f, waitTimePerTile);
     }
 
@@ -42,23 +40,18 @@ public class EnemyPatrol : MonoBehaviour
         }
         else
         {
-            // 1. Movimiento suave hacia la casilla objetivo
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
 
-            // 2. Rotación suave (Slerp) copiada de tu PlayerController
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 15f * Time.deltaTime);
 
-            // 3. Ajuste fino para evitar vibraciones al final del giro
             if (Quaternion.Angle(transform.rotation, targetRotation) < 1f)
             {
                 transform.rotation = targetRotation;
             }
 
-            // Comprobamos si hemos llegado a la casilla
             if (Vector3.Distance(transform.position, targetPosition) < 0.01f)
             {
                 transform.position = targetPosition;
-                // Opcional: Aseguramos la rotación exacta al terminar el movimiento
                 transform.rotation = targetRotation;
                 isMoving = false;
                 waitTimer = waitTimePerTile;
@@ -72,18 +65,16 @@ public class EnemyPatrol : MonoBehaviour
     {
         bool hitWall = false;
 
-        // 1. Lanzamos un rayo hacia adelante para ver si hay un muro o puerta
         if (Physics.Raycast(transform.position + new Vector3(0, 0.5f, 0), currentDirection, out RaycastHit hit, gridSize))
         {
             if (!hit.collider.isTrigger && hit.collider.GetComponent<PlayerController>() == null)
             {
-                hitWall = true; // ¡Hemos chocado con algo sólido!
+                hitWall = true; 
             }
         }
 
         Vector3 nextPos = transform.position + (currentDirection * gridSize);
 
-        // 2. Si hay muro DELANTE, o NO hay suelo en la siguiente baldosa, damos la vuelta
         if (hitWall || !Physics.Raycast(nextPos + Vector3.up, Vector3.down, 2f))
         {
             currentDirection = -currentDirection;
@@ -106,10 +97,8 @@ public class EnemyPatrol : MonoBehaviour
 
             if (distanceX < 0.3f && distanceZ < 0.3f)
             {
-                // Quitamos vida al jugador
                 player.GetComponent<PlayerStats>().TakeDamage();
 
-                // Destruimos al enemigo para que no te quite los 3 corazones de golpe en un segundo
                 Destroy(gameObject);
             }
         }

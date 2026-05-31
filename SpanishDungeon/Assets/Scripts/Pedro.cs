@@ -38,7 +38,6 @@ public class Pedro : MonoBehaviour
     {
         if (stats != null && stats.IsDead()) return;
 
-        // Gestión del temporizador de huida
         if (fleeTimer > 0f)
         {
             fleeTimer -= Time.deltaTime;
@@ -49,7 +48,6 @@ public class Pedro : MonoBehaviour
             waitTimer -= Time.deltaTime;
             if (waitTimer <= 0f)
             {
-                // Si no está huyendo, comprueba si tiene al jugador en su propia casilla destino para atacarle
                 if (fleeTimer <= 0f && CheckPlayerCollision())
                 {
                     waitTimer = waitTimePerTile;
@@ -73,7 +71,6 @@ public class Pedro : MonoBehaviour
             }
         }
 
-        // Comprobación reactiva constante en su posición actual si no está huyendo
         if (fleeTimer <= 0f)
         {
             CheckPlayerCollision();
@@ -85,14 +82,12 @@ public class Pedro : MonoBehaviour
         PlayerController player = FindFirstObjectByType<PlayerController>();
         if (player == null) return;
 
-        // Comparamos usando la posición lógica de cuadrícula del jugador
         Vector3 diff = player.targetPosition - transform.position;
         Vector3 stepDir = Vector3.zero;
 
         bool isFleeing = fleeTimer > 0f;
         float directionModifier = isFleeing ? -1f : 1f;
 
-        // Elige el eje con mayor distancia para acortar camino (o alargarlo al huir)
         if (Mathf.Abs(diff.x) > Mathf.Abs(diff.z))
         {
             stepDir = new Vector3(Mathf.Sign(diff.x) * directionModifier, 0, 0);
@@ -120,7 +115,7 @@ public class Pedro : MonoBehaviour
         }
         else
         {
-            waitTimer = waitTimePerTile; // Se bloquea temporalmente si no hay salida válida
+            waitTimer = waitTimePerTile; 
         }
     }
 
@@ -130,20 +125,17 @@ public class Pedro : MonoBehaviour
 
         Vector3 nextPos = transform.position + (dir * gridSize);
 
-        // COMPROBACIÓN DE OBSTÁCULOS EXACTA 1x1
         Vector3 boxSize = new Vector3(0.4f, 0.4f, 0.4f);
         Collider[] objects = Physics.OverlapBox(nextPos + Vector3.up * 0.5f, boxSize, Quaternion.identity);
 
         foreach (Collider col in objects)
         {
-            // Muros y objetos sólidos bloquean. Ignoramos triggers y al Player
             if (col.gameObject != gameObject && !col.isTrigger && col.GetComponent<PlayerController>() == null)
             {
                 return false;
             }
         }
 
-        // COMPROBACIÓN DE SUELO BAJO LA CASILLA
         Vector3 floorPos = nextPos + Vector3.down * 0.5f;
         Collider[] floorObjects = Physics.OverlapBox(floorPos, new Vector3(0.3f, 0.1f, 0.3f), Quaternion.identity);
 
@@ -167,7 +159,6 @@ public class Pedro : MonoBehaviour
         PlayerController player = FindFirstObjectByType<PlayerController>();
         if (player != null)
         {
-            // Al ser 1x1, evaluamos si ocupan de forma efectiva la misma casilla lógica
             float distanceX = Mathf.Abs(targetPosition.x - player.targetPosition.x);
             float distanceZ = Mathf.Abs(targetPosition.z - player.targetPosition.z);
 

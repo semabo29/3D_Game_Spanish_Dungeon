@@ -15,18 +15,16 @@ public class Guiri : MonoBehaviour
     private bool isMoving = false;
     private float waitTimer = 0f;
     
-    //Variables para la ruta del guiri
-    private Vector3 dirA;         // Primera dirección del zigzag (ej. Derecha)
-    private Vector3 dirB;         // Segunda dirección del zigzag (ej. Abajo)
-    private int currentSteps = 0; // Contador de pasos en la diagonal actual (Max 6)
-    private bool alternateDir = false; // Alternador para hacer la "S"
+    private Vector3 dirA;        
+    private Vector3 dirB;         
+    private int currentSteps = 0; 
+    private bool alternateDir = false; 
 
     void Start()
     {
         targetPosition = transform.position;
         targetRotation = transform.rotation;
 
-        // Elige su primera dirección borracha al aparecer
         ChooseNewDiagonalPath();
     }
 
@@ -42,7 +40,6 @@ public class Guiri : MonoBehaviour
         }
         else
         {
-            //Movimiento fluido hacia la baldosa objetivo
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 15f * Time.deltaTime);
 
@@ -58,53 +55,42 @@ public class Guiri : MonoBehaviour
             }
         }
 
-        //Mantiene la lógica de dañar al jugador si lo toca
         CheckPlayerCollision();
     }
 
     private void PrepareNextStep()
     {
-        // Si ya ha avanzado los 6 pasos máximos de la "S", cambia de idea de forma aleatoria
         if (currentSteps >= 6)
         {
             ChooseNewDiagonalPath();
         }
 
-        // Alterna entre la dirección A y la dirección B en cada paso para formar la "S"
         Vector3 chosenStepDir = alternateDir ? dirB : dirA;
         Vector3 proposedPosition = transform.position + (chosenStepDir * gridSize);
 
         bool hayMuro = false;
-        // Lanzamos un Raycast desde el centro del Guiri hacia la dirección del paso para ver si choca con un muro/bloque
         RaycastHit hit;
         if (Physics.Raycast(transform.position + Vector3.up * 0.5f, chosenStepDir, out hit, gridSize))
         {
-            //Si lo que hay delante NO es un trigger y NO es el jugador, lo tratamos como un muro
             if (!hit.collider.isTrigger && hit.collider.GetComponent<PlayerController>() == null)
             {
                 hayMuro = true;
             }
         }
 
-        //Comprobamos si hay suelo firme antes de saltar (para no caerse por el fin del mapa)
         bool haySuelo = Physics.Raycast(proposedPosition + Vector3.up, Vector3.down, 2f);
 
-        //Si NO hay muro y SÍ hay suelo firme, el Guiri puede avanzar de forma segura
         if (!hayMuro && haySuelo)
         {
-            //Si el paso es válido, ejecuta el paso
             targetPosition = proposedPosition;
             targetRotation = Quaternion.LookRotation(chosenStepDir);
             isMoving = true;
 
-            //Registramos el paso dado y alternamos para el siguiente frame de movimiento
             alternateDir = !alternateDir;
             currentSteps++;
         }
         else
         {
-            // Como está borracho, si se topa con un muro, un bloque cambiado o un precipicio, 
-            // cambia de rumbo instantáneamente a otra diagonal aleatoria para no quedarse atascado o salirse.
             ChooseNewDiagonalPath();
             waitTimer = waitTimePerTile;
         }
@@ -115,24 +101,23 @@ public class Guiri : MonoBehaviour
         currentSteps = 0;
         alternateDir = false;
 
-        //Elegimos una de las 4 combinaciones macro-diagonales de forma aleatoria (0 a 3)
-        int randomDiagonal = Random.Range(0, 4); //devuelve 0,1,2 o 3, el 4 no esta incluido
+        int randomDiagonal = Random.Range(0, 4); 
 
         switch (randomDiagonal)
         {
-            case 0: // Diagonal: Izquierda + Adelante
+            case 0: 
                 dirA = Vector3.left;
                 dirB = Vector3.forward;
                 break;
-            case 1: // Diagonal: Izquierda + Atrás
+            case 1: 
                 dirA = Vector3.left;
                 dirB = Vector3.back;
                 break;
-            case 2: // Diagonal: Derecha + Adelante
+            case 2: 
                 dirA = Vector3.right;
                 dirB = Vector3.forward;
                 break;
-            case 3: // Diagonal: Derecha + Atrás
+            case 3: 
                 dirA = Vector3.right;
                 dirB = Vector3.back;
                 break;
@@ -154,7 +139,7 @@ public class Guiri : MonoBehaviour
                 {
                     stats.TakeDamage();
                 }
-                Destroy(gameObject); //Desaparece tras golpear al jugador
+                Destroy(gameObject); 
             }
         }
     }

@@ -5,7 +5,7 @@ public class Enemigo_basico : MonoBehaviour
     [Header("Configuración")]
     public float moveSpeed = 5f;
     public float gridSize = 1f;
-    public int chaseRange = 2; // Rango para empezar a perseguir
+    public int chaseRange = 2; 
     public float waitTimePerTile = 0.5f;
     public int coinsToSteal = 3;
 
@@ -65,7 +65,6 @@ public class Enemigo_basico : MonoBehaviour
                 float minDistance = float.MaxValue;
                 float currentDistance = Vector3.Distance(transform.position, player.transform.position);
 
-                // Comprobamos las 4 direcciones posibles
                 Vector3[] possibleDirs = { Vector3.forward, Vector3.back, Vector3.left, Vector3.right };
 
                 foreach (Vector3 dir in possibleDirs)
@@ -75,7 +74,6 @@ public class Enemigo_basico : MonoBehaviour
                         Vector3 nextPos = transform.position + dir * gridSize;
                         float distFromNextPosToPlayer = Vector3.Distance(nextPos, player.transform.position);
 
-                        // Solo aceptamos la casilla si nos ACERCA al jugador (no se aleja) y es la más corta posible
                         if (distFromNextPosToPlayer < currentDistance && distFromNextPosToPlayer < minDistance)
                         {
                             minDistance = distFromNextPosToPlayer;
@@ -84,7 +82,6 @@ public class Enemigo_basico : MonoBehaviour
                     }
                 }
 
-                // Si ha encontrado una ruta válida que lo acerque
                 if (bestDir != Vector3.zero)
                 {
                     targetPosition = transform.position + bestDir * gridSize;
@@ -99,12 +96,10 @@ public class Enemigo_basico : MonoBehaviour
         waitTimer = waitTimePerTile;
     }
 
-    // Comprobador limpio de muros y precipicios
     private bool IsValidMove(Vector3 dir)
     {
         Vector3 nextPos = transform.position + dir * gridSize;
 
-        // Muro bloqueando de frente
         if (Physics.Raycast(transform.position + new Vector3(0, 0.5f, 0), dir, out RaycastHit hit, gridSize))
         {
             if (!hit.collider.isTrigger && hit.collider.GetComponent<PlayerController>() == null)
@@ -113,7 +108,6 @@ public class Enemigo_basico : MonoBehaviour
             }
         }
 
-        // Falta de suelo (caída)
         if (!Physics.Raycast(nextPos + Vector3.up, Vector3.down, 2f))
         {
             return false;
@@ -137,9 +131,8 @@ public class Enemigo_basico : MonoBehaviour
                 {
                     stats.LoseCoins(coinsToSteal);
                     stats.TakeDamage();
-                    if (attackSound != null)//Reproducimos el sonido de ataque si existe
+                    if (attackSound != null)
                     {
-                        //Crea un "altavoz" (fuente de audio) temporal en la posición de la camara (oidos del juego) a 70% volumen , ja que borramos al personaje
                         AudioSource.PlayClipAtPoint(attackSound, Camera.main.transform.position, 0.7f);
                     }
                 }

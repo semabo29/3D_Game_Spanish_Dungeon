@@ -11,18 +11,15 @@ public class SpikeTrap : MonoBehaviour
     [Tooltip("Arrastra aquí tu modelo de pinchos que es hijo del prefab")]
     [SerializeField] private Transform pinchosVisual;
 
-    // Valores sacados de tu Inspector
     [SerializeField] private float alturaEscondidos = -1.2f;
     [SerializeField] private float alturaAviso = -0.7f;
     [SerializeField] private float alturaAtaque = -0.25f;
 
     [SerializeField] private float tiempoAviso = 1f;
 
-    // --- AÑADIDO: CONFIGURACIÓN DE AUDIO ---
     [Header("Sonidos")]
     [SerializeField] private AudioClip sonidoAtaque;
     [SerializeField] private float volumenSonido = 0.8f;
-    // ---------------------------------------
 
     private bool isDangerous = false;
     private bool isWarning = false;
@@ -30,7 +27,6 @@ public class SpikeTrap : MonoBehaviour
 
     void Start()
     {
-        // Posición inicial escondida
         if (pinchosVisual != null)
         {
             pinchosVisual.localPosition = new Vector3(0, alturaEscondidos, 0);
@@ -45,27 +41,23 @@ public class SpikeTrap : MonoBehaviour
 
         if (isDangerous && timer >= timeActive)
         {
-            SetTrapState(false); // Se apaga
+            SetTrapState(false); 
         }
         else if (!isDangerous)
         {
-            // 1. EL AVISO: Sube rápido pero interpolado hasta la altura de aviso
             if (!isWarning && timer >= (timeInactive - tiempoAviso))
             {
                 isWarning = true;
-                StopAllCoroutines(); // Por si estaba bajando, cortamos la animación
+                StopAllCoroutines();
 
-                // Le damos 0.1 segundos de duración para que suba rápido pero no se teletransporte
                 StartCoroutine(MoverPinchos(alturaAviso, 0.1f));
             }
-            // 2. EL ATAQUE: Toca salir a pinchar
             else if (timer >= timeInactive)
             {
                 SetTrapState(true);
             }
         }
 
-        // Chequeamos daño constantemente si es peligrosa
         if (isDangerous)
         {
             CheckPlayerCollision();
@@ -78,31 +70,23 @@ public class SpikeTrap : MonoBehaviour
         timer = 0f;
         isWarning = false;
 
-        // Paramos cualquier animación anterior
         StopAllCoroutines();
 
         if (dangerous)
         {
-            // ATAQUE: En vez de teletransportar, usamos la corrutina con un tiempo casi nulo (0.05s)
-            // Esto da el efecto de latigazo rápido pero manteniendo la transición visual
             StartCoroutine(MoverPinchos(alturaAtaque, 0.05f));
 
-            // --- AÑADIDO: REPRODUCCIÓN DEL SONIDO ---
             if (sonidoAtaque != null)
             {
-                // Suena en la posición de la trampa
                 AudioSource.PlayClipAtPoint(sonidoAtaque, Camera.main.transform.position, volumenSonido);
             }
-            // ----------------------------------------
         }
         else
         {
-            // SE APAGA: Bajan fluidamente hasta esconderse en medio segundo
             StartCoroutine(MoverPinchos(alturaEscondidos, 0.5f));
         }
     }
 
-    // Corrutina general para interpolar el movimiento
     private IEnumerator MoverPinchos(float alturaDestino, float duracion)
     {
         if (pinchosVisual == null) yield break;
@@ -114,14 +98,13 @@ public class SpikeTrap : MonoBehaviour
         while (tiempoPasado < duracion)
         {
             tiempoPasado += Time.deltaTime;
-            float t = tiempoPasado / duracion; // De 0.0 a 1.0
+            float t = tiempoPasado / duracion; 
 
-            // Usamos Lerp para calcular la posición intermedia en cada fotograma
             pinchosVisual.localPosition = Vector3.Lerp(posicionInicial, posicionFinal, t);
             yield return null;
         }
 
-        pinchosVisual.localPosition = posicionFinal; // Aseguramos que termine en la posición exacta
+        pinchosVisual.localPosition = posicionFinal;
     }
 
     private void CheckPlayerCollision()

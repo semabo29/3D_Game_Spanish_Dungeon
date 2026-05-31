@@ -3,12 +3,11 @@ using UnityEngine;
 public class CervezaRota : MonoBehaviour
 {
     [Header("Configuración del Efecto")]
-    [SerializeField] private float duracionBorrachera = 4f; // Cuántos segundos dura el efecto
+    [SerializeField] private float duracionBorrachera = 4f;
     [SerializeField] private AudioClip SonidoBeber;
 
     void Start()
     {
-        //Se autodestruirá a los 4 segundos de nacer si nadie la toca
         Destroy(gameObject, 4f);
     }
     void Update()
@@ -25,17 +24,13 @@ public class CervezaRota : MonoBehaviour
             float distanceX = Mathf.Abs(transform.position.x - player.transform.position.x);
             float distanceZ = Mathf.Abs(transform.position.z - player.transform.position.z);
 
-            //Si el jugador pisa exactamente la casilla de la botella
             if (distanceX < 0.3f && distanceZ < 0.3f)
             {
-                //Le aplicamos la borrachera al jugador
                 player.Enborrachar(duracionBorrachera);
 
-                //La botella rota desaparece
                 Destroy(gameObject);
-                if (SonidoBeber != null)//Reproducimos el sonido de beber
+                if (SonidoBeber != null)
                 {
-                    //Crea un "altavoz" (fuente de audio) temporal en la posición de la camara (oidos del juego) a 70% volumen , ja que borramos la botella
                     AudioSource.PlayClipAtPoint(SonidoBeber, Camera.main.transform.position, 3f);
                 }
             }

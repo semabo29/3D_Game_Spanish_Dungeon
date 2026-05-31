@@ -15,18 +15,18 @@ public class MapGenerator : MonoBehaviour
     [SerializeField] private GameObject coinPrefab;
 
     [Header("Prefabs de Enemigos")]
-    [SerializeField] private GameObject enemy1Prefab; // Patrulla
-    [SerializeField] private GameObject enemy2Prefab; // Perseguidor/Toro
-    [SerializeField] private GameObject enemy3Prefab; // Trampero/Telarañas
-    [SerializeField] private GameObject bossPrefab;   // Jefe Sala 10
+    [SerializeField] private GameObject enemy1Prefab; 
+    [SerializeField] private GameObject enemy2Prefab; 
+    [SerializeField] private GameObject enemy3Prefab; 
+    [SerializeField] private GameObject bossPrefab;   
 
     [Header("Prefabs de Trampas")]
-    [SerializeField] private GameObject trap1Prefab; // Letra T (Pinchos)
-    [SerializeField] private GameObject trap2Prefab; // Letra Y (El Molino)
-    [SerializeField] private GameObject trap3Prefab; // Letras U,H,J,K (Radar)
+    [SerializeField] private GameObject trap1Prefab; 
+    [SerializeField] private GameObject trap2Prefab; 
+    [SerializeField] private GameObject trap3Prefab; 
 
     [Header("Prefabs de Decoración")]
-    [SerializeField] private GameObject[] decorPrefabs; // Array para meter las 5 decoraciones
+    [SerializeField] private GameObject[] decorPrefabs; 
 
     [Header("Configuración del Suelo (Caída)")]
     [SerializeField] private float timeBeforeFalling = 3f;
@@ -71,7 +71,6 @@ public class MapGenerator : MonoBehaviour
     {
         if (crumbleCoroutine != null) StopCoroutine(crumbleCoroutine);
 
-        //Buscar todas las cervezas sueltas en el mapa y destruirlas de golpe
         CervezaRota[] cervezasActivas = FindObjectsByType<CervezaRota>(FindObjectsSortMode.None);
         foreach (CervezaRota cerveza in cervezasActivas)
         {
@@ -103,25 +102,20 @@ public class MapGenerator : MonoBehaviour
             {
                 char tileChar = line[zIndex];
 
-                // --- ARREGLO DEL EFECTO ESPEJO ---
                 int z = (line.Length / 2) - zIndex;
 
                 Vector3 floorPos = new Vector3(x, 0f, z);
                 Vector3 objectPos = new Vector3(x, 0.5f, z);
                 Vector3 wallPos = new Vector3(x, 1f, z);
 
-                // --- PINTAR EL SUELO ---
-                // Solo evitamos pintar suelo si es un hueco vacío ' ', o la trampa de pinchos 'T'
-                // Hemos quitado la 'Y' de aquí, así que el molino SÍ tendrá baldosa debajo.
                 if (tileChar != ' ' && tileChar != 'T')
                 {
                     Instantiate(tilePrefab, floorPos, Quaternion.identity, transform);
                 }
 
-                // 2. Colocamos lo que va ENCIMA
                 switch (tileChar)
                 {
-                    case '.': break; // Pasillo vacío. Ya hay suelo, no hacemos nada.
+                    case '.': break; 
 
                     case '#': Instantiate(wallPrefab, wallPos, Quaternion.identity, transform); break;
                     case 'D': Instantiate(doorPrefab, wallPos, Quaternion.identity, transform); break;
@@ -143,11 +137,8 @@ public class MapGenerator : MonoBehaviour
                     case '3': Instantiate(enemy3Prefab, objectPos, Quaternion.identity, transform); break;
                     case 'B': Instantiate(bossPrefab, objectPos, Quaternion.identity, transform); break;
 
-                    // Las trampas
                     case 'T': Instantiate(trap1Prefab, floorPos, Quaternion.identity, transform); break;
 
-                    // --- EL MOLINO (Trampa 2 / Letra Y) ---
-                    // Lo instanciamos en objectPos para que descanse SOBRE la baldosa, no enterrado.
                     case 'Y': Instantiate(trap2Prefab, objectPos + new Vector3(0, 0.5f, 0), Quaternion.identity, transform); break;
 
                     case 'U':

@@ -16,7 +16,6 @@ public class NextRoomTrigger : MonoBehaviour
             MapGenerator generator = FindFirstObjectByType<MapGenerator>();
             if (generator != null)
             {
-                // Ahora le enviamos también el número de la sala actual
                 generator.LoadNextRoom(player, stats.currentRoom);
             }
         }

@@ -22,13 +22,11 @@ public class Coin : MonoBehaviour
 
             if (distanceX < 0.3f && distanceZ < 0.3f)
             {
-                // Buscamos el script de stats y le sumamos la moneda
                 player.GetComponent<PlayerStats>().AddCoin();
-                Destroy(gameObject); // La moneda desaparece
+                Destroy(gameObject); 
 
-                if (SonidoAgarrarMoneda != null)//Reproducimos el sonido de coger una moneda si existe
+                if (SonidoAgarrarMoneda != null)
                 {
-                    //Crea un "altavoz" (fuente de audio) temporal en la posición de la camara (oidos del juego) a 70% volumen , ja que borramos la moneda
                     AudioSource.PlayClipAtPoint(SonidoAgarrarMoneda, Camera.main.transform.position, 1f);
                 }
             }

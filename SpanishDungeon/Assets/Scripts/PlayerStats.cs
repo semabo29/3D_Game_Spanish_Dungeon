@@ -63,7 +63,6 @@ public class PlayerStats : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-            // Para ataques de enemigos, damos un pequeño margen de 0.5s para que se vea el impacto
             StartCoroutine(DieRoutine(0.5f));
         }
         else
@@ -135,23 +134,18 @@ public class PlayerStats : MonoBehaviour
         currentHealth = 0;
         UpdateUI();
 
-        // Al caer, damos 1.5 segundos para que se aprecie la animación de caída
         StartCoroutine(DieRoutine(1.5f));
     }
 
-    // Convertimos la muerte en una corrutina que recibe el tiempo de espera
     private IEnumerator DieRoutine(float delayBeforeGameOver)
     {
         isDead = true;
 
-        // Quitamos el control inmediatamente para que el jugador no pueda moverse mientras cae/muere
         PlayerController controller = GetComponent<PlayerController>();
         if (controller != null) controller.enabled = false;
 
-        // Esperamos el tiempo indicado sin congelar el juego todavía
         yield return new WaitForSeconds(delayBeforeGameOver);
 
-        // A partir de aquí, ejecutamos el Game Over estándar
         AudioListener.pause = true;
 
         if (sonidoGameOver != null)
@@ -167,7 +161,6 @@ public class PlayerStats : MonoBehaviour
 
         if (gameOverPanel != null) gameOverPanel.SetActive(true);
 
-        // Finalmente, congelamos la pantalla
         Time.timeScale = 0f;
     }
 

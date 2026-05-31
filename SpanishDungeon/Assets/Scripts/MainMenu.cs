@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // Necesario para cambiar de escena
+using UnityEngine.SceneManagement; 
 
 public class MainMenu : MonoBehaviour
 {
@@ -11,15 +11,12 @@ public class MainMenu : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip sonidoClic;
 
-    // Función para el botón JUGAR
     public void EmpezarJuego()
     {
         ReproducirClic();
-        // Carga la escena del juego. Cambia "Nivel_1" por el nombre exacto de tu escena de juego.
         SceneManager.LoadScene("SampleScene");
     }
 
-    // Función para mostrar los CRÉDITOS
     public void AbrirCreditos()
     {
         ReproducirClic();
@@ -27,7 +24,6 @@ public class MainMenu : MonoBehaviour
         panelCreditos.SetActive(true);
     }
 
-    // Función para ocultar los CRÉDITOS y volver al menú
     public void CerrarCreditos()
     {
         ReproducirClic();
@@ -35,15 +31,13 @@ public class MainMenu : MonoBehaviour
         panelPrincipal.SetActive(true);
     }
 
-    // Función para el botón SALIR
     public void SalirDelJuego()
     {
         ReproducirClic();
-        Debug.Log("Saliendo de Spanish Dungeon..."); // Esto solo se ve en el editor
-        Application.Quit(); // Esto cierra el juego cuando esté exportado
+        Debug.Log("Saliendo de Spanish Dungeon..."); 
+        Application.Quit(); 
     }
 
-    // Función auxiliar para que suene el clic sin repetir código
     private void ReproducirClic()
     {
         if (audioSource != null && sonidoClic != null)
