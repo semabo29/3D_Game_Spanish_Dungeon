@@ -103,13 +103,13 @@ public class MapGenerator : MonoBehaviour
                 Vector3 objectPos = new Vector3(x, 0.5f, z);
                 Vector3 wallPos = new Vector3(x, 1f, z);
 
-                // 1. SIEMPRE instanciamos el suelo (salvo que en tu txt dejes un espacio ' ' para hacer un precipicio)
-                if (tileChar != ' ')
+                // --- CORRECCIÓN: NO PINTAMOS SUELO SI ES UNA TRAMPA 'T' o 'Y' ---
+                if (tileChar != ' ' && tileChar != 'T' && tileChar != 'Y')
                 {
                     Instantiate(tilePrefab, floorPos, Quaternion.identity, transform);
                 }
 
-                // 2. Colocamos lo que va ENCIMA (¡Fíjate que ya no hay tilePrefab aquí dentro!)
+                // 2. Colocamos lo que va ENCIMA
                 switch (tileChar)
                 {
                     case '.': break; // Pasillo vacío. Ya hay suelo, no hacemos nada.
@@ -134,7 +134,7 @@ public class MapGenerator : MonoBehaviour
                     case '3': Instantiate(enemy3Prefab, objectPos, Quaternion.identity, transform); break;
                     case 'B': Instantiate(bossPrefab, objectPos, Quaternion.identity, transform); break;
 
-                    // IMPORTANTE: Ahora las trampas usan objectPos para estar apoyadas en el suelo
+                    // Las trampas ahora están libres de chocar con el suelo
                     case 'T': Instantiate(trap1Prefab, floorPos, Quaternion.identity, transform); break;
                     case 'Y': Instantiate(trap2Prefab, floorPos, Quaternion.identity, transform); break;
 
