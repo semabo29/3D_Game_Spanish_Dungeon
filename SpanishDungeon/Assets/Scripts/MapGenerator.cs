@@ -167,11 +167,26 @@ public class MapGenerator : MonoBehaviour
                         tpK.GetComponent<ArrowTrap>().SetDirection(Vector3.back);
                         break;
 
-                    case 'O': if (decorPrefabs.Length > 0) Instantiate(decorPrefabs[0], objectPos, Quaternion.identity, transform); break;
-                    case 'P': if (decorPrefabs.Length > 1) Instantiate(decorPrefabs[1], objectPos, Quaternion.identity, transform); break;
-                    case 'Q': if (decorPrefabs.Length > 2) Instantiate(decorPrefabs[2], objectPos, Quaternion.identity, transform); break;
-                    case 'R': if (decorPrefabs.Length > 3) Instantiate(decorPrefabs[3], objectPos, Quaternion.identity, transform); break;
-                    case 'V': if (decorPrefabs.Length > 4) Instantiate(decorPrefabs[4], objectPos, Quaternion.identity, transform); break;
+                    case 'O':
+                        if (decorPrefabs.Length > 0 && decorPrefabs[0] != null)
+                            Instantiate(decorPrefabs[0], objectPos, Quaternion.identity, transform);
+                        break;
+                    case 'P':
+                        if (decorPrefabs.Length > 1 && decorPrefabs[1] != null)
+                            Instantiate(decorPrefabs[1], objectPos, Quaternion.identity, transform);
+                        break;
+                    case 'Q':
+                        if (decorPrefabs.Length > 2 && decorPrefabs[2] != null)
+                            Instantiate(decorPrefabs[2], objectPos, Quaternion.identity, transform);
+                        break;
+                    case 'R':
+                        if (decorPrefabs.Length > 3 && decorPrefabs[3] != null)
+                            Instantiate(decorPrefabs[3], objectPos, Quaternion.identity, transform);
+                        break;
+                    case 'V':
+                        if (decorPrefabs.Length > 4 && decorPrefabs[4] != null)
+                            Instantiate(decorPrefabs[4], objectPos, Quaternion.identity, transform);
+                        break;
                 }
             }
         }

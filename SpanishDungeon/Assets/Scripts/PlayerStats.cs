@@ -164,6 +164,6 @@ public class PlayerStats : MonoBehaviour
     {
         Time.timeScale = 1f; // Descongelamos el tiempo
         AudioListener.pause = false; // Devolvemos el sonido
-        SceneManager.LoadScene("Menu"); // Vuelve al menú principal (asegúrate de que tu escena se llama "Menu")
+        SceneManager.LoadScene("MenuPrincipal"); // Vuelve al menú principal (asegúrate de que tu escena se llama "Menu")
     }
 }
