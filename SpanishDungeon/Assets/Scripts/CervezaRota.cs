@@ -4,6 +4,7 @@ public class CervezaRota : MonoBehaviour
 {
     [Header("Configuración del Efecto")]
     [SerializeField] private float duracionBorrachera = 4f; // Cuántos segundos dura el efecto
+    [SerializeField] private AudioClip SonidoBeber;
 
     void Start()
     {
@@ -32,6 +33,11 @@ public class CervezaRota : MonoBehaviour
 
                 //La botella rota desaparece
                 Destroy(gameObject);
+                if (SonidoBeber != null)//Reproducimos el sonido de beber
+                {
+                    //Crea un "altavoz" (fuente de audio) temporal en la posición de la camara (oidos del juego) a 70% volumen , ja que borramos la botella
+                    AudioSource.PlayClipAtPoint(SonidoBeber, Camera.main.transform.position, 3f);
+                }
             }
         }
     }
