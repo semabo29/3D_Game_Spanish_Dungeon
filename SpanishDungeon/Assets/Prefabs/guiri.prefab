@@ -217,6 +217,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1665219281df6cd498f16933889da546, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveSpeed: 4
+  gridSize: 1
+  waitTimePerTile: 0.4
+  brokenBeerPrefab: {fileID: 7654256707274367480, guid: 646ce5c80a0f0714dadc103645d85fd7, type: 3}
 --- !u!1001 &5445381864994281557
 PrefabInstance:
   m_ObjectHideFlags: 0

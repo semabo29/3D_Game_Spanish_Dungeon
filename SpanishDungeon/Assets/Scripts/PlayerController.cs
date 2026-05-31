@@ -11,6 +11,10 @@ public class PlayerController : MonoBehaviour
     private bool isFalling = false; // Control de caída
     private Rigidbody rb;
 
+    //Variables al tocar cerveza rota
+    private bool isDrunk = false;
+    private float drunkTimer = 0f;
+
     [Header("Sonidos")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip stepSound;
@@ -26,6 +30,16 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         if (isFalling) return; // Si ya está cayendo, bloqueamos todo lo demás
+
+        if (isDrunk) //Contador del efecto de la cerveza rota
+        {
+            drunkTimer -= Time.deltaTime;
+            if (drunkTimer <= 0f)
+            {
+                isDrunk = false;
+                Debug.Log("¡Ya se te ha pasado el efecto de la cerveza! Controles normales.");
+            }
+        }
 
         if (!isMoving)
         {
@@ -113,6 +127,13 @@ public class PlayerController : MonoBehaviour
 
         if (direction != Vector3.zero)
         {
+
+            //Si esta bajo el efecto de la cerveza rota, invertimos la dirección del movimiento
+            if (isDrunk)
+            {
+                direction = -direction;
+            }
+
             Vector3 proposedPosition = transform.position + (direction * gridSize);
 
             // Calculamos la rotación deseada en base a la dirección pulsada
@@ -193,5 +214,12 @@ public class PlayerController : MonoBehaviour
         }
 
         return null;
+    }
+
+    public void Enborrachar(float duracion)
+    {
+        isDrunk = true;
+        drunkTimer = duracion;
+        Debug.Log("¡Te has emborrachado! Controles invertidos durante " + duracion + " segundos.");
     }
 }

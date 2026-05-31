@@ -1,21 +1,21 @@
 using UnityEngine;
 
-public class EnemigoBorracho : MonoBehaviour
+public class Guiri : MonoBehaviour
 {
     [Header("Configuración de Movimiento")]
     [SerializeField] private float moveSpeed = 4f;
     [SerializeField] private float gridSize = 1f;
-    [SerializeField] private float waitTimePerTile = 0.4f; // Un poco más rápido para que se note el zigzag
+    [SerializeField] private float waitTimePerTile = 0.4f;
 
-    [Header("Configuración de Castigo")]
-    [SerializeField] private int coinsToSteal = 3;
+    [Header("Rastro")]
+    [SerializeField] private GameObject brokenBeerPrefab;
 
     private Vector3 targetPosition;
     private Quaternion targetRotation;
     private bool isMoving = false;
     private float waitTimer = 0f;
-
-    // Variables para la ruta del borracho
+    
+    //Variables para la ruta del guiri
     private Vector3 dirA;         // Primera dirección del zigzag (ej. Derecha)
     private Vector3 dirB;         // Segunda dirección del zigzag (ej. Abajo)
     private int currentSteps = 0; // Contador de pasos en la diagonal actual (Max 6)
@@ -37,12 +37,12 @@ public class EnemigoBorracho : MonoBehaviour
             waitTimer -= Time.deltaTime;
             if (waitTimer <= 0f)
             {
-                PrepareNextDrunkStep();
+                PrepareNextStep();
             }
         }
         else
         {
-            // Movimiento fluido hacia la baldosa objetivo
+            //Movimiento fluido hacia la baldosa objetivo
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 15f * Time.deltaTime);
 
@@ -51,14 +51,18 @@ public class EnemigoBorracho : MonoBehaviour
                 transform.position = targetPosition;
                 isMoving = false;
                 waitTimer = waitTimePerTile;
+                if (brokenBeerPrefab != null)
+                {
+                    Instantiate(brokenBeerPrefab, transform.position, Quaternion.identity);
+                }
             }
         }
 
-        // Mantiene la lógica de dañar al jugador si lo toca
+        //Mantiene la lógica de dañar al jugador si lo toca
         CheckPlayerCollision();
     }
 
-    private void PrepareNextDrunkStep()
+    private void PrepareNextStep()
     {
         // Si ya ha avanzado los 6 pasos máximos de la "S", cambia de idea de forma aleatoria
         if (currentSteps >= 6)
@@ -96,8 +100,8 @@ public class EnemigoBorracho : MonoBehaviour
         currentSteps = 0;
         alternateDir = false;
 
-        // Elegimos una de las 4 combinaciones macro-diagonales de forma aleatoria (0 a 3)
-        int randomDiagonal = Random.Range(0, 4);
+        //Elegimos una de las 4 combinaciones macro-diagonales de forma aleatoria (0 a 3)
+        int randomDiagonal = Random.Range(0, 4); //devuelve 0,1,2 o 3, el 4 no esta incluido
 
         switch (randomDiagonal)
         {
@@ -133,10 +137,9 @@ public class EnemigoBorracho : MonoBehaviour
                 PlayerStats stats = player.GetComponent<PlayerStats>();
                 if (stats != null)
                 {
-                    stats.LoseCoins(coinsToSteal);
                     stats.TakeDamage();
                 }
-                Destroy(gameObject); // Desaparece tras golpear al jugador
+                Destroy(gameObject); //Desaparece tras golpear al jugador
             }
         }
     }
