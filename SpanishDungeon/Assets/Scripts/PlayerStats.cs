@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System.Collections.Generic; // IMPORTANTE: Necesario para usar listas (List<Renderer>)
 
 public class PlayerStats : MonoBehaviour
 {
@@ -9,12 +10,12 @@ public class PlayerStats : MonoBehaviour
     public int maxHealth = 3;
     private int currentHealth;
     private int coins = 0;
-    public int currentRoom = 1; // Añadimos la sala actual
+    public int currentRoom = 1;
 
     [Header("Referencias UI")]
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI coinText;
-    [SerializeField] private TextMeshProUGUI roomText; // Añadimos el texto de la sala
+    [SerializeField] private TextMeshProUGUI roomText;
 
     [Header("Invulnerabilidad")]
     [SerializeField] private float invincibilityTime = 1.5f;
@@ -22,12 +23,24 @@ public class PlayerStats : MonoBehaviour
 
     private bool isDead = false;
     private bool isInvincible = false;
-    private Renderer playerRenderer;
+
+    // CORRECCIÓN CLAVE: Usamos una lista para guardar SOLO las mallas que deben verse
+    private List<Renderer> activeRenderers = new List<Renderer>();
 
     void Start()
     {
         currentHealth = maxHealth;
-        playerRenderer = GetComponent<Renderer>();
+
+        // Buscamos todas las mallas, pero FILTRAMOS las que tienes desactivadas adrede
+        Renderer[] allRenderers = GetComponentsInChildren<Renderer>();
+        foreach (Renderer ren in allRenderers)
+        {
+            if (ren != null && ren.enabled)
+            {
+                activeRenderers.Add(ren); // Solo se añaden las piezas visibles de tu .vox
+            }
+        }
+
         UpdateUI();
     }
 
@@ -57,12 +70,22 @@ public class PlayerStats : MonoBehaviour
 
         while (timer < invincibilityTime)
         {
-            if (playerRenderer != null) playerRenderer.enabled = !playerRenderer.enabled;
+            // Solo hacemos parpadear la lista filtrada pura
+            foreach (Renderer ren in activeRenderers)
+            {
+                if (ren != null) ren.enabled = !ren.enabled;
+            }
+
             yield return new WaitForSeconds(blinkInterval);
             timer += blinkInterval;
         }
 
-        if (playerRenderer != null) playerRenderer.enabled = true;
+        // Al terminar, nos aseguramos de que esas mismas piezas vuelvan a verse
+        foreach (Renderer ren in activeRenderers)
+        {
+            if (ren != null) ren.enabled = true;
+        }
+
         isInvincible = false;
     }
 
@@ -77,11 +100,10 @@ public class PlayerStats : MonoBehaviour
     {
         if (isDead) return;
         coins -= amount;
-        if (coins < 0) coins = 0; //Evita que bajen de cero
+        if (coins < 0) coins = 0; // Evita que bajen de cero
         UpdateUI();
     }
 
-    // Nueva función para avanzar de sala
     public void AddRoom()
     {
         if (isDead) return;
@@ -93,19 +115,20 @@ public class PlayerStats : MonoBehaviour
     {
         if (healthText != null) healthText.text = "Corazones: " + currentHealth;
         if (coinText != null) coinText.text = "Monedas: " + coins;
-        // Actualizamos también el texto de la sala aquí
         if (roomText != null) roomText.text = "Sala: " + currentRoom;
     }
+
     public void FallToDeath()
     {
         if (isDead) return;
 
-        currentHealth = 0; // Vaciamos los corazones
+        currentHealth = 0;
         UpdateUI();
 
         Debug.Log("¡Te has caído al vacío!");
         Die();
     }
+
     private void Die()
     {
         isDead = true;
