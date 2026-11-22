@@ -15,7 +15,10 @@ public class PauseManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        // En las pantallas de victoria / derrota no se puede pausar ni reanudar
+        if (PlayerStats.GameEnded) return;
+
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
         {
             if (juegoPausado)
             {
@@ -31,7 +34,7 @@ public class PauseManager : MonoBehaviour
     public void PausarJuego()
     {
         juegoPausado = true;
-        panelPausa.SetActive(true);
+        if (panelPausa != null) panelPausa.SetActive(true);
         Time.timeScale = 0f; 
         AudioListener.pause = true; 
     }
@@ -39,7 +42,7 @@ public class PauseManager : MonoBehaviour
     public void ReanudarJuego()
     {
         juegoPausado = false;
-        panelPausa.SetActive(false);
+        if (panelPausa != null) panelPausa.SetActive(false);
         Time.timeScale = 1f; 
         AudioListener.pause = false;
     }

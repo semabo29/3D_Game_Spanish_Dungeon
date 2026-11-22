@@ -6,11 +6,21 @@ using System.Collections.Generic;
 
 public class PlayerStats : MonoBehaviour
 {
+    // true cuando se ha mostrado la pantalla de victoria o de derrota
+    public static bool GameEnded { get; private set; }
+
     [Header("Estadísticas")]
     public int maxHealth = 3;
+    [Tooltip("Corazones máximos que se pueden acumular con la lotería")]
+    public int healthCap = 5;
     private int currentHealth;
     private int coins = 0;
     public int currentRoom = 1;
+
+    [Header("Lotería")]
+    [Tooltip("Cada cuántas monedas recogidas te toca el Gordo (+1 corazón)")]
+    [SerializeField] private int coinsPerLottery = 15;
+    private int coinsTowardsLottery = 0;
 
     [Header("Referencias UI")]
     [SerializeField] private TextMeshProUGUI healthText;
@@ -32,14 +42,22 @@ public class PlayerStats : MonoBehaviour
 
     private bool isDead = false;
     private bool isInvincible = false;
+    private Coroutine invincibilityRoutine;
 
     private List<Renderer> activeRenderers = new List<Renderer>();
+
+    public int CurrentHealth => currentHealth;
+    public int Coins => coins;
+    public bool IsDead => isDead;
 
     void Start()
     {
         Time.timeScale = 1f;
         AudioListener.pause = false;
+        GameEnded = false;
         currentHealth = maxHealth;
+
+        RunStats.Reset();
 
         Renderer[] allRenderers = GetComponentsInChildren<Renderer>();
         foreach (Renderer ren in allRenderers)
@@ -53,20 +71,24 @@ public class PlayerStats : MonoBehaviour
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
         if (victoryPanel != null) victoryPanel.SetActive(false);
 
+        GameHUD.Create().ShowRoomBanner(currentRoom);
+
         UpdateUI();
     }
 
     public void WinGame()
     {
-        if (isDead) return; //Si ya morimos en el último segundo, no ganamos
+        if (isDead || GameEnded) return; // Si ya morimos en el último segundo, no ganamos
+        GameEnded = true;
 
-        //Quitamos el control al jugador
+        // Quitamos el control al jugador
         PlayerController controller = GetComponent<PlayerController>();
         if (controller != null) controller.enabled = false;
 
-        AudioListener.pause = true; //Silenciamos el juego
+        AudioListener.pause = true; // Silenciamos el juego
 
-        //Mostramos el panel
+        FinishRun(true);
+
         if (victoryPanel != null) victoryPanel.SetActive(true);
 
         // Congelamos el tiempo
@@ -75,14 +97,19 @@ public class PlayerStats : MonoBehaviour
 
     public void TakeDamage()
     {
-        if (isDead || isInvincible) return;
+        if (isDead || isInvincible || GameEnded) return;
 
         currentHealth--;
+        RunStats.DamageTaken++;
         UpdateUI();
+
+        GameFeel.Shake(0.25f, 0.25f);
+        GameFeel.FloatingText(transform.position, "-1", new Color(1f, 0.25f, 0.25f), 5f);
+        if (GameHUD.Instance != null) GameHUD.Instance.FlashDamage();
 
         if (currentHealth <= 0)
         {
-            StartCoroutine(DieRoutine(0.5f));
+            StartCoroutine(DieRoutine(0.5f, false));
         }
         else
         {
@@ -90,7 +117,8 @@ public class PlayerStats : MonoBehaviour
             {
                 AudioSource.PlayClipAtPoint(sonidoDaño, Camera.main.transform.position, volumenSonidos);
             }
-            StartCoroutine(InvincibilityRoutine());
+            GameFeel.Hitstop(0.08f);
+            invincibilityRoutine = StartCoroutine(InvincibilityRoutine());
         }
     }
 
@@ -110,26 +138,61 @@ public class PlayerStats : MonoBehaviour
             timer += blinkInterval;
         }
 
-        foreach (Renderer ren in activeRenderers)
-        {
-            if (ren != null) ren.enabled = true;
-        }
+        SetRenderersVisible(true);
 
         isInvincible = false;
+        invincibilityRoutine = null;
+    }
+
+    private void SetRenderersVisible(bool visible)
+    {
+        foreach (Renderer ren in activeRenderers)
+        {
+            if (ren != null) ren.enabled = visible;
+        }
     }
 
     public void AddCoin()
     {
-        if (isDead) return;
+        if (isDead || GameEnded) return;
         coins++;
+        RunStats.CoinsCollected++;
+
+        coinsTowardsLottery++;
+        if (coinsTowardsLottery >= coinsPerLottery)
+        {
+            coinsTowardsLottery = 0;
+            WinLottery();
+        }
+
         UpdateUI();
+    }
+
+    // "¡Te ha tocado el Gordo!": +1 corazón (o lo cura si estás tocado)
+    private void WinLottery()
+    {
+        RunStats.LotteryWins++;
+        if (currentHealth < healthCap) currentHealth++;
+
+        GameFeel.FloatingText(transform.position, "+1 CORAZÓN", new Color(0.3f, 1f, 0.4f), 5f);
+        GameFeel.VoxelBurst(transform.position, new Color(1f, 0.85f, 0.15f), 20, 3.5f);
+        if (GameHUD.Instance != null)
+        {
+            GameHUD.Instance.ShowToast("¡TE HA TOCADO EL GORDO!", new Color(1f, 0.85f, 0.15f), 1.6f);
+        }
     }
 
     public void LoseCoins(int amount)
     {
-        if (isDead) return;
-        coins -= amount;
-        if (coins < 0) coins = 0;
+        if (isDead || GameEnded) return;
+        int lost = Mathf.Min(amount, coins);
+        coins -= lost;
+        RunStats.CoinsLost += lost;
+
+        if (lost > 0)
+        {
+            GameFeel.FloatingText(transform.position + Vector3.right * 0.5f, "-" + lost + " monedas", new Color(1f, 0.8f, 0.2f), 3.5f);
+        }
         UpdateUI();
     }
 
@@ -138,12 +201,14 @@ public class PlayerStats : MonoBehaviour
         if (isDead) return;
         currentRoom++;
         UpdateUI();
+        if (GameHUD.Instance != null && !GameEnded) GameHUD.Instance.ShowRoomBanner(currentRoom);
     }
 
     private void UpdateUI()
     {
         if (healthText != null) healthText.text = "Corazones: " + currentHealth;
         if (coinText != null) coinText.text = "Monedas: " + coins;
+        if (GameHUD.Instance != null) GameHUD.Instance.SetLotteryProgress(coinsTowardsLottery, coinsPerLottery);
         if (roomText != null) roomText.text = "Sala: " + currentRoom;
     }
 
@@ -153,18 +218,31 @@ public class PlayerStats : MonoBehaviour
         currentHealth = 0;
         UpdateUI();
 
-        StartCoroutine(DieRoutine(1.5f));
+        if (GameHUD.Instance != null) GameHUD.Instance.ShowToast("¡AL VACÍO!", new Color(1f, 0.3f, 0.3f), 1.2f);
+
+        StartCoroutine(DieRoutine(1.5f, true));
     }
 
-    private IEnumerator DieRoutine(float delayBeforeGameOver)
+    private IEnumerator DieRoutine(float delayBeforeGameOver, bool fell)
     {
         isDead = true;
 
         PlayerController controller = GetComponent<PlayerController>();
         if (controller != null) controller.enabled = false;
 
+        if (!fell)
+        {
+            // Torrento estalla en vóxeles
+            if (invincibilityRoutine != null) StopCoroutine(invincibilityRoutine);
+            SetRenderersVisible(false);
+            GameFeel.VoxelBurst(transform.position, new Color(0.35f, 0.3f, 0.2f), 24, 5f);
+            GameFeel.VoxelBurst(transform.position, new Color(0.7f, 0.6f, 0.25f), 10, 4f);
+            GameFeel.Shake(0.35f, 0.4f);
+        }
+
         yield return new WaitForSeconds(delayBeforeGameOver);
 
+        GameEnded = true;
         AudioListener.pause = true;
 
         if (sonidoGameOver != null)
@@ -178,9 +256,20 @@ public class PlayerStats : MonoBehaviour
             Destroy(audioObj, sonidoGameOver.length + 0.1f);
         }
 
+        FinishRun(false);
+
         if (gameOverPanel != null) gameOverPanel.SetActive(true);
 
         Time.timeScale = 0f;
+    }
+
+    private void FinishRun(bool victory)
+    {
+        // Al ganar, currentRoom ya apunta a la "sala siguiente" a la última
+        int room = victory ? Mathf.Max(1, currentRoom - 1) : currentRoom;
+        int score = RunStats.CalculateScore(coins, room, victory);
+        bool newRecord = RunStats.SaveRun(score, room, victory);
+        if (GameHUD.Instance != null) GameHUD.Instance.ShowEndStats(victory, score, coins, room, newRecord);
     }
 
     public void BotonReiniciar()

@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController Instance { get; private set; }
+
     public float moveSpeed = 5f;
     public float gridSize = 1f;
 
@@ -14,10 +16,29 @@ public class PlayerController : MonoBehaviour
     private bool isDrunk = false;
     private float drunkTimer = 0f;
 
+    [Header("Combo")]
+    [SerializeField] private float comboWindow = 2f;
+    private int comboCount = 0;
+    private float lastKillTime = -10f;
+
+    private static readonly string[] KillShouts = { "¡ZAS!", "¡PUM!", "¡OLÉ!", "¡TOMA!", "¡HALA!", "¡ZASCA!" };
+
     [Header("Sonidos")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip stepSound;
     [SerializeField] private AudioClip SonidoAtaque;
+
+    void Awake()
+    {
+        Instance = this;
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
+    public bool IsDrunk => isDrunk;
 
     void Start()
     {
@@ -134,7 +155,6 @@ public class PlayerController : MonoBehaviour
             {
                 if (esObstaculoSolido(hit))
                 {
-                    Debug.Log("Movimiento bloqueado por obstáculo sólido: " + hit.collider.gameObject.name);
                     return; 
                 }
             }
@@ -145,15 +165,16 @@ public class PlayerController : MonoBehaviour
             {
                 Pedro pedro = enemyInTarget.GetComponent<Pedro>();
 
+                // Nos giramos hacia el enemigo aunque no nos movamos
+                transform.rotation = targetRotation;
+
                 if (pedro != null)
                 {
                     pedro.RecibirDano();
                 }
-
                 else
                 {
-                    Debug.Log("¡ZAS! Has atacado y eliminado al enemigo.");
-                    Destroy(enemyInTarget);
+                    KillEnemy(enemyInTarget);
                 }
 
                 if (audioSource != null && SonidoAtaque != null)
@@ -225,8 +246,52 @@ public class PlayerController : MonoBehaviour
         return null;
     }
 
+    private void KillEnemy(GameObject enemy)
+    {
+        Vector3 pos = enemy.transform.position;
+        Color color = EnemyColor(enemy);
+        Destroy(enemy);
+
+        RunStats.Kills++;
+
+        if (Time.time - lastKillTime <= comboWindow) comboCount++;
+        else comboCount = 1;
+        lastKillTime = Time.time;
+        if (comboCount > RunStats.BestCombo) RunStats.BestCombo = comboCount;
+
+        GameFeel.VoxelBurst(pos, color, 16, 4.5f);
+        GameFeel.Shake(0.12f, 0.15f);
+        GameFeel.Hitstop(0.05f);
+
+        if (comboCount >= 2)
+        {
+            string label = comboCount == 2 ? "¡DOBLE!" : comboCount == 3 ? "¡TRIPLE!" : "¡COMBO x" + comboCount + "!";
+            GameFeel.FloatingText(pos, label, new Color(1f, 0.55f, 0.1f), 5f);
+            // Premio por combo: una moneda extra
+            PlayerStats stats = GetComponent<PlayerStats>();
+            if (stats != null) stats.AddCoin();
+        }
+        else
+        {
+            GameFeel.FloatingText(pos, KillShouts[Random.Range(0, KillShouts.Length)], Color.white, 4.5f);
+        }
+    }
+
+    private static Color EnemyColor(GameObject enemy)
+    {
+        if (enemy.GetComponent<EnemyPatrol>() != null) return new Color(0.45f, 0.25f, 0.12f);   // Toro
+        if (enemy.GetComponent<Enemigo_basico>() != null) return new Color(0.15f, 0.18f, 0.4f); // Carterista (chándal)
+        if (enemy.GetComponent<Guiri>() != null) return new Color(1f, 0.55f, 0.7f);             // Guiri (flotador rosa)
+        return Color.gray;
+    }
+
     public void Enborrachar(float duracion)
     {
+        if (!isDrunk)
+        {
+            GameFeel.FloatingText(transform.position, "¡HIP!", new Color(1f, 0.85f, 0.2f), 5f);
+            if (GameHUD.Instance != null) GameHUD.Instance.ShowToast("¡Borracho! Controles invertidos", new Color(1f, 0.85f, 0.2f), 1.2f);
+        }
         isDrunk = true;
         drunkTimer = duracion;
         Debug.Log("¡Te has emborrachado! Controles invertidos durante " + duracion + " segundos.");

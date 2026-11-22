@@ -126,7 +126,7 @@ public class Guiri : MonoBehaviour
 
     private void CheckPlayerCollision()
     {
-        PlayerController player = FindFirstObjectByType<PlayerController>();
+        PlayerController player = PlayerController.Instance;
         if (player != null)
         {
             float distanceX = Mathf.Abs(transform.position.x - player.transform.position.x);
@@ -139,6 +139,7 @@ public class Guiri : MonoBehaviour
                 {
                     stats.TakeDamage();
                 }
+                GameFeel.VoxelBurst(transform.position, new Color(1f, 0.55f, 0.7f), 10, 3f);
                 Destroy(gameObject); 
             }
         }

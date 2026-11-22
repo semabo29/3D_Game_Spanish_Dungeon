@@ -52,7 +52,7 @@ public class Enemigo_basico : MonoBehaviour
 
     private void CheckAndChasePlayer()
     {
-        PlayerController player = FindFirstObjectByType<PlayerController>();
+        PlayerController player = PlayerController.Instance;
         if (player != null)
         {
             float gridDistX = Mathf.Abs(player.transform.position.x - transform.position.x) / gridSize;
@@ -118,7 +118,7 @@ public class Enemigo_basico : MonoBehaviour
 
     private void CheckPlayerCollision()
     {
-        PlayerController player = FindFirstObjectByType<PlayerController>();
+        PlayerController player = PlayerController.Instance;
         if (player != null)
         {
             float distanceX = Mathf.Abs(transform.position.x - player.transform.position.x);
@@ -131,11 +131,13 @@ public class Enemigo_basico : MonoBehaviour
                 {
                     stats.LoseCoins(coinsToSteal);
                     stats.TakeDamage();
+                    GameFeel.FloatingText(transform.position + Vector3.left * 0.6f, "¡Mi cartera!", new Color(1f, 0.85f, 0.3f), 4f);
                     if (attackSound != null)
                     {
                         AudioSource.PlayClipAtPoint(attackSound, Camera.main.transform.position, 0.7f);
                     }
                 }
+                GameFeel.VoxelBurst(transform.position, new Color(0.15f, 0.18f, 0.4f), 10, 3f);
                 Destroy(gameObject);
             }
         }

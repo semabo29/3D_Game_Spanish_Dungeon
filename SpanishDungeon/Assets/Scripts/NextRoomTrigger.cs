@@ -8,7 +8,7 @@ public class NextRoomTrigger : MonoBehaviour
 
         if (player != null)
         {
-            Debug.Log("¡Has cruzado la puerta! Generando siguiente sala...");
+            Debug.Log("Â¡Has cruzado la puerta! Generando siguiente sala...");
 
             PlayerStats stats = player.GetComponent<PlayerStats>();
             stats.AddRoom();

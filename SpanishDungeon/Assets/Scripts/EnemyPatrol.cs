@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class EnemyPatrol : MonoBehaviour
 {
-    [Header("Configuración del Movimiento")]
+    [Header("ConfiguraciÃ³n del Movimiento")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float gridSize = 1f;
 
-    [Header("Configuración del Ritmo")]
+    [Header("ConfiguraciÃ³n del Ritmo")]
     [SerializeField] private float waitTimePerTile = 1f;
 
     private Vector3 targetPosition;
@@ -88,7 +88,7 @@ public class EnemyPatrol : MonoBehaviour
 
     private void CheckPlayerCollision()
     {
-        PlayerController player = FindFirstObjectByType<PlayerController>();
+        PlayerController player = PlayerController.Instance;
 
         if (player != null)
         {
@@ -98,6 +98,8 @@ public class EnemyPatrol : MonoBehaviour
             if (distanceX < 0.3f && distanceZ < 0.3f)
             {
                 player.GetComponent<PlayerStats>().TakeDamage();
+                GameFeel.FloatingText(transform.position + Vector3.left * 0.6f, "Â¡Cornada!", new Color(1f, 0.5f, 0.3f), 4f);
+                GameFeel.VoxelBurst(transform.position, new Color(0.45f, 0.25f, 0.12f), 10, 3f);
 
                 Destroy(gameObject);
             }

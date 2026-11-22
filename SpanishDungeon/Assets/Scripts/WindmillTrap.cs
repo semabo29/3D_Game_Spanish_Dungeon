@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class WindmillTrap : MonoBehaviour
 {
-    [Header("Configuración del Molino")]
+    [Header("ConfiguraciÃ³n del Molino")]
     [SerializeField] private float rotationSpeed = 90f;
 
-    [Header("Efectos al Golpear (Rúbrica)")]
+    [Header("Efectos al Golpear (RÃºbrica)")]
     [SerializeField] private AudioClip hitSound;
     [SerializeField] private ParticleSystem particulasGolpe;
 
@@ -22,7 +22,7 @@ public class WindmillTrap : MonoBehaviour
             if (stats != null)
             {
                 stats.TakeDamage();
-                Debug.Log("¡Ay! El aspa del molino manchego te ha golpeado.");
+                Debug.Log("Â¡Ay! El aspa del molino manchego te ha golpeado.");
 
                 if (hitSound != null)
                 {

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ArrowTrap : MonoBehaviour
 {
-    [Header("Configuración de Disparo")]
+    [Header("ConfiguraciÃ³n de Disparo")]
     [SerializeField] private GameObject arrowPrefab; 
     [SerializeField] private float fireRate = 2f;
     [SerializeField] private Transform spawnPoint;

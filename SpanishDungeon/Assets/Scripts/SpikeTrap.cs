@@ -3,12 +3,12 @@ using System.Collections;
 
 public class SpikeTrap : MonoBehaviour
 {
-    [Header("Configuración del Temporizador")]
+    [Header("ConfiguraciÃ³n del Temporizador")]
     [SerializeField] private float timeActive = 2f;
     [SerializeField] private float timeInactive = 3f;
 
-    [Header("Animación Visual")]
-    [Tooltip("Arrastra aquí tu modelo de pinchos que es hijo del prefab")]
+    [Header("AnimaciÃ³n Visual")]
+    [Tooltip("Arrastra aquÃ­ tu modelo de pinchos que es hijo del prefab")]
     [SerializeField] private Transform pinchosVisual;
 
     [SerializeField] private float alturaEscondidos = -1.2f;
@@ -109,7 +109,7 @@ public class SpikeTrap : MonoBehaviour
 
     private void CheckPlayerCollision()
     {
-        PlayerController player = FindFirstObjectByType<PlayerController>();
+        PlayerController player = PlayerController.Instance;
 
         if (player != null)
         {

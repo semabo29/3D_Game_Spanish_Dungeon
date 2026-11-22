@@ -4,11 +4,12 @@ using System.Collections;
 public class DoorController : MonoBehaviour
 {
     private bool isOpen = false;
+    private float checkTimer = 0f;
 
     [Header("Sonidos")]
     [SerializeField] private AudioClip SonidoPuerta;
 
-    [Header("Animaci�n de Ascenso")]
+    [Header("Animación de Ascenso")]
     [SerializeField] private float alturaSubida = 3f; 
     [SerializeField] private float velocidadSubida = 2f;
 
@@ -25,7 +26,13 @@ public class DoorController : MonoBehaviour
     {
         if (!isOpen)
         {
-            CheckEnemies();
+            // Comprobar 5 veces por segundo es más que suficiente y mucho más barato
+            checkTimer -= Time.deltaTime;
+            if (checkTimer <= 0f)
+            {
+                checkTimer = 0.2f;
+                CheckEnemies();
+            }
         }
     }
 
@@ -48,7 +55,13 @@ public class DoorController : MonoBehaviour
     private void OpenDoor()
     {
         isOpen = true;
-        Debug.Log("�Sala despejada! La puerta se ha abierto.");
+
+        if (GameHUD.Instance != null)
+        {
+            GameHUD.Instance.ShowToast("¡Sala despejada! La puerta está abierta", new Color(0.4f, 1f, 0.5f), 1.3f);
+        }
+        GameFeel.Shake(0.08f, 0.3f);
+        Debug.Log("¡Sala despejada! La puerta se ha abierto.");
 
         if (SonidoPuerta != null)
         {

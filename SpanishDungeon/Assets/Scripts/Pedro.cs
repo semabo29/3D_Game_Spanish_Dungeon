@@ -23,11 +23,23 @@ public class Pedro : MonoBehaviour
 
     private PedroStats stats;
 
+    [Header("Fase 2 (última vida)")]
+    public float phase2SpeedMultiplier = 1.4f;
+    public float phase2WaitMultiplier = 0.55f;
+    private bool phase2 = false;
+    private float baseMoveSpeed;
+    private float baseWaitTime;
+
+    private static readonly string[] HitTaunts = { "¡No me consta!", "¡Es un bulo!", "¡Fake news!", "¡Convoco elecciones!", "¡Eso es de la oposición!" };
+    private static readonly string[] AttackTaunts = { "¡Subida de impuestos!", "¡Recorte para ti!", "¡Decreto ley!", "¡A la cola del paro!" };
+
     void Start()
     {
         targetPosition = transform.position;
         targetRotation = transform.rotation;
         stats = GetComponent<PedroStats>();
+        baseMoveSpeed = moveSpeed;
+        baseWaitTime = waitTimePerTile;
         if (audioSource != null && SonidoRisa != null)
         {
             audioSource.PlayOneShot(SonidoRisa, 2.0f);
@@ -79,7 +91,7 @@ public class Pedro : MonoBehaviour
 
     private void CalculateNextStep()
     {
-        PlayerController player = FindFirstObjectByType<PlayerController>();
+        PlayerController player = PlayerController.Instance;
         if (player == null) return;
 
         Vector3 diff = player.targetPosition - transform.position;
@@ -156,7 +168,7 @@ public class Pedro : MonoBehaviour
     {
         if (fleeTimer > 0f) return false;
 
-        PlayerController player = FindFirstObjectByType<PlayerController>();
+        PlayerController player = PlayerController.Instance;
         if (player != null)
         {
             float distanceX = Mathf.Abs(targetPosition.x - player.targetPosition.x);
@@ -171,6 +183,7 @@ public class Pedro : MonoBehaviour
                 {
                     audioSource.PlayOneShot(SonidoAtaque, 2.0f);
                 }
+                GameFeel.FloatingText(transform.position + Vector3.right * 0.6f, AttackTaunts[Random.Range(0, AttackTaunts.Length)], new Color(1f, 0.4f, 0.35f), 4f);
 
                 GatillarHuidaEInmunidad();
                 return true;
@@ -184,7 +197,36 @@ public class Pedro : MonoBehaviour
         if (stats == null || stats.IsInvincible()) return;
 
         stats.TakeDamage();
+
+        GameFeel.VoxelBurst(transform.position, new Color(0.12f, 0.14f, 0.25f), 10, 3.5f);
+        GameFeel.Shake(0.2f, 0.2f);
+        GameFeel.Hitstop(0.08f);
+
+        if (stats.IsDead()) return;
+
+        GameFeel.FloatingText(transform.position, HitTaunts[Random.Range(0, HitTaunts.Length)], Color.white, 4.5f);
+
+        if (!phase2 && stats.IsLastLife)
+        {
+            EnterPhase2();
+        }
+
         GatillarHuidaEInmunidad();
+    }
+
+    private void EnterPhase2()
+    {
+        phase2 = true;
+        moveSpeed = baseMoveSpeed * phase2SpeedMultiplier;
+        waitTimePerTile = baseWaitTime * phase2WaitMultiplier;
+        if (GameHUD.Instance != null)
+        {
+            GameHUD.Instance.ShowToast("¡Pedro se atrinchera en el escaño! (más rápido)", new Color(1f, 0.3f, 0.25f), 1.8f);
+        }
+        if (audioSource != null && SonidoRisa != null)
+        {
+            audioSource.PlayOneShot(SonidoRisa, 2.0f);
+        }
     }
 
     private void GatillarHuidaEInmunidad()

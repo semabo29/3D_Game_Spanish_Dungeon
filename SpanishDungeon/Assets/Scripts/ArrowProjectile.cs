@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ArrowProjectile : MonoBehaviour
 {
-    [Header("Configuración de la Multa")]
+    [Header("ConfiguraciÃ³n de la Multa")]
     [SerializeField] private float speed = 8f;
     [SerializeField] private int monedasDeMulta = 2; 
 
@@ -36,10 +36,11 @@ public class ArrowProjectile : MonoBehaviour
             PlayerStats stats = other.GetComponent<PlayerStats>();
             if (stats != null)
             {
-                stats.TakeDamage(); 
                 stats.LoseCoins(monedasDeMulta); 
+                stats.TakeDamage(); 
+                GameFeel.FloatingText(other.transform.position + Vector3.left * 0.5f, "Â¡MULTA!", new Color(0.4f, 0.65f, 1f), 4.5f);
 
-                Debug.Log("¡Te ha pillado el radar! Pierdes 1 vida y " + monedasDeMulta + " monedas.");
+                Debug.Log("Â¡Te ha pillado el radar! Pierdes 1 vida y " + monedasDeMulta + " monedas.");
             }
 
             if (sonidoImpacto != null)
@@ -47,6 +48,7 @@ public class ArrowProjectile : MonoBehaviour
                 AudioSource.PlayClipAtPoint(sonidoImpacto, Camera.main.transform.position, volumenImpacto);
             }
 
+            GameFeel.VoxelBurst(transform.position, new Color(0.9f, 0.9f, 0.95f), 6, 2f);
             Destroy(gameObject);
         }
         else if (!other.isTrigger)

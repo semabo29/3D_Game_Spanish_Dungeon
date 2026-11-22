@@ -17,7 +17,7 @@ public class CervezaRota : MonoBehaviour
 
     private void CheckPlayerCollision()
     {
-        PlayerController player = FindFirstObjectByType<PlayerController>();
+        PlayerController player = PlayerController.Instance;
 
         if (player != null)
         {

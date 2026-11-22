@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class MapGenerator : MonoBehaviour
 {
@@ -31,6 +32,12 @@ public class MapGenerator : MonoBehaviour
     [Header("Configuración del Suelo (Caída)")]
     [SerializeField] private float timeBeforeFalling = 3f;
     [SerializeField] private float fallSpeed = 1.5f;
+    [Tooltip("Segundos que tiembla una fila antes de caer (aviso al jugador)")]
+    [SerializeField] private float crumbleWarningTime = 0.6f;
+
+    [Header("Depuración")]
+    [Tooltip("Permite saltar de sala con las teclas 0-9 (siempre activo en el editor)")]
+    [SerializeField] private bool debugRoomKeysInBuild = false;
 
     private Coroutine crumbleCoroutine;
     private int currentMapLength = 0;
@@ -43,6 +50,9 @@ public class MapGenerator : MonoBehaviour
 
     void Update()
     {
+        if (!(Application.isEditor || Debug.isDebugBuild || debugRoomKeysInBuild)) return;
+        if (Time.timeScale == 0f) return;
+
         if (Input.GetKeyDown(KeyCode.Alpha1)) JumpToRoom(1);
         if (Input.GetKeyDown(KeyCode.Alpha2)) JumpToRoom(2);
         if (Input.GetKeyDown(KeyCode.Alpha3)) JumpToRoom(3);
@@ -57,7 +67,7 @@ public class MapGenerator : MonoBehaviour
 
     private void JumpToRoom(int targetRoom)
     {
-        PlayerController player = FindFirstObjectByType<PlayerController>();
+        PlayerController player = PlayerController.Instance;
         if (player != null)
         {
             PlayerStats stats = player.GetComponent<PlayerStats>();
@@ -84,8 +94,17 @@ public class MapGenerator : MonoBehaviour
             Destroy(cerveza.gameObject);
         }
 
+        // Las multas en vuelo no son hijas del generador: también hay que limpiarlas
+        ArrowProjectile[] multas = FindObjectsByType<ArrowProjectile>(FindObjectsSortMode.None);
+        foreach (ArrowProjectile multa in multas)
+        {
+            Destroy(multa.gameObject);
+        }
+
         foreach (Transform child in transform)
         {
+            // Lo sacamos ya de la jerarquía para que la nueva sala no lo vea (Destroy es diferido)
+            child.gameObject.SetActive(false);
             Destroy(child.gameObject);
         }
 
@@ -107,7 +126,8 @@ public class MapGenerator : MonoBehaviour
 
             for (int zIndex = 0; zIndex < line.Length; zIndex++)
             {
-                char tileChar = line[zIndex];
+                // Mayúsculas y minúsculas valen lo mismo (p. ej. la 's' de Sala10.txt)
+                char tileChar = char.ToUpperInvariant(line[zIndex]);
 
                 int z = (line.Length / 2) - zIndex;
 
@@ -129,7 +149,7 @@ public class MapGenerator : MonoBehaviour
                     case 'X': Instantiate(exitTriggerPrefab, objectPos, Quaternion.identity, transform); break;
 
                     case 'S':
-                        PlayerController player = FindFirstObjectByType<PlayerController>();
+                        PlayerController player = PlayerController.Instance;
                         if (player != null)
                         {
                             player.transform.position = objectPos;
@@ -192,26 +212,82 @@ public class MapGenerator : MonoBehaviour
 
     private IEnumerator CrumbleFloorRoutine(int roomNumber)
     {
-        if (roomNumber < 3 || roomNumber == 10) yield break;
+        // Sin derrumbe en las dos primeras salas ni en la del jefe
+        if (roomNumber < 3 || roomNumber == mapFiles.Length) yield break;
 
         yield return new WaitForSeconds(timeBeforeFalling);
 
+        if (GameHUD.Instance != null)
+        {
+            GameHUD.Instance.ShowToast("¡El suelo se hunde! ¡Corre!", new Color(1f, 0.45f, 0.2f), 1.2f);
+        }
+
+        float warning = Mathf.Min(crumbleWarningTime, fallSpeed);
+
         for (int x = -1; x <= currentMapLength; x++)
         {
+            List<Transform> row = new List<Transform>();
             foreach (Transform child in transform)
             {
-                if (Mathf.RoundToInt(child.position.x) == x)
-                {
-                    Rigidbody rb = child.GetComponent<Rigidbody>();
-                    if (rb == null) rb = child.gameObject.AddComponent<Rigidbody>();
-
-                    rb.isKinematic = false;
-                    rb.useGravity = true;
-
-                    Destroy(child.gameObject, 3f);
-                }
+                if (child.gameObject.activeSelf && Mathf.RoundToInt(child.position.x) == x) row.Add(child);
             }
-            yield return new WaitForSeconds(fallSpeed);
+
+            // Aviso: el suelo (y lo que está a ras de suelo) tiembla antes de caer
+            if (row.Count > 0 && warning > 0f)
+            {
+                yield return StartCoroutine(ShakeRow(row, warning));
+            }
+
+            foreach (Transform child in row)
+            {
+                if (child == null) continue;
+
+                Rigidbody rb = child.GetComponent<Rigidbody>();
+                if (rb == null) rb = child.gameObject.AddComponent<Rigidbody>();
+
+                rb.isKinematic = false;
+                rb.useGravity = true;
+                rb.angularVelocity = Random.insideUnitSphere * 1.5f;
+
+                Destroy(child.gameObject, 3f);
+            }
+
+            if (row.Count > 0) GameFeel.Shake(0.05f, 0.12f);
+
+            yield return new WaitForSeconds(fallSpeed - warning);
+        }
+    }
+
+    private IEnumerator ShakeRow(List<Transform> row, float duration)
+    {
+        List<Transform> floorPieces = new List<Transform>();
+        List<Vector3> origins = new List<Vector3>();
+        foreach (Transform t in row)
+        {
+            // Solo baldosas y trampas de suelo: los enemigos se mueven solos y no deben bloquearse
+            if (t != null && t.position.y < 0.3f)
+            {
+                floorPieces.Add(t);
+                origins.Add(t.position);
+            }
+        }
+
+        float timer = 0f;
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+            float strength = Mathf.Lerp(0.02f, 0.07f, timer / duration);
+            for (int i = 0; i < floorPieces.Count; i++)
+            {
+                if (floorPieces[i] == null) continue;
+                floorPieces[i].position = origins[i] + new Vector3(Random.Range(-strength, strength), Random.Range(-strength, 0f), Random.Range(-strength, strength));
+            }
+            yield return null;
+        }
+
+        for (int i = 0; i < floorPieces.Count; i++)
+        {
+            if (floorPieces[i] != null) floorPieces[i].position = origins[i];
         }
     }
 }
