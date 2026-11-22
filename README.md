@@ -69,7 +69,7 @@ Lo que lo hace único es su **ambientación española y satírica**: todo está 
 | **Progresión** | La puerta de cada sala solo se abre (con una animación de subida) cuando **no queda ningún enemigo vivo**. Después, cruza la salida. |
 | **Vida** | Tienes **3 corazones**. Cada golpe resta uno y te da un momento de invulnerabilidad (el personaje parpadea). |
 | **Monedas** | Son opcionales y sirven de puntuación. Algunos enemigos y trampas te las quitan. |
-| **Suelo que se derrumba** | Desde la sala 3 (salvo en la del jefe), 3 s después de entrar el suelo empieza a caer fila a fila desde el fondo. Si caes al vacío, pierdes la partida. |
+| **Suelo que se derrumba** | Desde la sala 3 (salvo en la del jefe), 3 s después de entrar el suelo empieza a caer fila a fila, desde la entrada hacia la salida. Si caes al vacío, pierdes la partida. |
 | **Derrota / Victoria** | Pierdes si te quedas sin corazones o si caes. Ganas si superas la sala 10. |
 
 ## Controles
@@ -245,7 +245,7 @@ What makes it unique is its **satirical Spanish setting**: everything is voxel a
 | **Progression** | Each room's door only opens (with a rising animation) once **no enemies are left alive**. Then walk through the exit. |
 | **Health** | You have **3 hearts**. Each hit takes one and gives you a moment of invulnerability (the character blinks). |
 | **Coins** | They are optional and work as your score. Some enemies and traps take them from you. |
-| **Crumbling floor** | From room 3 on (except the boss room), 3 s after you enter, the floor starts falling row by row from the back. Falling into the void loses the game. |
+| **Crumbling floor** | From room 3 on (except the boss room), 3 s after you enter, the floor starts falling row by row, from the entrance towards the exit. Falling into the void loses the game. |
 | **Lose / Win** | You lose if you run out of hearts or fall. You win by clearing room 10. |
 
 ## Controls
