@@ -97,7 +97,7 @@ public class EnemyPatrol : MonoBehaviour
 
             if (distanceX < 0.3f && distanceZ < 0.3f)
             {
-                player.GetComponent<PlayerStats>().TakeDamage();
+                player.GetComponent<PlayerStats>().TakeDamage("corneado en el encierro");
                 GameFeel.FloatingText(transform.position + Vector3.left * 0.6f, "¡Cornada!", new Color(1f, 0.5f, 0.3f), 4f);
                 GameFeel.VoxelBurst(transform.position, new Color(0.45f, 0.25f, 0.12f), 10, 3f);
 

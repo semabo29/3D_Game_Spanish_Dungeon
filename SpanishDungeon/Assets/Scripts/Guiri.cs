@@ -137,7 +137,7 @@ public class Guiri : MonoBehaviour
                 PlayerStats stats = player.GetComponent<PlayerStats>();
                 if (stats != null)
                 {
-                    stats.TakeDamage();
+                    stats.TakeDamage("arrollado por un guiri con flotador");
                 }
                 GameFeel.VoxelBurst(transform.position, new Color(1f, 0.55f, 0.7f), 10, 3f);
                 Destroy(gameObject); 

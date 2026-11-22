@@ -58,6 +58,38 @@
 **Jefe final**
 - 🗳️ Pedro suelta frases satíricas al golpear y al recibir golpes, entra en una **fase 2 más rápida** en su última vida y, al ser derrotado, **dimite** con una gran explosión y suelta 10 monedas.
 
+**Escenarios y ambientación (nuevo)**
+- 🌅 **Un escenario de fondo distinto por sala**, hecho con modelos voxel generados por código y con paralaje: casas con balcones y campanarios con cigüeña en San Fermín, la plaza de toros, el ensanche y la basílica de las torres en Las Ramblas, rascacielos, playa y un **sol con gafas de sol** en Benidorm, molinos girando y un castillo en La Mancha, la autovía con coches, carteles de "A‑7" y "SONRIA" y el toro negro en la colina, hoteles y neones de Magaluf de noche, la portada iluminada y las casetas de la Feria, el castillo y los barcos de Lloret, y el Congreso con leones bajo una tormenta con rayos.
+- 💡 Iluminación propia de cada sala: mañana, atardecer y noche (con una luz que acompaña a Torrento).
+- 🎊 Partículas ambientales: confeti y pañuelos, hojas, polvo, luciérnagas y hasta **papeles del BOE** cayendo en el Congreso.
+- 🎏 Guirnaldas de banderines y farolillos que se balancean sobre las salas, y **palomas** que picotean y salen volando ("¡Currucucú!").
+
+**Física y animación (nuevo)**
+- 🧱 **La sala se monta sola** al entrar: el suelo emerge desde el jugador, las paredes caen del cielo y el resto aparece con un saltito.
+- 🐸 Animación procedural de personajes: saltito al avanzar, *squash & stretch*, respiración, contoneo, embestida al atacar y polvo al aterrizar.
+- 🪀 Los enemigos derrotados **salen volando enteros** como muñecos de trapo, y los vóxeles de las explosiones **rebotan por el suelo**.
+- 🍊 **Objetos rompibles**: macetas con geranios, botijos y cajas de naranjas (las naranjas ruedan por la sala). A veces esconden monedas; el agua del botijo quita la borrachera.
+
+**Objetos nuevos (nuevo)**
+| Objeto | Efecto |
+|---|---|
+| 🥖 Bocadillo de calamares | +1 corazón (o +3 monedas si ya estás a tope) |
+| 🍫 Churros con chocolate | Más velocidad durante 7 s |
+| 🪭 Abanico flamenco | Para el siguiente golpe ("¡Olé!") |
+| 💤 Almohada de la siesta | Todos los enemigos y radares se duermen 5 s (Pedro no: está en el escaño) |
+| 🍖 Jamón pata negra | +5 monedas |
+
+**Humor (nuevo)**
+- Frases de cada sala ("Esos no son gigantes, son molinos", "Radar a 300 metros. Sonría"…), gritos específicos para cada enemigo, **causa de la muerte** en la pantalla de Game Over ("pinchado como una aceituna", "víctima de un decreto ley"…), consejos de la abuela en el menú de pausa y frases en el menú principal.
+- 🏅 **20 logros** con nombre propio ("Más rico que un emérito", "Gravedad 1 - Torrento 0", "Espantapalomas"…), con aviso en pantalla y menú de logros.
+
+**Interfaz, accesibilidad y control (nuevo)**
+- ❤️ HUD nuevo: corazones y monedas en *pixel art*, barra de la lotería, progreso de salas, power-ups activos, latido y viñeta roja cuando te queda un corazón, fundido entre salas y tutorial en las primeras partidas.
+- ⚙️ **Menú de opciones** (desde el menú principal y la pausa): volumen, intensidad del temblor, quitar destellos, quitar el hitstop, tamaño de la interfaz (100/125/150 %), mantener tecla para avanzar, avisos de peligro, cronómetro, efectos ambientales y pantalla completa.
+- 🎮 **Control más fluido**: se recuerda la tecla pulsada a mitad de paso, se puede mantener la tecla para avanzar y hay **soporte de mando** (stick o cruceta, *Start* para pausar).
+- ⚠️ **Avisos de peligro**: marca roja en el suelo de los pinchos y los radares parpadean antes de disparar.
+- 🔊 Efectos de sonido sintetizados por código (recoger, power-ups, romper, logros, palomas, truenos…).
+
 **Correcciones**
 - La sala 10 usaba una `s` minúscula como inicio y no colocaba al jugador: ahora los mapas no distinguen mayúsculas de minúsculas.
 - `Esc` en Game Over / Victoria ya no reanuda el tiempo. Además, `P` también pausa.
@@ -109,7 +141,8 @@ Lo que lo hace único es su **ambientación española y satírica**: todo está 
 | `S` / `↓` | Retroceder |
 | `A` / `←` | Izquierda |
 | `D` / `→` | Derecha |
-| `Esc` / `P` | Pausar / reanudar |
+| `Esc` / `P` / *Start* | Pausar / reanudar |
+| Stick o cruceta del mando | Moverse |
 | `1` … `9`, `0` | *(Depuración, solo en el editor o en builds de desarrollo)* Saltar a la sala 1‑9; `0` lleva a la sala 10 (jefe) |
 
 ## Personajes, enemigos y trampas
@@ -263,6 +296,38 @@ Proyecto de la asignatura de Videojuegos de la FIB (UPC), curso 2025/26. Los mod
 **Final boss**
 - 🗳️ Pedro shouts satirical lines when he lands or takes a hit, enters a **faster phase 2** on his last life and, when defeated, **resigns** in a big explosion and drops 10 coins.
 
+**Scenery and atmosphere (new)**
+- 🌅 **A different backdrop for every room**, built from code-generated voxel models with parallax: houses with balconies and stork-topped bell towers in San Fermín, the bullring, the Eixample and the many-spired basilica in Las Ramblas, skyscrapers, a beach and a **sun wearing sunglasses** in Benidorm, spinning windmills and a castle in La Mancha, the motorway with traffic, "A‑7" and "SONRIA" signs and the black bull on the hill, Magaluf's hotels and neon at night, the lit-up gate and casetas of the Feria, Lloret's castle and boats, and the Congress with its lions under a lightning storm.
+- 💡 Per-room lighting: morning, sunset and night (with a light that follows Torrento).
+- 🎊 Ambient particles: confetti, leaves, dust, fireflies and even **official bulletins** raining down on the Congress.
+- 🎏 Swaying bunting and paper lanterns over the rooms, plus **pigeons** that peck around and fly off when you get close.
+
+**Physics and animation (new)**
+- 🧱 **Rooms assemble themselves**: the floor rises outwards from the player, walls drop from the sky and everything else pops in.
+- 🐸 Procedural character animation: hop on each step, squash & stretch, breathing, waddle, lunge on attack and landing dust.
+- 🪀 Defeated enemies **fly off whole as ragdolls**, and explosion voxels **bounce across the floor**.
+- 🍊 **Breakable props**: geranium pots, clay *botijos* and orange crates (the oranges roll around). They sometimes hide coins, and the botijo's water sobers you up.
+
+**New items (new)**
+| Item | Effect |
+|---|---|
+| 🥖 Calamari sandwich | +1 heart (or +3 coins if you're already full) |
+| 🍫 Churros con chocolate | Extra speed for 7 s |
+| 🪭 Flamenco fan | Blocks the next hit ("¡Olé!") |
+| 💤 Siesta pillow | Every enemy and speed camera falls asleep for 5 s (not Pedro: he's in his seat) |
+| 🍖 Pata negra ham | +5 coins |
+
+**Humour (new)**
+- Per-room taglines, enemy-specific kill shouts, a **cause of death** on the Game Over screen, grandma's tips on the pause menu and splash lines on the main menu.
+- 🏅 **20 achievements** with tongue-in-cheek names, with on-screen pop-ups and an achievements menu.
+
+**UI, accessibility and controls (new)**
+- ❤️ New HUD: pixel-art hearts and coins, lottery bar, room progress, active power-ups, heartbeat and red vignette on your last heart, fade between rooms and a tutorial for the first runs.
+- ⚙️ **Options menu** (from the main menu and the pause menu): volume, shake strength, disable flashes, disable hitstop, UI size (100/125/150 %), hold to keep moving, danger markers, timer, ambient effects and fullscreen.
+- 🎮 **Smoother controls**: inputs pressed mid-step are buffered, holding a key keeps you moving and there's **gamepad support** (stick or d-pad, *Start* to pause).
+- ⚠️ **Danger markers**: red floor marks on spike traps, and speed cameras blink before they fire.
+- 🔊 Code-synthesised sound effects (pickups, power-ups, smashing, achievements, pigeons, thunder…).
+
 **Fixes**
 - Room 10 used a lowercase `s` as the start and didn't place the player: maps are now case-insensitive.
 - `Esc` on Game Over / Victory no longer resumes time. `P` also pauses now.
@@ -314,7 +379,8 @@ What makes it unique is its **satirical Spanish setting**: everything is voxel a
 | `S` / `↓` | Back |
 | `A` / `←` | Left |
 | `D` / `→` | Right |
-| `Esc` / `P` | Pause / resume |
+| `Esc` / `P` / *Start* | Pause / resume |
+| Gamepad stick or d-pad | Move |
 | `1` … `9`, `0` | *(Debug, editor or development builds only)* Jump to room 1‑9; `0` goes to room 10 (boss) |
 
 ## Characters, enemies and traps

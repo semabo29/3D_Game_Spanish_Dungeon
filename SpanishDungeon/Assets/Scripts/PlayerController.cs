@@ -8,25 +8,42 @@ public class PlayerController : MonoBehaviour
     public float gridSize = 1f;
 
     [HideInInspector] public Vector3 targetPosition;
-    private Quaternion targetRotation; 
+    private Quaternion targetRotation;
     private bool isMoving = false;
-    private bool isFalling = false; 
+    private bool isFalling = false;
     private Rigidbody rb;
 
     private bool isDrunk = false;
     private float drunkTimer = 0f;
+
+    [Header("Control")]
+    [Tooltip("Tiempo durante el que se recuerda una tecla pulsada a mitad de un paso")]
+    [SerializeField] private float inputBufferTime = 0.2f;
+    private Vector3 bufferedDirection;
+    private float bufferedAt = -10f;
+    private Vector3 lastAxisDirection;
 
     [Header("Combo")]
     [SerializeField] private float comboWindow = 2f;
     private int comboCount = 0;
     private float lastKillTime = -10f;
 
-    private static readonly string[] KillShouts = { "¡ZAS!", "¡PUM!", "¡OLÉ!", "¡TOMA!", "¡HALA!", "¡ZASCA!" };
+    private static readonly string[] KillShouts = { "¡ZAS!", "¡PUM!", "¡OLÉ!", "¡TOMA!", "¡HALA!", "¡ZASCA!", "¡CATAPLÁN!", "¡A LA SACA!", "¡OSTRAS!" };
+    private static readonly string[] ToroShouts = { "¡Al corral!", "¡Torero!", "¡Olé, olé!" };
+    private static readonly string[] CarteristaShouts = { "¡Devuelve eso!", "¡Al calabozo!", "¡Mi móvil!" };
+    private static readonly string[] GuiriShouts = { "¡Bye bye!", "¡Sangría time over!", "¡Go home!" };
 
     [Header("Sonidos")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip stepSound;
     [SerializeField] private AudioClip SonidoAtaque;
+
+    private JuiceAnimator animator;
+    private float lastWallBump = -10f;
+    private PlayerPowerUps powerUps;
+
+    public int StepsTaken { get; private set; }
+    public bool IsDrunk => isDrunk;
 
     void Awake()
     {
@@ -38,41 +55,66 @@ public class PlayerController : MonoBehaviour
         if (Instance == this) Instance = null;
     }
 
-    public bool IsDrunk => isDrunk;
-
     void Start()
     {
         targetPosition = transform.position;
         targetRotation = transform.rotation;
-        rb = GetComponent<Rigidbody>(); 
+        rb = GetComponent<Rigidbody>();
+
+        animator = gameObject.AddComponent<JuiceAnimator>();
+        animator.dustOnLand = true;
+        animator.hopHeight = 0.2f;
+        animator.waddle = 5f;
+
+        powerUps = GetComponent<PlayerPowerUps>();
+        if (powerUps == null) powerUps = gameObject.AddComponent<PlayerPowerUps>();
     }
+
+    private bool InputBlocked => MapGenerator.InputLocked || ModalMenu.IsOpen || Time.timeScale == 0f;
 
     void Update()
     {
-        if (isFalling) return; 
+        if (isFalling) return;
 
-        if (isDrunk) 
+        if (isDrunk)
         {
             drunkTimer -= Time.deltaTime;
             if (drunkTimer <= 0f)
             {
                 isDrunk = false;
-                Debug.Log("¡Ya se te ha pasado el efecto de la cerveza! Controles normales.");
+                if (GameHUD.Instance != null) GameHUD.Instance.ShowToast("Se te pasó la borrachera", new Color(0.7f, 0.9f, 1f), 0.9f);
             }
+        }
+
+        // Recordamos la tecla pulsada durante un paso para encadenar movimientos fluidos
+        Vector3 pressed = ReadPressedDirection();
+        if (pressed != Vector3.zero)
+        {
+            bufferedDirection = pressed;
+            bufferedAt = Time.time;
         }
 
         if (!isMoving)
         {
-            CheckFloorBeneath();
+            if (!MapGenerator.InputLocked) CheckFloorBeneath();
 
-            if (!isFalling) 
+            if (!isFalling && !InputBlocked)
             {
-                CheckInput();
+                Vector3 dir = Vector3.zero;
+                if (Time.time - bufferedAt <= inputBufferTime) dir = bufferedDirection;
+                else if (GameSettings.HoldToMove) dir = ReadHeldDirection();
+
+                if (dir != Vector3.zero)
+                {
+                    bufferedAt = -10f;
+                    TryMove(dir);
+                }
             }
         }
         else
         {
-            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+            float speed = moveSpeed * (powerUps != null ? powerUps.SpeedMultiplier : 1f);
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
 
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 15f * Time.deltaTime);
 
@@ -87,11 +129,48 @@ public class PlayerController : MonoBehaviour
             if (reachedPosition && reachedRotation)
             {
                 transform.position = targetPosition;
-                transform.rotation = targetRotation; 
+                transform.rotation = targetRotation;
                 isMoving = false;
             }
         }
     }
+
+    // ---------- Entrada ----------
+
+    // W/arriba = +X, S/abajo = -X, A/izquierda = +Z, D/derecha = -Z (como en la versión original)
+    private Vector3 ReadPressedDirection()
+    {
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) return Vector3.right;
+        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) return Vector3.left;
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) return Vector3.forward;
+        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) return Vector3.back;
+
+        // Mando: detectamos el "flanco" del stick o la cruceta
+        Vector3 axis = AxisDirection();
+        Vector3 result = (axis != Vector3.zero && axis != lastAxisDirection) ? axis : Vector3.zero;
+        lastAxisDirection = axis;
+        return result;
+    }
+
+    private Vector3 ReadHeldDirection()
+    {
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) return Vector3.right;
+        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) return Vector3.left;
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) return Vector3.forward;
+        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) return Vector3.back;
+        return AxisDirection();
+    }
+
+    private static Vector3 AxisDirection()
+    {
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
+        if (Mathf.Abs(h) < 0.5f && Mathf.Abs(v) < 0.5f) return Vector3.zero;
+        if (Mathf.Abs(v) >= Mathf.Abs(h)) return v > 0f ? Vector3.right : Vector3.left;
+        return h > 0f ? Vector3.back : Vector3.forward;
+    }
+
+    // ---------- Movimiento ----------
 
     private void CheckFloorBeneath()
     {
@@ -114,7 +193,7 @@ public class PlayerController : MonoBehaviour
             if (rb != null)
             {
                 rb.isKinematic = false;
-                rb.useGravity = true; 
+                rb.useGravity = true;
             }
 
             GetComponent<PlayerStats>().FallToDeath();
@@ -130,81 +209,88 @@ public class PlayerController : MonoBehaviour
                hit.collider.GetComponent<Pedro>() == null;
     }
 
-    private void CheckInput()
+    private void TryMove(Vector3 direction)
     {
-        Vector3 direction = Vector3.zero;
-
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) direction = Vector3.right;
-        else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) direction = Vector3.left;
-        else if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) direction = Vector3.forward;
-        else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) direction = Vector3.back;
-
-        if (direction != Vector3.zero)
+        if (isDrunk)
         {
+            direction = -direction;
+        }
 
-            if (isDrunk)
+        Vector3 proposedPosition = transform.position + (direction * gridSize);
+
+        targetRotation = Quaternion.LookRotation(direction);
+
+        if (Physics.Raycast(transform.position + new Vector3(0, 0.5f, 0), direction, out RaycastHit hit, gridSize))
+        {
+            if (esObstaculoSolido(hit))
             {
-                direction = -direction;
-            }
-
-            Vector3 proposedPosition = transform.position + (direction * gridSize);
-
-            targetRotation = Quaternion.LookRotation(direction);
-
-            if (Physics.Raycast(transform.position + new Vector3(0, 0.5f, 0), direction, out RaycastHit hit, gridSize))
-            {
-                if (esObstaculoSolido(hit))
-                {
-                    return; 
-                }
-            }
-
-            GameObject enemyInTarget = GetEnemyAtPosition(proposedPosition);
-
-            if (enemyInTarget != null)
-            {
-                Pedro pedro = enemyInTarget.GetComponent<Pedro>();
-
-                // Nos giramos hacia el enemigo aunque no nos movamos
+                // Choque contra la pared: pequeño empujón visual
                 transform.rotation = targetRotation;
+                if (animator != null && Time.time - lastWallBump > 0.3f)
+                {
+                    lastWallBump = Time.time;
+                    animator.Lunge(direction, 0.12f);
+                }
+                return;
+            }
+        }
 
-                if (pedro != null)
-                {
-                    pedro.RecibirDano();
-                }
-                else
-                {
-                    KillEnemy(enemyInTarget);
-                }
+        GameObject enemyInTarget = GetEnemyAtPosition(proposedPosition);
 
-                if (audioSource != null && SonidoAtaque != null)
-                {
-                    audioSource.PlayOneShot(SonidoAtaque);
-                }
+        if (enemyInTarget != null)
+        {
+            Pedro pedro = enemyInTarget.GetComponent<Pedro>();
+
+            // Nos giramos hacia el enemigo aunque no nos movamos
+            transform.rotation = targetRotation;
+            if (animator != null) animator.Lunge(direction);
+
+            if (pedro != null)
+            {
+                pedro.RecibirDano();
             }
             else
             {
-                RaycastHit[] floorHits = Physics.RaycastAll(proposedPosition + Vector3.up, Vector3.down, 2f);
-                bool targetFloorFound = false;
+                KillEnemy(enemyInTarget, direction);
+            }
 
-                foreach (RaycastHit fHit in floorHits)
-                {
-                    if (fHit.collider.gameObject != gameObject && !fHit.collider.isTrigger)
-                    {
-                        targetFloorFound = true;
-                        break;
-                    }
-                }
+            if (audioSource != null && SonidoAtaque != null)
+            {
+                audioSource.PlayOneShot(SonidoAtaque);
+            }
+            return;
+        }
 
-                if (targetFloorFound)
-                {
-                    targetPosition = proposedPosition;
-                    isMoving = true;
-                    if (audioSource != null && stepSound != null)
-                    {
-                        audioSource.PlayOneShot(stepSound);
-                    }
-                }
+        // Macetas, botijos y cajas: se rompen de un golpe
+        Breakable breakable = Breakable.At(proposedPosition);
+        if (breakable != null)
+        {
+            transform.rotation = targetRotation;
+            if (animator != null) animator.Lunge(direction);
+            breakable.Smash(direction, true);
+            return;
+        }
+
+        RaycastHit[] floorHits = Physics.RaycastAll(proposedPosition + Vector3.up, Vector3.down, 2f);
+        bool targetFloorFound = false;
+
+        foreach (RaycastHit fHit in floorHits)
+        {
+            if (fHit.collider.gameObject != gameObject && !fHit.collider.isTrigger)
+            {
+                targetFloorFound = true;
+                break;
+            }
+        }
+
+        if (targetFloorFound)
+        {
+            targetPosition = proposedPosition;
+            isMoving = true;
+            StepsTaken++;
+            if (audioSource != null && stepSound != null)
+            {
+                audioSource.PlayOneShot(stepSound);
             }
         }
     }
@@ -214,42 +300,47 @@ public class PlayerController : MonoBehaviour
         EnemyPatrol[] enemies = FindObjectsByType<EnemyPatrol>(FindObjectsSortMode.None);
         foreach (EnemyPatrol enemy in enemies)
         {
-            float distanceX = Mathf.Abs(enemy.transform.position.x - targetPos.x);
-            float distanceZ = Mathf.Abs(enemy.transform.position.z - targetPos.z);
-            if (distanceX < 0.1f && distanceZ < 0.1f) return enemy.gameObject;
+            if (SameTile(enemy.transform.position, targetPos)) return enemy.gameObject;
         }
 
         Enemigo_basico[] basicos = FindObjectsByType<Enemigo_basico>(FindObjectsSortMode.None);
         foreach (Enemigo_basico basico in basicos)
         {
-            float distanceX = Mathf.Abs(basico.transform.position.x - targetPos.x);
-            float distanceZ = Mathf.Abs(basico.transform.position.z - targetPos.z);
-            if (distanceX < 0.1f && distanceZ < 0.1f) return basico.gameObject;
+            if (SameTile(basico.transform.position, targetPos)) return basico.gameObject;
         }
 
         Guiri[] guiris = FindObjectsByType<Guiri>(FindObjectsSortMode.None);
         foreach (Guiri guiri in guiris)
         {
-            float distanceX = Mathf.Abs(guiri.transform.position.x - targetPos.x);
-            float distanceZ = Mathf.Abs(guiri.transform.position.z - targetPos.z);
-            if (distanceX < 0.1f && distanceZ < 0.1f) return guiri.gameObject;
+            if (SameTile(guiri.transform.position, targetPos)) return guiri.gameObject;
         }
 
         Pedro[] pedros = FindObjectsByType<Pedro>(FindObjectsSortMode.None);
         foreach (Pedro pedro in pedros)
         {
-            float distanceX = Mathf.Abs(pedro.transform.position.x - targetPos.x);
-            float distanceZ = Mathf.Abs(pedro.transform.position.z - targetPos.z);
-            if (distanceX < 0.1f && distanceZ < 0.1f) return pedro.gameObject;
+            if (SameTile(pedro.transform.position, targetPos)) return pedro.gameObject;
         }
 
         return null;
     }
 
-    private void KillEnemy(GameObject enemy)
+    private static bool SameTile(Vector3 a, Vector3 b)
+    {
+        return Mathf.Abs(a.x - b.x) < 0.1f && Mathf.Abs(a.z - b.z) < 0.1f;
+    }
+
+    // ---------- Combate ----------
+
+    private void KillEnemy(GameObject enemy, Vector3 direction)
     {
         Vector3 pos = enemy.transform.position;
         Color color = EnemyColor(enemy);
+        string shout = ShoutFor(enemy);
+
+        Achievements.OnKill(enemy);
+
+        // El enemigo sale volando entero y además suelta vóxeles
+        GameFeel.Ragdoll(enemy, direction, 6.5f);
         Destroy(enemy);
 
         RunStats.Kills++;
@@ -258,23 +349,37 @@ public class PlayerController : MonoBehaviour
         else comboCount = 1;
         lastKillTime = Time.time;
         if (comboCount > RunStats.BestCombo) RunStats.BestCombo = comboCount;
+        Achievements.OnCombo(comboCount);
 
-        GameFeel.VoxelBurst(pos, color, 16, 4.5f);
+        GameFeel.VoxelBurst(pos, color, 12, 4.5f);
         GameFeel.Shake(0.12f, 0.15f);
         GameFeel.Hitstop(0.05f);
 
         if (comboCount >= 2)
         {
-            string label = comboCount == 2 ? "¡DOBLE!" : comboCount == 3 ? "¡TRIPLE!" : "¡COMBO x" + comboCount + "!";
-            GameFeel.FloatingText(pos, label, new Color(1f, 0.55f, 0.1f), 5f);
+            string label = comboCount == 2 ? "¡DOBLE!" : comboCount == 3 ? "¡TRIPLE!" : comboCount == 4 ? "¡CUÁDRUPLE!" : "¡COMBO x" + comboCount + "!";
+            GameFeel.FloatingText(pos, label, new Color(1f, 0.55f, 0.1f), 5f + Mathf.Min(comboCount, 6) * 0.3f);
+            Sfx.Play(SfxType.Combo, 0.8f, 1f + (comboCount - 2) * 0.08f);
             // Premio por combo: una moneda extra
             PlayerStats stats = GetComponent<PlayerStats>();
             if (stats != null) stats.AddCoin();
         }
         else
         {
-            GameFeel.FloatingText(pos, KillShouts[Random.Range(0, KillShouts.Length)], Color.white, 4.5f);
+            GameFeel.FloatingText(pos, shout, Color.white, 4.5f);
         }
+    }
+
+    private static string ShoutFor(GameObject enemy)
+    {
+        string[] pool = KillShouts;
+        if (Random.value < 0.45f)
+        {
+            if (enemy.GetComponent<EnemyPatrol>() != null) pool = ToroShouts;
+            else if (enemy.GetComponent<Enemigo_basico>() != null) pool = CarteristaShouts;
+            else if (enemy.GetComponent<Guiri>() != null) pool = GuiriShouts;
+        }
+        return pool[Random.Range(0, pool.Length)];
     }
 
     private static Color EnemyColor(GameObject enemy)
@@ -291,9 +396,16 @@ public class PlayerController : MonoBehaviour
         {
             GameFeel.FloatingText(transform.position, "¡HIP!", new Color(1f, 0.85f, 0.2f), 5f);
             if (GameHUD.Instance != null) GameHUD.Instance.ShowToast("¡Borracho! Controles invertidos", new Color(1f, 0.85f, 0.2f), 1.2f);
+            Achievements.OnDrunk();
         }
         isDrunk = true;
         drunkTimer = duracion;
-        Debug.Log("¡Te has emborrachado! Controles invertidos durante " + duracion + " segundos.");
+    }
+
+    // El agua del botijo quita la borrachera
+    public void Sober()
+    {
+        isDrunk = false;
+        drunkTimer = 0f;
     }
 }

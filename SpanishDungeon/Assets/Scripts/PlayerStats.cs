@@ -58,6 +58,12 @@ public class PlayerStats : MonoBehaviour
         currentHealth = maxHealth;
 
         RunStats.Reset();
+        GameSettings.Apply();
+
+        // El HUD nuevo sustituye a los textos antiguos de la escena
+        if (healthText != null) healthText.gameObject.SetActive(false);
+        if (coinText != null) coinText.gameObject.SetActive(false);
+        if (roomText != null) roomText.gameObject.SetActive(false);
 
         Renderer[] allRenderers = GetComponentsInChildren<Renderer>();
         foreach (Renderer ren in allRenderers)
@@ -87,6 +93,7 @@ public class PlayerStats : MonoBehaviour
 
         AudioListener.pause = true; // Silenciamos el juego
 
+        Achievements.OnVictory();
         FinishRun(true);
 
         if (victoryPanel != null) victoryPanel.SetActive(true);
@@ -97,8 +104,23 @@ public class PlayerStats : MonoBehaviour
 
     public void TakeDamage()
     {
+        TakeDamage(null);
+    }
+
+    // cause: texto para la pantalla de Game Over ("Causa de la muerte")
+    public void TakeDamage(string cause)
+    {
         if (isDead || isInvincible || GameEnded) return;
 
+        // El abanico flamenco para un golpe
+        PlayerPowerUps powerUps = GetComponent<PlayerPowerUps>();
+        if (powerUps != null && powerUps.ConsumeShield())
+        {
+            invincibilityRoutine = StartCoroutine(InvincibilityRoutine());
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(cause)) RunStats.DeathCause = cause;
         currentHealth--;
         RunStats.DamageTaken++;
         UpdateUI();
@@ -157,6 +179,7 @@ public class PlayerStats : MonoBehaviour
         if (isDead || GameEnded) return;
         coins++;
         RunStats.CoinsCollected++;
+        Achievements.OnCoinCollected();
 
         coinsTowardsLottery++;
         if (coinsTowardsLottery >= coinsPerLottery)
@@ -172,7 +195,9 @@ public class PlayerStats : MonoBehaviour
     private void WinLottery()
     {
         RunStats.LotteryWins++;
+        Achievements.OnLottery();
         if (currentHealth < healthCap) currentHealth++;
+        Sfx.Play(SfxType.PowerUp, 1f, 1.2f);
 
         GameFeel.FloatingText(transform.position, "+1 CORAZÓN", new Color(0.3f, 1f, 0.4f), 5f);
         GameFeel.VoxelBurst(transform.position, new Color(1f, 0.85f, 0.15f), 20, 3.5f);
@@ -180,6 +205,15 @@ public class PlayerStats : MonoBehaviour
         {
             GameHUD.Instance.ShowToast("¡TE HA TOCADO EL GORDO!", new Color(1f, 0.85f, 0.15f), 1.6f);
         }
+    }
+
+    // Cura corazones (hasta el máximo de la lotería). Devuelve false si ya estaba a tope.
+    public bool Heal(int amount)
+    {
+        if (isDead || GameEnded || currentHealth >= healthCap) return false;
+        currentHealth = Mathf.Min(healthCap, currentHealth + amount);
+        UpdateUI();
+        return true;
     }
 
     public void LoseCoins(int amount)
@@ -206,6 +240,14 @@ public class PlayerStats : MonoBehaviour
 
     private void UpdateUI()
     {
+        GameHUD hud = GameHUD.Instance;
+        if (hud != null)
+        {
+            hud.SetHealth(currentHealth, maxHealth);
+            hud.SetCoins(coins);
+            hud.SetRoom(currentRoom);
+        }
+
         if (healthText != null) healthText.text = "Corazones: " + currentHealth;
         if (coinText != null) coinText.text = "Monedas: " + coins;
         if (GameHUD.Instance != null) GameHUD.Instance.SetLotteryProgress(coinsTowardsLottery, coinsPerLottery);
@@ -216,6 +258,7 @@ public class PlayerStats : MonoBehaviour
     {
         if (isDead) return;
         currentHealth = 0;
+        RunStats.DeathCause = FallCauses[Random.Range(0, FallCauses.Length)];
         UpdateUI();
 
         if (GameHUD.Instance != null) GameHUD.Instance.ShowToast("¡AL VACÍO!", new Color(1f, 0.3f, 0.3f), 1.2f);
@@ -223,9 +266,18 @@ public class PlayerStats : MonoBehaviour
         StartCoroutine(DieRoutine(1.5f, true));
     }
 
+    private static readonly string[] FallCauses =
+    {
+        "se lo tragó la tierra (literalmente)",
+        "comprobó la ley de la gravedad",
+        "buscaba el metro de Madrid",
+        "el suelo era de obra pública"
+    };
+
     private IEnumerator DieRoutine(float delayBeforeGameOver, bool fell)
     {
         isDead = true;
+        Achievements.OnDeath(fell, currentRoom);
 
         PlayerController controller = GetComponent<PlayerController>();
         if (controller != null) controller.enabled = false;

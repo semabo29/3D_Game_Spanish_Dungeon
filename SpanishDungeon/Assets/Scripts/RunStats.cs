@@ -9,6 +9,12 @@ public static class RunStats
     public static int DamageTaken;
     public static int BestCombo;
     public static int LotteryWins;
+    public static int KillsToro;
+    public static int TimesDrunk;
+    public static int Multas;
+    public static int Smashes;
+    public static int PowerUps;
+    public static string DeathCause = "";
     public static float StartTime;
     public static float EndTime = -1f;
 
@@ -25,6 +31,12 @@ public static class RunStats
         DamageTaken = 0;
         BestCombo = 0;
         LotteryWins = 0;
+        KillsToro = 0;
+        TimesDrunk = 0;
+        Multas = 0;
+        Smashes = 0;
+        PowerUps = 0;
+        DeathCause = "";
         StartTime = Time.time;
         EndTime = -1f;
     }

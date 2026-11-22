@@ -22,6 +22,7 @@ public class SpikeTrap : MonoBehaviour
     [SerializeField] private float volumenSonido = 0.8f;
 
     private bool isDangerous = false;
+    private DangerMarker marker;
     private bool isWarning = false;
     private float timer = 0f;
 
@@ -31,6 +32,9 @@ public class SpikeTrap : MonoBehaviour
         {
             pinchosVisual.localPosition = new Vector3(0, alturaEscondidos, 0);
         }
+
+        // Marca roja en el suelo (opción de accesibilidad "Avisos de peligro")
+        marker = DangerMarker.Create(transform, transform.position);
 
         SetTrapState(false);
     }
@@ -49,6 +53,7 @@ public class SpikeTrap : MonoBehaviour
             {
                 isWarning = true;
                 StopAllCoroutines();
+                if (marker != null) marker.Set(0.55f, true);
 
                 StartCoroutine(MoverPinchos(alturaAviso, 0.1f));
             }
@@ -71,6 +76,7 @@ public class SpikeTrap : MonoBehaviour
         isWarning = false;
 
         StopAllCoroutines();
+        if (marker != null) marker.Set(dangerous ? 0.6f : 0f, false);
 
         if (dangerous)
         {
@@ -118,7 +124,7 @@ public class SpikeTrap : MonoBehaviour
 
             if (distanceX < 0.1f && distanceZ < 0.1f)
             {
-                player.GetComponent<PlayerStats>().TakeDamage();
+                player.GetComponent<PlayerStats>().TakeDamage("pinchado como una aceituna");
             }
         }
     }

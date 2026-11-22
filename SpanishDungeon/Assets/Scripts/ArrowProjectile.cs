@@ -30,14 +30,17 @@ public class ArrowProjectile : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (other.GetComponent<ArrowTrap>() != null) return;
+        // Los vóxeles, naranjas y muñecos de trapo (capa Ignore Raycast) no paran las multas
+        if (other.gameObject.layer == 2) return;
 
         if (other.CompareTag("Player") || other.GetComponent<PlayerController>() != null)
         {
             PlayerStats stats = other.GetComponent<PlayerStats>();
             if (stats != null)
             {
-                stats.LoseCoins(monedasDeMulta); 
-                stats.TakeDamage(); 
+                Achievements.OnMulta();
+                stats.LoseCoins(monedasDeMulta);
+                stats.TakeDamage("multado por exceso de velocidad");
                 GameFeel.FloatingText(other.transform.position + Vector3.left * 0.5f, "¡MULTA!", new Color(0.4f, 0.65f, 1f), 4.5f);
 
                 Debug.Log("¡Te ha pillado el radar! Pierdes 1 vida y " + monedasDeMulta + " monedas.");

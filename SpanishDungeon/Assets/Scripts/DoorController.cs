@@ -3,6 +3,9 @@ using System.Collections;
 
 public class DoorController : MonoBehaviour
 {
+    // true en cuanto se abre alguna puerta de la sala actual (lo usa el tutorial)
+    public static bool AnyOpen;
+
     private bool isOpen = false;
     private float checkTimer = 0f;
 
@@ -55,6 +58,13 @@ public class DoorController : MonoBehaviour
     private void OpenDoor()
     {
         isOpen = true;
+        AnyOpen = true;
+
+        // Confeti, sonido y flechas que señalan la salida
+        GameFeel.VoxelBurst(transform.position + Vector3.up * 0.5f, new Color(0.4f, 1f, 0.5f), 10, 4f);
+        GameFeel.VoxelBurst(transform.position + Vector3.up * 0.5f, new Color(1f, 0.85f, 0.2f), 10, 4f);
+        Sfx.Play(SfxType.Achievement, 0.6f, 1.3f);
+        if (MapGenerator.Instance != null) MapGenerator.Instance.ShowExitArrows();
 
         if (GameHUD.Instance != null)
         {

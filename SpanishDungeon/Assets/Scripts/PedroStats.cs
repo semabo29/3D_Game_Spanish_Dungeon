@@ -127,6 +127,8 @@ public class PedroStats : MonoBehaviour
             if (ps != null) for (int i = 0; i < bonusCoinsOnDeath; i++) ps.AddCoin();
         }
 
+        Achievements.OnBossDefeated();
+        GameFeel.Ragdoll(gameObject, Vector3.up, 9f);
         Destroy(gameObject);
     }
 }

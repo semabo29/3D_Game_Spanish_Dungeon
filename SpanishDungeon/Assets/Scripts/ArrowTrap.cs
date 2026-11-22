@@ -12,6 +12,10 @@ public class ArrowTrap : MonoBehaviour
     [SerializeField] private float volumenFlash = 0.8f;
 
     private float timer;
+    private Renderer[] renderers;
+    private MaterialPropertyBlock mpb;
+    private Vector3 baseScale;
+    private const float WarningTime = 0.45f;
     private Vector3 shootDirection = Vector3.forward;
 
     public void SetDirection(Vector3 direction)
@@ -23,17 +27,44 @@ public class ArrowTrap : MonoBehaviour
     void Start()
     {
         timer = Random.Range(0f, fireRate);
+        renderers = GetComponentsInChildren<Renderer>();
+        mpb = new MaterialPropertyBlock();
+        baseScale = transform.localScale;
     }
 
     void Update()
     {
         timer += Time.deltaTime;
 
+        // Aviso: el radar parpadea en rojo y se hincha justo antes de disparar
+        bool warning = GameSettings.DangerMarkers && timer >= fireRate - WarningTime;
+        float blink = warning ? Mathf.Abs(Mathf.Sin((timer - (fireRate - WarningTime)) * 20f)) : 0f;
+        transform.localScale = baseScale * (1f + blink * 0.12f);
+        Tint(Color.Lerp(Color.white, new Color(1f, 0.25f, 0.2f), blink));
+
         if (timer >= fireRate)
         {
             timer = 0f;
             FireArrow();
         }
+    }
+
+    private void Tint(Color c)
+    {
+        if (renderers == null) return;
+        foreach (Renderer r in renderers)
+        {
+            if (r == null) continue;
+            r.GetPropertyBlock(mpb);
+            mpb.SetColor("_Color", c);
+            r.SetPropertyBlock(mpb);
+        }
+    }
+
+    void OnDisable()
+    {
+        if (baseScale != Vector3.zero) transform.localScale = baseScale;
+        Tint(Color.white);
     }
 
     void FireArrow()

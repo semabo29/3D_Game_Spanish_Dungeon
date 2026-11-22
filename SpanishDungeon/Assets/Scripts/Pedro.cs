@@ -177,7 +177,7 @@ public class Pedro : MonoBehaviour
             if (distanceX < 0.1f && distanceZ < 0.1f)
             {
                 PlayerStats playerStats = player.GetComponent<PlayerStats>();
-                if (playerStats != null) playerStats.TakeDamage();
+                if (playerStats != null) playerStats.TakeDamage("víctima de un decreto ley");
 
                 if (audioSource != null && SonidoAtaque != null)
                 {

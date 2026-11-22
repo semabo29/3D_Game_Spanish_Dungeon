@@ -21,7 +21,7 @@ public class WindmillTrap : MonoBehaviour
             PlayerStats stats = other.GetComponent<PlayerStats>();
             if (stats != null)
             {
-                stats.TakeDamage();
+                stats.TakeDamage("un molino lo confundió con un gigante");
                 Debug.Log("¡Ay! El aspa del molino manchego te ha golpeado.");
 
                 if (hitSound != null)
