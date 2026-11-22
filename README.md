@@ -93,6 +93,16 @@
 - ⚠️ **Avisos de peligro**: marca roja en el suelo de los pinchos y los radares parpadean antes de disparar.
 - 🔊 Efectos de sonido sintetizados por código (recoger, power-ups, romper, logros, palomas, truenos…).
 
+**Más vida en las salas (nuevo)**
+- 🏮 **Farolas fernandinas** voxel en lugar de los postes antiguos, que eran demasiado altos y tapaban la sala. De noche se encienden de verdad y parpadean un poco.
+- 🐈 **Gatos callejeros** (atigrado, negro o blanco) que dormitan por la sala y salen por patas con un «¡Miau, pesao!» si te acercas.
+- 🧹 **Premio por sala limpia**: si acabas con todos los enemigos de una sala, +3 monedas y confeti.
+- 🗞️ **Titular de *El Chismoso*** en la pantalla final, según cómo hayas muerto (o ganado).
+
+**Sombreros y dificultad (nuevo)**
+- 🎩 **9 sombreros para Torrento** que se desbloquean con logros: boina, pañuelo rojo, cordobés, sombrero de paja, casco de obra, montera, peineta, flotador de guiri y, con todos los logros, la corona. Se eligen en Opciones.
+- 🎚️ **Dificultad**: *Turista* (+2 corazones, puntuación x0,75), *Normal* e *Ibérico* (un corazón menos, puntuación x1,5).
+
 **Correcciones**
 - La sala 10 usaba una `s` minúscula como inicio y no colocaba al jugador: ahora los mapas no distinguen mayúsculas de minúsculas.
 - `Esc` en Game Over / Victoria ya no reanuda el tiempo. Además, `P` también pausa.
@@ -338,6 +348,16 @@ Proyecto de la asignatura de Videojuegos de la FIB (UPC), curso 2025/26. Los mod
 - 🎮 **Smoother controls**: inputs pressed mid-step are buffered, holding a key keeps you moving and there's **gamepad support** (stick or d-pad, *Start* to pause).
 - ⚠️ **Danger markers**: red floor marks on spike traps, and speed cameras blink before they fire.
 - 🔊 Code-synthesised sound effects (pickups, power-ups, smashing, achievements, pigeons, thunder…).
+
+**Livelier rooms (new)**
+- 🏮 **Voxel street lamps** replace the old posts, which were too tall and blocked the view. At night they actually light up and flicker a little.
+- 🐈 **Stray cats** (ginger, black or white) dozing around the rooms that bolt with a hiss when you get close.
+- 🧹 **Room-clear bonus**: defeat every enemy in a room for +3 coins and confetti.
+- 🗞️ **A tabloid headline** on the end screen, based on how you died (or won).
+
+**Hats and difficulty (new)**
+- 🎩 **9 hats for Torrento** unlocked through achievements: beret, red neckerchief, Cordoban hat, straw hat, hard hat, bullfighter's montera, peineta comb, a tourist's rubber ring and, with every achievement, the crown. Pick one in Options.
+- 🎚️ **Difficulty**: *Tourist* (+2 hearts, score x0.75), *Normal* and *Iberian* (one heart fewer, score x1.5).
 
 **Fixes**
 - Room 10 used a lowercase `s` as the start and didn't place the player: maps are now case-insensitive.

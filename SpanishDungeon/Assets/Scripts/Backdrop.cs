@@ -9,6 +9,9 @@ public class Backdrop : MonoBehaviour
 {
     public static Backdrop Instance { get; private set; }
 
+    // ¿La sala actual es de noche? (farolas encendidas, luz del jugador...)
+    public static bool IsNight => Instance != null && Instance.theme != null && Instance.theme.night;
+
     // Capa propia para iluminar el fondo con su propia luz
     public const int BackdropLayer = 31;
 

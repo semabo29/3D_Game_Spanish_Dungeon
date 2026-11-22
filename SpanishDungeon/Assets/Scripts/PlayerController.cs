@@ -68,6 +68,7 @@ public class PlayerController : MonoBehaviour
 
         powerUps = GetComponent<PlayerPowerUps>();
         if (powerUps == null) powerUps = gameObject.AddComponent<PlayerPowerUps>();
+        if (GetComponent<HatWearer>() == null) gameObject.AddComponent<HatWearer>();
     }
 
     private bool InputBlocked => MapGenerator.InputLocked || ModalMenu.IsOpen || Time.timeScale == 0f;

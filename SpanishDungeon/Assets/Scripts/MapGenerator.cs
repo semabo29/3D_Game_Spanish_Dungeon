@@ -260,6 +260,7 @@ public class MapGenerator : MonoBehaviour
 
         Backdrop.ApplyTheme(layout.room);
         RoomDressing.Dress(layout, transform, coinPrefab);
+        RoomClearBonus.Create(transform);
 
         if (assembleCoroutine != null) StopCoroutine(assembleCoroutine);
         assembleCoroutine = StartCoroutine(AssembleRoom(spawned, layout.start));

@@ -14,6 +14,7 @@ public static class RunStats
     public static int Multas;
     public static int Smashes;
     public static int PowerUps;
+    public static int RoomsCleared;
     public static string DeathCause = "";
     public static float StartTime;
     public static float EndTime = -1f;
@@ -36,6 +37,7 @@ public static class RunStats
         Multas = 0;
         Smashes = 0;
         PowerUps = 0;
+        RoomsCleared = 0;
         DeathCause = "";
         StartTime = Time.time;
         EndTime = -1f;
@@ -52,6 +54,7 @@ public static class RunStats
             // Bonus por rapidez: hasta 1000 puntos si terminas en menos de 10 minutos
             score += Mathf.RoundToInt(Mathf.Clamp01(1f - ElapsedSeconds / 600f) * 1000f);
         }
+        score = Mathf.RoundToInt(score * GameSettings.ScoreMultiplier);
         return Mathf.Max(0, score);
     }
 

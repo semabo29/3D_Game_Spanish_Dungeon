@@ -55,6 +55,9 @@ public class PlayerStats : MonoBehaviour
         Time.timeScale = 1f;
         AudioListener.pause = false;
         GameEnded = false;
+        // La dificultad elegida en Opciones cambia los corazones iniciales
+        maxHealth = GameSettings.StartingHealth(maxHealth);
+        healthCap = Mathf.Max(healthCap, maxHealth);
         currentHealth = maxHealth;
 
         RunStats.Reset();

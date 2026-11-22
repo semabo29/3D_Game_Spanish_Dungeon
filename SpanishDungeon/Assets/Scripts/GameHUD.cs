@@ -706,16 +706,43 @@ public class GameHUD : MonoBehaviour
             : "";
 
         endStatsText.text =
+            "<size=26><color=#E8E2D0><b>EL CHISMOSO</b> · <i>" + Headline(victory, room, coins) + "</i></color></size>\n" +
             "<size=60><b>Puntuación: " + score + "</b></size>\n" +
             record + "\n" +
             "<size=30>" + reached + "  ·  Tiempo " + RunStats.FormatTime(RunStats.ElapsedSeconds) + "\n" +
             cause +
             "Monedas " + coins + "  ·  Enemigos " + RunStats.Kills + "  ·  Mejor combo x" + RunStats.BestCombo +
-            "  ·  Gordos " + RunStats.LotteryWins + "  ·  Destrozos " + RunStats.Smashes + "\n" +
-            "Logros " + Achievements.UnlockedCount + "/" + Achievements.All.Count + "</size>";
+            "  ·  Gordos " + RunStats.LotteryWins + "  ·  Destrozos " + RunStats.Smashes + "  ·  Salas limpias " + RunStats.RoomsCleared + "\n" +
+            "Dificultad " + GameSettings.DifficultyName(GameSettings.Difficulty) + "  ·  Logros " + Achievements.UnlockedCount + "/" + Achievements.All.Count + "</size>";
         endStatsText.gameObject.SetActive(true);
 
         if (victory) GameFeel.Celebrate();
+    }
+
+    // Titular de periódico sensacionalista sobre la partida
+    private static string Headline(bool victory, int room, int coins)
+    {
+        string place = GetRoomName(room).ToUpperInvariant();
+        if (victory)
+        {
+            string[] wins =
+            {
+                "TORRENTO DEROGA A PEDRO Y SE PROCLAMA PRESIDENTE DE SU CASA",
+                "UN HOMBRE CRUZA ESPAÑA EN UNA TARDE Y AÚN LE DA TIEMPO A LA SIESTA",
+                "EL CONGRESO, DESALOJADO POR UN SEÑOR CON " + coins + " MONEDAS EN EL BOLSILLO",
+            };
+            return wins[Random.Range(0, wins.Length)];
+        }
+        if (coins >= 20) return "MUERE CON " + coins + " MONEDAS SIN DECLARAR. HACIENDA INVESTIGA";
+        string cause = string.IsNullOrEmpty(RunStats.DeathCause) ? "DESAPARECIDO" : RunStats.DeathCause.ToUpperInvariant();
+        string[] lines =
+        {
+            "TORRENTO, " + cause + " EN " + place,
+            "ÚLTIMA HORA: UN VECINO, " + cause + ". LOS TESTIGOS: «NO VIMOS NADA»",
+            "SUCESOS: " + cause + " EN " + place + ". EL AYUNTAMIENTO PROMETE UN ESTUDIO",
+            "«IBA A POR EL PAN», DECLARA LA FAMILIA DEL HOMBRE " + cause,
+        };
+        return lines[Random.Range(0, lines.Length)];
     }
 
     // ---------- Corrutinas ----------

@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public enum SfxType { Pickup, PowerUp, Smash, Achievement, Coo, Blip, Select, ShieldBreak, Thunder, Snore, Whoosh, Combo, Land, Flap }
+public enum SfxType { Pickup, PowerUp, Smash, Achievement, Coo, Blip, Select, ShieldBreak, Thunder, Snore, Whoosh, Combo, Land, Flap, Meow }
 
 // Efectos de sonido sintetizados por código (sin archivos de audio nuevos):
 // notas de onda cuadrada/triangular y ruido filtrado con envolventes.
@@ -73,6 +73,7 @@ public class Sfx : MonoBehaviour
             case SfxType.Snore: data = Concat(Sweep(90f, 140f, 0.45f, Wave.Saw, 0.25f), Silence(0.1f), Sweep(140f, 80f, 0.4f, Wave.Saw, 0.2f)); break;
             case SfxType.Whoosh: data = Noise(0.25f, 0f, 0.5f, 0.6f, true); break;
             case SfxType.Combo: data = Notes(new[] { 1175f, 1568f, 2093f }, 0.04f, Wave.Square, 0.3f); break;
+            case SfxType.Meow: data = Concat(Sweep(520f, 900f, 0.12f, Wave.Triangle, 0.4f), Sweep(900f, 470f, 0.28f, Wave.Triangle, 0.4f)); break;
             case SfxType.Land: data = Noise(0.06f, 40f, 0.15f, 0.5f); break;
             default: data = Noise(0.12f, 0f, 0.6f, 0.35f, true); break; // Flap
         }

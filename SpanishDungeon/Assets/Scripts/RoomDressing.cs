@@ -41,6 +41,12 @@ public static class RoomDressing
             return free[cursor++];
         }
 
+        // Farolas del mapa: modelo voxel nuevo (y encendidas de noche)
+        foreach (Transform child in parent)
+        {
+            if (child.name.StartsWith("Farola")) StreetLamp.Restyle(child);
+        }
+
         // Objetos rompibles
         int breakables = Random.Range(1, 4);
         for (int i = 0; i < breakables; i++)
@@ -71,6 +77,20 @@ public static class RoomDressing
             Vector3? p = Take();
             if (p == null) break;
             Pigeon.Create(parent, p.Value);
+        }
+
+        // Gatos callejeros
+        int cats = 0;
+        switch (layout.room)
+        {
+            case 3: case 4: case 7: case 9: cats = Random.value < 0.75f ? Random.Range(1, 3) : 0; break;
+            default: cats = Random.value < 0.25f ? 1 : 0; break;
+        }
+        for (int i = 0; i < cats; i++)
+        {
+            Vector3? p = Take();
+            if (p == null) break;
+            StrayCat.Create(parent, p.Value);
         }
 
         BuildGarlands(layout, parent);

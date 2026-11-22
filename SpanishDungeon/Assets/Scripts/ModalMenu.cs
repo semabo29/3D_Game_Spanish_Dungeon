@@ -82,7 +82,7 @@ public class ModalMenu : MonoBehaviour
         dim.raycastTarget = true; // bloquea los clics a lo que hay debajo
 
         panel = Rect("Panel", root);
-        panel.sizeDelta = new Vector2(1180f, 900f);
+        panel.sizeDelta = new Vector2(1180f, kind == Kind.Options ? 1010f : 900f);
         Image border = Img("Border", panel, new Color(1f, 0.78f, 0.15f));
         Stretch(border.rectTransform);
         Image back = Img("Back", panel, new Color(0.1f, 0.07f, 0.12f, 0.98f));
@@ -125,7 +125,7 @@ public class ModalMenu : MonoBehaviour
         {
             int index = i;
             RectTransform row = Rect("Row" + i, panel);
-            Place(row, new Vector2(0.5f, 1f), new Vector2(0f, -150f - i * 60f), new Vector2(1040f, 54f), new Vector2(0.5f, 1f));
+            Place(row, new Vector2(0.5f, 1f), new Vector2(0f, -140f - i * 52f), new Vector2(1040f, 48f), new Vector2(0.5f, 1f));
             Image rb = Img("Back", row, new Color(1f, 1f, 1f, 0.04f));
             Stretch(rb.rectTransform);
             rb.raycastTarget = true;
@@ -137,15 +137,18 @@ public class ModalMenu : MonoBehaviour
             TextMeshProUGUI label = Txt("Label", row, 32, Color.white, FontStyles.Bold);
             label.text = GameSettings.Label(i);
             label.alignment = TextAlignmentOptions.Left;
-            Place(label.rectTransform, new Vector2(0f, 0.5f), new Vector2(24f, 0f), new Vector2(560f, 50f), new Vector2(0f, 0.5f));
+            Place(label.rectTransform, new Vector2(0f, 0.5f), new Vector2(24f, 0f), new Vector2(520f, 46f), new Vector2(0f, 0.5f));
 
             Button left = Btn("Left", row, "<", () => { selected = index; ChangeSelected(-1); });
-            Place((RectTransform)left.transform, new Vector2(1f, 0.5f), new Vector2(-380f, 0f), new Vector2(54f, 46f), new Vector2(1f, 0.5f));
+            Place((RectTransform)left.transform, new Vector2(1f, 0.5f), new Vector2(-420f, 0f), new Vector2(54f, 42f), new Vector2(1f, 0.5f));
             Button right = Btn("Right", row, ">", () => { selected = index; ChangeSelected(1); });
-            Place((RectTransform)right.transform, new Vector2(1f, 0.5f), new Vector2(-16f, 0f), new Vector2(54f, 46f), new Vector2(1f, 0.5f));
+            Place((RectTransform)right.transform, new Vector2(1f, 0.5f), new Vector2(-16f, 0f), new Vector2(54f, 42f), new Vector2(1f, 0.5f));
 
             TextMeshProUGUI value = Txt("Value", row, 32, new Color(1f, 0.85f, 0.3f), FontStyles.Bold);
-            Place(value.rectTransform, new Vector2(1f, 0.5f), new Vector2(-80f, 0f), new Vector2(240f, 50f), new Vector2(1f, 0.5f));
+            value.enableAutoSizing = true;
+            value.fontSizeMin = 18f;
+            value.fontSizeMax = 32f;
+            Place(value.rectTransform, new Vector2(1f, 0.5f), new Vector2(-80f, 0f), new Vector2(280f, 46f), new Vector2(1f, 0.5f));
             rowValues.Add(value);
         }
 
@@ -331,7 +334,9 @@ public class ModalMenu : MonoBehaviour
         }
 
         Button before = buttons.Find(b => b.name == beforeName);
-        Button template = before != null ? before : buttons[buttons.Count - 1];
+        // Copiamos el estilo del botón de encima (los de "Salir" o "Menú" suelen ir en rojo)
+        int beforeIdx = before != null ? buttons.IndexOf(before) : buttons.Count;
+        Button template = beforeIdx > 0 ? buttons[beforeIdx - 1] : (before != null ? before : buttons[buttons.Count - 1]);
         GameObject clone = Instantiate(template.gameObject, container);
         clone.name = "Btn_" + label;
         RectTransform crt = (RectTransform)clone.transform;
@@ -356,13 +361,13 @@ public class ModalMenu : MonoBehaviour
         cb.onClick = new Button.ButtonClickedEvent();
         cb.onClick.AddListener(action);
 
+        // Mismo uso de mayúsculas que el resto de botones
         TMP_Text tmp = clone.GetComponentInChildren<TMP_Text>(true);
+        Text legacy = tmp == null ? clone.GetComponentInChildren<Text>(true) : null;
+        string current = tmp != null ? tmp.text : legacy != null ? legacy.text : "";
+        if (!string.IsNullOrEmpty(current) && current == current.ToUpperInvariant()) label = label.ToUpperInvariant();
         if (tmp != null) tmp.text = label;
-        else
-        {
-            Text legacy = clone.GetComponentInChildren<Text>(true);
-            if (legacy != null) legacy.text = label;
-        }
+        else if (legacy != null) legacy.text = label;
         return cb;
     }
 }
