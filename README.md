@@ -37,6 +37,35 @@
 
 # 🇪🇸 Castellano
 
+## 🚧 Novedades en `dev` (después de la entrega)
+
+> Esta rama sigue evolucionando el juego. La versión entregada está congelada en la rama `v1.0`.
+
+**Game feel**
+- 💥 Los enemigos, el jugador, las monedas y las multas **estallan en vóxeles** del color de cada modelo.
+- 📳 **Temblor de cámara** y **hitstop** al golpear, recibir daño o derrotar al jefe.
+- 💬 **Textos flotantes**: "¡ZAS!", "¡OLÉ!", "¡MULTA!", "¡Mi cartera!", "¡Cornada!", "¡HIP!"…
+- ⚠️ **Aviso de derrumbe**: cada fila de suelo tiembla antes de caer.
+- 🟥 Flash rojo de pantalla al recibir daño.
+
+**Interfaz y progresión**
+- 🏷️ **Cartel de sala** con nombre propio: *San Fermín, La Plaza de Toros, Las Ramblas, Benidorm, La Mancha, La A‑7, Magaluf, La Feria de Abril, Lloret de Mar* y *El Congreso*.
+- ⏱️ Cronómetro, avisos en pantalla y **barra de vida del jefe**.
+- 🏆 **Puntuación y récords persistentes** (mejor puntuación, mejor sala, victorias y mejor tiempo), visibles en el menú principal y en las pantallas finales.
+- 🔥 **Combos**: encadenar muertes en menos de 2 s da "¡DOBLE!", "¡TRIPLE!"… y una moneda extra.
+- 🎟️ **Lotería**: cada 15 monedas "¡TE HA TOCADO EL GORDO!" y ganas un corazón (máximo 5). Ahora las monedas sirven para algo más que la puntuación.
+
+**Jefe final**
+- 🗳️ Pedro suelta frases satíricas al golpear y al recibir golpes, entra en una **fase 2 más rápida** en su última vida y, al ser derrotado, **dimite** con una gran explosión y suelta 10 monedas.
+
+**Correcciones**
+- La sala 10 usaba una `s` minúscula como inicio y no colocaba al jugador: ahora los mapas no distinguen mayúsculas de minúsculas.
+- `Esc` en Game Over / Victoria ya no reanuda el tiempo. Además, `P` también pausa.
+- Las multas en vuelo se eliminan al cambiar de sala.
+- Los atajos `0`‑`9` solo funcionan en el editor o en builds de desarrollo.
+- Rendimiento: el jugador se cachea en lugar de buscarlo en cada frame en cada entidad.
+- Los scripts en Windows‑1252 se han convertido a UTF‑8.
+
 ## Índice
 
 1. [Descripción](#descripción)
@@ -80,8 +109,8 @@ Lo que lo hace único es su **ambientación española y satírica**: todo está 
 | `S` / `↓` | Retroceder |
 | `A` / `←` | Izquierda |
 | `D` / `→` | Derecha |
-| `Esc` | Pausar / reanudar |
-| `1` … `9`, `0` | *(Depuración)* Saltar directamente a la sala 1‑9; `0` lleva a la sala 10 (jefe) |
+| `Esc` / `P` | Pausar / reanudar |
+| `1` … `9`, `0` | *(Depuración, solo en el editor o en builds de desarrollo)* Saltar a la sala 1‑9; `0` lleva a la sala 10 (jefe) |
 
 ## Personajes, enemigos y trampas
 
@@ -213,6 +242,35 @@ Proyecto de la asignatura de Videojuegos de la FIB (UPC), curso 2025/26. Los mod
 
 # 🇬🇧 English
 
+## 🚧 What's new in `dev` (after the submission)
+
+> This branch keeps evolving the game. The submitted version is frozen in the `v1.0` branch.
+
+**Game feel**
+- 💥 Enemies, the player, coins and fines **burst into voxels** in each model's colour.
+- 📳 **Screen shake** and **hitstop** when hitting, taking damage or defeating the boss.
+- 💬 **Floating text**: "¡ZAS!", "¡OLÉ!", "¡MULTA!", "¡Mi cartera!", "¡Cornada!", "¡HIP!"…
+- ⚠️ **Crumble warning**: each row of floor shakes before it falls.
+- 🟥 Red screen flash when you take damage.
+
+**UI and progression**
+- 🏷️ **Room title cards** with names: *San Fermín, La Plaza de Toros, Las Ramblas, Benidorm, La Mancha, La A‑7, Magaluf, La Feria de Abril, Lloret de Mar* and *El Congreso*.
+- ⏱️ Run timer, on-screen messages and a **boss health bar**.
+- 🏆 **Score and persistent records** (high score, best room, wins and best time), shown in the main menu and on the end screens.
+- 🔥 **Combos**: chaining kills within 2 s gives "¡DOBLE!", "¡TRIPLE!"… and a bonus coin.
+- 🎟️ **Lottery**: every 15 coins you hit "EL GORDO" and gain a heart (up to 5). Coins now matter beyond the score.
+
+**Final boss**
+- 🗳️ Pedro shouts satirical lines when he lands or takes a hit, enters a **faster phase 2** on his last life and, when defeated, **resigns** in a big explosion and drops 10 coins.
+
+**Fixes**
+- Room 10 used a lowercase `s` as the start and didn't place the player: maps are now case-insensitive.
+- `Esc` on Game Over / Victory no longer resumes time. `P` also pauses now.
+- Fines in flight are cleared when the room changes.
+- The `0`‑`9` shortcuts only work in the editor or in development builds.
+- Performance: the player is cached instead of being looked up every frame by every entity.
+- Windows‑1252 scripts were converted to UTF‑8.
+
 ## Table of contents
 
 1. [Overview](#overview)
@@ -256,8 +314,8 @@ What makes it unique is its **satirical Spanish setting**: everything is voxel a
 | `S` / `↓` | Back |
 | `A` / `←` | Left |
 | `D` / `→` | Right |
-| `Esc` | Pause / resume |
-| `1` … `9`, `0` | *(Debug)* Jump straight to room 1‑9; `0` goes to room 10 (boss) |
+| `Esc` / `P` | Pause / resume |
+| `1` … `9`, `0` | *(Debug, editor or development builds only)* Jump to room 1‑9; `0` goes to room 10 (boss) |
 
 ## Characters, enemies and traps
 
