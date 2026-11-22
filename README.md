@@ -8,7 +8,7 @@
 ![Unity](https://img.shields.io/badge/Unity-2022.3.32f1-black?logo=unity)
 ![C#](https://img.shields.io/badge/C%23-.NET-512BD4?logo=csharp)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?logo=windows)
-![License](https://img.shields.io/badge/License-MIT-green)
+![License](https://img.shields.io/badge/License-All%20rights%20reserved-lightgrey)
 
 [🇪🇸 Castellano](#-castellano) · [🇬🇧 English](#-english)
 
@@ -207,7 +207,7 @@ Las salas están en [`SpanishDungeon/Assets/Maps`](SpanishDungeon/Assets/Maps) (
 - **Sergi Malaguilla Bombín**
 - **Adrià Aguilar Garcia**
 
-Proyecto de la asignatura de Videojuegos de la FIB (UPC), curso 2025/26. Los modelos son originales (hechos con MagicaVoxel) y el audio procede de Freesound (CC0). Licencia [MIT](LICENSE).
+Proyecto de la asignatura de Videojuegos de la FIB (UPC), curso 2025/26. Los modelos son originales (hechos con MagicaVoxel) y el audio procede de Freesound (CC0). Todos los derechos reservados (ver [LICENSE](LICENSE)).
 
 ---
 
@@ -383,4 +383,4 @@ Rooms live in [`SpanishDungeon/Assets/Maps`](SpanishDungeon/Assets/Maps) (`Sala1
 - **Sergi Malaguilla Bombín**
 - **Adrià Aguilar Garcia**
 
-Made for the Video Games course at FIB (UPC), 2025/26. The models are original (made in MagicaVoxel) and the audio comes from Freesound (CC0). [MIT](LICENSE) licensed.
+Made for the Video Games course at FIB (UPC), 2025/26. The models are original (made in MagicaVoxel) and the audio comes from Freesound (CC0). All rights reserved (see [LICENSE](LICENSE)).
