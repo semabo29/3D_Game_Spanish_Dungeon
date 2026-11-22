@@ -7,6 +7,9 @@
 #   UNITY_EMAIL     email de la cuenta de Unity
 #   UNITY_PASSWORD  contraseña de la cuenta de Unity
 # Y en Settings > Pages > Source: "GitHub Actions".
+#
+# Para recompilar: haz push a dev. (El botón "Run workflow" solo aparece si este
+# archivo está también en la rama por defecto, main.)
 
 name: Build
 
