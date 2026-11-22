@@ -1,0 +1,123 @@
+# Compila el juego en la nube con GameCI cada vez que se sube a dev:
+#  - Windows (.exe)  -> release "dev-latest" (descarga en .zip)
+#  - WebGL           -> GitHub Pages (jugable en el navegador)
+#
+# Secrets necesarios (Settings > Secrets and variables > Actions):
+#   UNITY_LICENSE   contenido del archivo Unity_lic.ulf (licencia Personal gratuita)
+#   UNITY_EMAIL     email de la cuenta de Unity
+#   UNITY_PASSWORD  contraseña de la cuenta de Unity
+# Y en Settings > Pages > Source: "GitHub Actions".
+
+name: Build
+
+on:
+  push:
+    branches: [dev]
+    paths-ignore: ['**.md', 'docs/**']
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build ${{ matrix.targetPlatform }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform: [StandaloneWindows64, WebGL]
+    steps:
+      - name: Liberar espacio en disco
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: false
+
+      - uses: actions/checkout@v4
+
+      - name: Caché de Library
+        uses: actions/cache@v4
+        with:
+          path: SpanishDungeon/Library
+          key: Library-${{ matrix.targetPlatform }}-${{ hashFiles('SpanishDungeon/Assets/**', 'SpanishDungeon/Packages/**', 'SpanishDungeon/ProjectSettings/**') }}
+          restore-keys: |
+            Library-${{ matrix.targetPlatform }}-
+
+      - name: Compilar con Unity
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: SpanishDungeon
+          targetPlatform: ${{ matrix.targetPlatform }}
+          buildName: SpanishDungeon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SpanishDungeon-${{ matrix.targetPlatform }}
+          path: build/${{ matrix.targetPlatform }}
+          retention-days: 14
+
+  release-windows:
+    name: Publicar .exe (release dev-latest)
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: SpanishDungeon-StandaloneWindows64
+          path: SpanishDungeon-Windows
+
+      - name: Empaquetar
+        run: |
+          rm -rf SpanishDungeon-Windows/*_BurstDebugInformation_DoNotShip
+          zip -qr SpanishDungeon-Windows.zip SpanishDungeon-Windows
+
+      - name: Reemplazar la release dev-latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release delete dev-latest --cleanup-tag -y || true
+          gh release create dev-latest SpanishDungeon-Windows.zip \
+            --prerelease \
+            --target "${{ github.sha }}" \
+            --title "Spanish Dungeon - dev (última versión)" \
+            --notes "Compilación automática de la rama dev (commit ${{ github.sha }}). Descarga SpanishDungeon-Windows.zip, descomprímelo y ejecuta SpanishDungeon.exe. Versión web: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+
+  deploy-web:
+    name: Publicar WebGL (GitHub Pages)
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: SpanishDungeon-WebGL
+          path: site
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/SpanishDungeon
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

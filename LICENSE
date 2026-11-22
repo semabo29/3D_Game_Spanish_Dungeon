@@ -1,2 +1,77 @@
-Copyright (c) 2026 Sergi Malaguilla & Adria Aguilar
-All rights reserved.
+Spanish Dungeon
+Copyright (c) 2026 Sergi Malaguilla Bombín y Adrià Aguilar García.
+Todos los derechos reservados. / All rights reserved.
+
+==============================================================================
+CASTELLANO
+==============================================================================
+
+Este repositorio y todo su contenido (código fuente, escenas, mapas, modelos
+voxel, texturas, shaders, textos, documentación, compilaciones y vídeos) son
+propiedad exclusiva de sus autores, Sergi Malaguilla Bombín y Adrià Aguilar
+García (en adelante, "los autores").
+
+Que el repositorio sea público NO concede ninguna licencia de uso. Sin el
+permiso previo y por escrito de AMBOS autores, queda prohibido:
+
+  1. Copiar, reproducir o redistribuir el contenido, total o parcialmente.
+  2. Modificarlo o crear obras derivadas a partir de él.
+  3. Usarlo, total o parcialmente, en otros proyectos, trabajos académicos
+     o entregas de asignaturas.
+  4. Publicarlo, venderlo, sublicenciarlo o explotarlo comercialmente.
+  5. Usar los nombres, el título o la imagen del juego.
+
+Lo único que se permite es:
+
+  - Ver el código y el contenido en GitHub, y hacer "fork" dentro de GitHub,
+    en la medida en que lo exigen los Términos de Servicio de GitHub. Un
+    fork no da ningún derecho adicional de los que prohíbe esta licencia.
+  - Jugar a las versiones que publiquen los propios autores (el .exe de las
+    releases y la versión web de GitHub Pages), solo para uso personal y no
+    comercial.
+
+Contenido de terceros: los efectos de sonido y la música proceden de
+Freesound (CC0), y el motor, los paquetes y las fuentes de Unity están
+sujetos a sus propias licencias. Esta licencia no cambia las condiciones de
+ese contenido.
+
+Para pedir permiso, contacta con los autores a través de sus perfiles de
+GitHub.
+
+EL CONTENIDO SE OFRECE "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO.
+
+==============================================================================
+ENGLISH
+==============================================================================
+
+This repository and all of its contents (source code, scenes, maps, voxel
+models, textures, shaders, text, documentation, builds and videos) are the
+exclusive property of their authors, Sergi Malaguilla Bombín and Adrià
+Aguilar García ("the authors").
+
+The repository being public does NOT grant any licence. Without the prior
+written permission of BOTH authors, you may not:
+
+  1. Copy, reproduce or redistribute the contents, in whole or in part.
+  2. Modify them or create derivative works based on them.
+  3. Use them, in whole or in part, in other projects, academic work or
+     course submissions.
+  4. Publish, sell, sublicense or commercially exploit them.
+  5. Use the game's names, title or branding.
+
+The only things you may do are:
+
+  - View the code and contents on GitHub, and fork them within GitHub, to
+    the extent required by the GitHub Terms of Service. A fork does not
+    grant any of the rights this licence withholds.
+  - Play the builds published by the authors themselves (the .exe in the
+    releases and the web version on GitHub Pages), for personal,
+    non-commercial use only.
+
+Third-party content: the sound effects and music come from Freesound (CC0),
+and the Unity engine, packages and fonts are subject to their own licences.
+This licence does not change the terms of that content.
+
+To request permission, contact the authors through their GitHub profiles.
+
+THE CONTENTS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.

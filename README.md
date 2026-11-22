@@ -7,10 +7,13 @@
 
 ![Unity](https://img.shields.io/badge/Unity-2022.3.32f1-black?logo=unity)
 ![C#](https://img.shields.io/badge/C%23-.NET-512BD4?logo=csharp)
-![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?logo=windows)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Web-0078D6?logo=windows)
+[![Build](https://github.com/semabo29/3D_Game_Spanish_Dungeon/actions/workflows/build.yml/badge.svg?branch=dev)](https://github.com/semabo29/3D_Game_Spanish_Dungeon/actions/workflows/build.yml)
 ![License](https://img.shields.io/badge/License-All%20rights%20reserved-lightgrey)
 
 [🇪🇸 Castellano](#-castellano) · [🇬🇧 English](#-english)
+
+**🎮 [Jugar en el navegador / Play in the browser](https://semabo29.github.io/3D_Game_Spanish_Dungeon/)** · **💾 [Descargar .exe (dev) / Download .exe (dev)](https://github.com/semabo29/3D_Game_Spanish_Dungeon/releases/tag/dev-latest)**
 
 <img src="docs/img/menu.jpeg" alt="Spanish Dungeon" width="720">
 
@@ -249,7 +252,13 @@ Las salas están en [`SpanishDungeon/Assets/Maps`](SpanishDungeon/Assets/Maps) (
 
 ## Cómo ejecutarlo
 
-**Jugar directamente (Windows):** ejecuta `Sergi_Malaguilla/Binari/SpanishDungeon.exe`.
+**Jugar en el navegador (versión `dev`):** [https://semabo29.github.io/3D_Game_Spanish_Dungeon/](https://semabo29.github.io/3D_Game_Spanish_Dungeon/)
+
+**Descargar la última versión `dev` (Windows):** en la [release `dev-latest`](https://github.com/semabo29/3D_Game_Spanish_Dungeon/releases/tag/dev-latest) descarga `SpanishDungeon-Windows.zip`, descomprímelo y ejecuta `SpanishDungeon.exe`.
+
+Ambas se compilan solas en GitHub Actions (GameCI) cada vez que se sube algo a `dev`, así que no hace falta tener Unity instalado.
+
+**Versión entregada (Windows):** ejecuta `Sergi_Malaguilla/Binari/SpanishDungeon.exe`.
 
 **Abrir el proyecto:**
 1. Instala **Unity 2022.3.32f1** desde Unity Hub.
@@ -269,7 +278,9 @@ Las salas están en [`SpanishDungeon/Assets/Maps`](SpanishDungeon/Assets/Maps) (
 - **Sergi Malaguilla Bombín**
 - **Adrià Aguilar Garcia**
 
-Proyecto de la asignatura de Videojuegos de la FIB (UPC), curso 2025/26. Los modelos son originales (hechos con MagicaVoxel) y el audio procede de Freesound (CC0). Todos los derechos reservados (ver [LICENSE](LICENSE)).
+Proyecto de la asignatura de Videojuegos de la FIB (UPC), curso 2025/26. Los modelos son originales (hechos con MagicaVoxel) y el audio procede de Freesound (CC0). 
+
+**Licencia:** todos los derechos reservados. Este repositorio es propiedad exclusiva de Sergi Malaguilla Bombín y Adrià Aguilar García. Que sea público no da permiso para copiarlo, modificarlo, reutilizarlo ni redistribuirlo; solo se puede ver y jugar a las versiones publicadas. Consulta [LICENSE](LICENSE).
 
 ---
 
@@ -487,7 +498,13 @@ Rooms live in [`SpanishDungeon/Assets/Maps`](SpanishDungeon/Assets/Maps) (`Sala1
 
 ## Running it
 
-**Play right away (Windows):** run `Sergi_Malaguilla/Binari/SpanishDungeon.exe`.
+**Play in the browser (`dev` version):** [https://semabo29.github.io/3D_Game_Spanish_Dungeon/](https://semabo29.github.io/3D_Game_Spanish_Dungeon/)
+
+**Download the latest `dev` build (Windows):** grab `SpanishDungeon-Windows.zip` from the [`dev-latest` release](https://github.com/semabo29/3D_Game_Spanish_Dungeon/releases/tag/dev-latest), unzip it and run `SpanishDungeon.exe`.
+
+Both are built automatically by GitHub Actions (GameCI) on every push to `dev`, so you don't need Unity installed.
+
+**Submitted version (Windows):** run `Sergi_Malaguilla/Binari/SpanishDungeon.exe`.
 
 **Open the project:**
 1. Install **Unity 2022.3.32f1** through Unity Hub.
@@ -507,4 +524,6 @@ Rooms live in [`SpanishDungeon/Assets/Maps`](SpanishDungeon/Assets/Maps) (`Sala1
 - **Sergi Malaguilla Bombín**
 - **Adrià Aguilar Garcia**
 
-Made for the Video Games course at FIB (UPC), 2025/26. The models are original (made in MagicaVoxel) and the audio comes from Freesound (CC0). All rights reserved (see [LICENSE](LICENSE)).
+Made for the Video Games course at FIB (UPC), 2025/26. The models are original (made in MagicaVoxel) and the audio comes from Freesound (CC0). 
+
+**Licence:** all rights reserved. This repository is the exclusive property of Sergi Malaguilla Bombín and Adrià Aguilar García. Being public does not grant permission to copy, modify, reuse or redistribute it; you may only view it and play the published builds. See [LICENSE](LICENSE).
