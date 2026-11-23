@@ -13,7 +13,7 @@ public class ModalMenu : MonoBehaviour
     public static int ClosedFrame = -1;
     private static ModalMenu current;
 
-    private enum Kind { Options, Achievements, Shop, Records }
+    private enum Kind { Options, Achievements, Shop, Records, Blessing }
 
     private Kind kind;
     private Action onClose;
@@ -49,6 +49,30 @@ public class ModalMenu : MonoBehaviour
         current = m;
         m.Build();
         Sfx.Play(SfxType.PowerUp, 0.6f, 1.2f, true);
+    }
+
+    private List<Estampitas.Def> offer;
+    private PlayerStats blessed;
+    private readonly List<RectTransform> cards = new List<RectTransform>();
+    private readonly List<Image> cardBorders = new List<Image>();
+
+    // Las estampitas de la abuela: eliges una de tres (no se puede saltar)
+    public static void OpenBlessing(PlayerStats stats, Action onClose)
+    {
+        List<Estampitas.Def> offer = Estampitas.Offer();
+        if (current != null || offer.Count == 0) { onClose?.Invoke(); return; }
+        Time.timeScale = 0f;
+        EnsureEventSystem();
+        GameObject go = new GameObject("BlessingMenu");
+        ModalMenu m = go.AddComponent<ModalMenu>();
+        m.kind = Kind.Blessing;
+        m.offer = offer;
+        m.blessed = stats;
+        m.selected = offer.Count / 2;
+        m.onClose = () => { Time.timeScale = 1f; onClose?.Invoke(); };
+        current = m;
+        m.Build();
+        Sfx.Play(SfxType.Achievement, 0.6f, 1.1f, true);
     }
 
     private static void Open(Kind kind, Action onClose)
@@ -133,6 +157,11 @@ public class ModalMenu : MonoBehaviour
             title.text = "EL CHIRINGUITO DE PACO";
             BuildShop();
         }
+        else if (kind == Kind.Blessing)
+        {
+            title.text = "LAS ESTAMPITAS DE LA ABUELA";
+            BuildBlessing();
+        }
         else if (kind == Kind.Records)
         {
             title.text = "TUS MEJORES PARTIDAS";
@@ -144,12 +173,15 @@ public class ModalMenu : MonoBehaviour
             BuildAchievements();
         }
 
-        Button closeBtn = Btn("Volver", panel, kind == Kind.Shop ? "SEGUIR" : "VOLVER", Close);
+        Button closeBtn = kind == Kind.Blessing
+            ? Btn("Elegir", panel, "QUEDÁRMELA", TakeBlessing)
+            : Btn("Volver", panel, kind == Kind.Shop ? "SEGUIR" : "VOLVER", Close);
         Place((RectTransform)closeBtn.transform, new Vector2(0.5f, 0f), new Vector2(0f, 30f), new Vector2(300f, 64f), new Vector2(0.5f, 0f));
 
         TextMeshProUGUI keys = Txt("Keys", panel, 22, new Color(0.7f, 0.7f, 0.75f), FontStyles.Normal);
         keys.text = kind == Kind.Options ? "Arriba/abajo: elegir   Izq./der.: cambiar   Esc: volver"
-                  : kind == Kind.Shop ? "Arriba/abajo: elegir   Enter: comprar   Esc: seguir" : "Esc volver";
+                  : kind == Kind.Shop ? "Arriba/abajo: elegir   Enter: comprar   Esc: seguir"
+                  : kind == Kind.Blessing ? "Izq./der.: elegir   Enter: quedártela" : "Esc volver";
         Place(keys.rectTransform, new Vector2(1f, 0f), new Vector2(-24f, 8f), new Vector2(560f, 28f), new Vector2(1f, 0f));
         keys.alignment = TextAlignmentOptions.Right;
     }
@@ -262,6 +294,91 @@ public class ModalMenu : MonoBehaviour
         RefreshShop();
     }
 
+    private void BuildBlessing()
+    {
+        TextMeshProUGUI intro = Txt("Intro", panel, 30, new Color(1f, 0.93f, 0.75f), FontStyles.Italic);
+        intro.enableWordWrapping = true;
+        intro.text = "La abuela: «Toma, hijo, para el camino. Coge la que quieras, que te protege toda la partida.»";
+        Place(intro.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, -132f), new Vector2(1040f, 80f), new Vector2(0.5f, 1f));
+
+        for (int i = 0; i < offer.Count; i++)
+        {
+            int index = i;
+            Estampitas.Def d = offer[i];
+            float x = (i - (offer.Count - 1) / 2f) * 360f;
+            RectTransform card = Rect("Card" + i, panel);
+            Place(card, new Vector2(0.5f, 1f), new Vector2(x, -240f), new Vector2(330f, 560f), new Vector2(0.5f, 1f));
+
+            Image border = Img("Border", card, new Color(0.85f, 0.65f, 0.2f));
+            Stretch(border.rectTransform);
+            border.raycastTarget = true;
+            Button b = border.gameObject.AddComponent<Button>();
+            b.transition = Selectable.Transition.None;
+            b.onClick.AddListener(() => { selected = index; TakeBlessing(); });
+            cardBorders.Add(border);
+
+            Image paper = Img("Paper", card, new Color(0.98f, 0.94f, 0.84f));
+            Stretch(paper.rectTransform);
+            paper.rectTransform.offsetMin = new Vector2(8, 8);
+            paper.rectTransform.offsetMax = new Vector2(-8, -8);
+
+            // "Ilustración" de la estampita: aureola y un medallón de color
+            Image art = Img("Art", card, d.color);
+            Place(art.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, -24f), new Vector2(282f, 210f), new Vector2(0.5f, 1f));
+            Image halo = Img("Halo", art.rectTransform, new Color(1f, 0.92f, 0.45f, 0.9f));
+            Place(halo.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0f, 18f), new Vector2(150f, 150f), new Vector2(0.5f, 0.5f));
+            Image medal = Img("Medal", art.rectTransform, Color.Lerp(d.color, Color.white, 0.25f));
+            Place(medal.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0f, 18f), new Vector2(118f, 118f), new Vector2(0.5f, 0.5f));
+            TextMeshProUGUI initial = Txt("Initial", medal.rectTransform, 76, new Color(0.25f, 0.12f, 0.08f), FontStyles.Bold);
+            initial.text = d.name.Substring(0, 1);
+            Stretch(initial.rectTransform);
+
+            TextMeshProUGUI name = Txt("Name", card, 34, new Color(0.45f, 0.08f, 0.1f), FontStyles.Bold);
+            name.enableWordWrapping = true;
+            name.text = d.name;
+            Place(name.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, -248f), new Vector2(296f, 90f), new Vector2(0.5f, 1f));
+
+            TextMeshProUGUI saint = Txt("Saint", card, 21, new Color(0.45f, 0.35f, 0.25f), FontStyles.Italic);
+            saint.enableWordWrapping = true;
+            saint.text = d.saint;
+            Place(saint.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, -338f), new Vector2(290f, 56f), new Vector2(0.5f, 1f));
+
+            TextMeshProUGUI desc = Txt("Desc", card, 26, new Color(0.15f, 0.12f, 0.12f), FontStyles.Bold);
+            desc.enableWordWrapping = true;
+            desc.text = d.desc;
+            Place(desc.rectTransform, new Vector2(0.5f, 0f), new Vector2(0f, 26f), new Vector2(290f, 140f), new Vector2(0.5f, 0f));
+
+            cards.Add(card);
+        }
+
+        hintText = Txt("Hint", panel, 24, new Color(0.8f, 0.85f, 0.95f), FontStyles.Italic);
+        Place(hintText.rectTransform, new Vector2(0.5f, 0f), new Vector2(0f, 104f), new Vector2(1000f, 36f), new Vector2(0.5f, 0f));
+        string owned = Estampitas.Count > 0 ? "Ya llevas: " + Estampitas.OwnedNames() + "   ·   " : "";
+        hintText.text = owned + "Álbum: " + Estampitas.CollectedEver + "/" + Estampitas.All.Count;
+        RefreshBlessing();
+    }
+
+    private void RefreshBlessing()
+    {
+        for (int i = 0; i < cards.Count; i++)
+        {
+            bool sel = i == selected;
+            cards[i].localScale = Vector3.one * (sel ? 1.06f : 0.96f);
+            cardBorders[i].color = sel ? new Color(1f, 0.85f, 0.2f) : new Color(0.55f, 0.42f, 0.2f);
+        }
+    }
+
+    private void TakeBlessing()
+    {
+        if (offer == null || selected < 0 || selected >= offer.Count) return;
+        Estampitas.Def d = offer[selected];
+        Estampitas.Take(d.id, blessed);
+        if (GameHUD.Instance != null) GameHUD.Instance.ShowToast("Estampita: " + d.name, d.color, 1.8f);
+        Sfx.Play(SfxType.PowerUp, 0.9f, 1.1f, true);
+        offer = null;
+        Close();
+    }
+
     private void BuildRecords()
     {
         List<RunStats.TopRun> runs = RunStats.TopRuns();
@@ -342,6 +459,30 @@ public class ModalMenu : MonoBehaviour
 
     void Update()
     {
+        if (kind == Kind.Blessing)
+        {
+            // Aquí no se puede salir sin elegir
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.JoystickButton0))
+            {
+                TakeBlessing();
+                return;
+            }
+            int dx = 0;
+            if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A)) dx = -1;
+            if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D)) dx = 1;
+            repeatTimer -= Time.unscaledDeltaTime;
+            float bx = Input.GetAxisRaw("Horizontal");
+            if (dx == 0 && repeatTimer <= 0f && Mathf.Abs(bx) > 0.6f) { dx = bx > 0 ? 1 : -1; repeatTimer = 0.25f; }
+            if (Mathf.Abs(bx) < 0.3f) repeatTimer = 0f;
+            if (dx != 0 && offer != null)
+            {
+                selected = (selected + dx + offer.Count) % offer.Count;
+                Sfx.Play(SfxType.Blip, 0.6f, 1f, true);
+                RefreshBlessing();
+            }
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.JoystickButton1))
         {
             Close();

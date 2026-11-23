@@ -63,6 +63,7 @@ public class PlayerStats : MonoBehaviour
         currentHealth = maxHealth;
 
         RunStats.Reset();
+        Estampitas.Reset();
         GameSettings.Apply();
 
         // El HUD nuevo sustituye a los textos antiguos de la escena
@@ -166,7 +167,8 @@ public class PlayerStats : MonoBehaviour
         isInvincible = true;
         float timer = 0f;
 
-        while (timer < invincibilityTime)
+        float invTime = invincibilityTime * Estampitas.InvincibilityMultiplier;
+        while (timer < invTime)
         {
             foreach (Renderer ren in activeRenderers)
             {
@@ -195,6 +197,11 @@ public class PlayerStats : MonoBehaviour
     public bool StealCoin()
     {
         if (isDead || GameEnded || coins <= 0) return false;
+        if (Estampitas.ProtectsCoins)
+        {
+            GameFeel.FloatingText(transform.position + Vector3.up * 0.8f, "¡CARTERA A SALVO!", new Color(0.85f, 0.65f, 0.4f), 4f);
+            return false;
+        }
         coins--;
         UpdateUI();
         return true;
@@ -235,7 +242,7 @@ public class PlayerStats : MonoBehaviour
         Achievements.OnCoinCollected();
 
         coinsTowardsLottery++;
-        if (coinsTowardsLottery >= coinsPerLottery)
+        if (coinsTowardsLottery >= Estampitas.LotteryCost(coinsPerLottery))
         {
             coinsTowardsLottery = 0;
             WinLottery();
@@ -271,7 +278,13 @@ public class PlayerStats : MonoBehaviour
 
     public void LoseCoins(int amount)
     {
-        if (isDead || GameEnded) return;
+        // Durante la invulnerabilidad tampoco te quitan monedas
+        if (isDead || GameEnded || isInvincible) return;
+        if (Estampitas.ProtectsCoins)
+        {
+            if (coins > 0) GameFeel.FloatingText(transform.position + Vector3.right * 0.5f, "¡CARTERA A SALVO!", new Color(0.85f, 0.65f, 0.4f), 3.5f);
+            return;
+        }
         int lost = Mathf.Min(amount, coins);
         coins -= lost;
         RunStats.CoinsLost += lost;
@@ -282,6 +295,18 @@ public class PlayerStats : MonoBehaviour
         }
         UpdateUI();
     }
+
+    // Estampita "Corazón de oro": un corazón más de máximo y cura uno
+    public void AddMaxHeart()
+    {
+        if (isDead || GameEnded) return;
+        maxHealth++;
+        healthCap++;
+        currentHealth = Mathf.Min(healthCap, currentHealth + 1);
+        UpdateUI();
+    }
+
+    public void RefreshUI() => UpdateUI();
 
     public void AddRoom()
     {
@@ -303,7 +328,7 @@ public class PlayerStats : MonoBehaviour
 
         if (healthText != null) healthText.text = "Corazones: " + currentHealth;
         if (coinText != null) coinText.text = "Monedas: " + coins;
-        if (GameHUD.Instance != null) GameHUD.Instance.SetLotteryProgress(coinsTowardsLottery, coinsPerLottery);
+        if (GameHUD.Instance != null) GameHUD.Instance.SetLotteryProgress(coinsTowardsLottery, Estampitas.LotteryCost(coinsPerLottery));
         if (roomText != null) roomText.text = "Sala: " + currentRoom;
     }
 

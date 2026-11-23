@@ -20,6 +20,11 @@ public class NextRoomTrigger : MonoBehaviour
         {
             ModalMenu.OpenShop(stats, stats.currentRoom, () => Advance(player, stats));
         }
+        // Al salir de las salas 1, 4 y 7 la abuela te da a elegir una estampita
+        else if (Estampitas.OffersAfterRoom(stats.currentRoom))
+        {
+            ModalMenu.OpenBlessing(stats, () => Advance(player, stats));
+        }
         else
         {
             Advance(player, stats);
@@ -29,6 +34,11 @@ public class NextRoomTrigger : MonoBehaviour
     private static void Advance(PlayerController player, PlayerStats stats)
     {
         if (player == null || stats == null || stats.IsDead) return;
+        if (Estampitas.Has(Estampitas.Id.Hucha))
+        {
+            for (int i = 0; i < 2; i++) stats.AddCoin();
+            GameFeel.FloatingText(player.transform.position + Vector3.up, "HUCHA +2", new Color(1f, 0.65f, 0.75f), 4f);
+        }
         stats.AddRoom();
         MapGenerator generator = MapGenerator.Instance != null ? MapGenerator.Instance : FindFirstObjectByType<MapGenerator>();
         if (generator != null) generator.LoadNextRoom(player, stats.currentRoom);

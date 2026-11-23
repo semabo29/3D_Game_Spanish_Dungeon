@@ -19,7 +19,19 @@ public class Coin : MonoBehaviour
         // Gira sobre sí misma y flota para destacar
         transform.Rotate(0, 120 * Time.deltaTime, 0);
         // Si el suelo se derrumba la moneda cae con él: entonces ya no flota
-        if (!TryGetComponent<Rigidbody>(out _))
+        bool falling = TryGetComponent<Rigidbody>(out _);
+        // Estampita del imán: las monedas cercanas vuelan hacia Torrento
+        PlayerController pc = PlayerController.Instance;
+        if (!falling && pc != null && Estampitas.Has(Estampitas.Id.Iman))
+        {
+            Vector3 to = pc.transform.position - transform.position;
+            to.y = 0f;
+            if (to.magnitude < Estampitas.MagnetRadius && to.magnitude > 0.01f)
+            {
+                transform.position += to.normalized * Mathf.Min(to.magnitude, (3f + 6f * (1f - to.magnitude / Estampitas.MagnetRadius)) * Time.deltaTime);
+            }
+        }
+        if (!falling)
         {
             Vector3 p = transform.position;
             p.y = baseY + Mathf.Sin(Time.time * 3f + phase) * 0.08f;

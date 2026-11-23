@@ -113,6 +113,7 @@ public class MusicDirector : MonoBehaviour
 
         AudioClip clip = GetClip(style);
         if (clip == null) return;
+        Prefetch(NextStyle(style));
 
         AudioSource from = active;
         AudioSource to = active == a ? b : a;
@@ -129,12 +130,101 @@ public class MusicDirector : MonoBehaviour
     private AudioClip GetClip(MusicSynth.Style style)
     {
         if (cache.TryGetValue(style, out AudioClip c) && c != null) return c;
-        float[] data = MusicSynth.Generate(style);
+        // Si ya se estaba preparando en segundo plano, se termina ahora
+        if (pendingGen != null && pendingStyle == style)
+        {
+            while (pendingGen != null && pendingGen.MoveNext()) { }
+            FinishPending();
+            if (cache.TryGetValue(style, out c) && c != null) return c;
+        }
+        return Store(style, MusicSynth.Generate(style));
+    }
+
+    private AudioClip Store(MusicSynth.Style style, float[] data)
+    {
         if (data == null || data.Length == 0) return null;
         AudioClip clip = AudioClip.Create("Musica_" + style, data.Length, 1, MusicSynth.Rate, false);
         clip.SetData(data, 0);
         cache[style] = clip;
+        Trim(style);
         return clip;
+    }
+
+    // Solo guardamos unas pocas canciones en memoria: la que suena, la siguiente y la que se va apagando
+    private void Trim(MusicSynth.Style keep)
+    {
+        if (cache.Count <= 3) return;
+        List<MusicSynth.Style> drop = new List<MusicSynth.Style>();
+        foreach (var kv in cache)
+        {
+            if (kv.Key == keep || (current.HasValue && kv.Key == current.Value)) continue;
+            if (kv.Key == MusicSynth.Style.Victory) continue;
+            if ((a != null && a.clip == kv.Value && a.isPlaying) || (b != null && b.clip == kv.Value && b.isPlaying)) continue;
+            drop.Add(kv.Key);
+        }
+        foreach (MusicSynth.Style st in drop)
+        {
+            if (cache.Count <= 3) break;
+            AudioClip clip = cache[st];
+            cache.Remove(st);
+            if (a != null && a.clip == clip) a.clip = null;
+            if (b != null && b.clip == clip) b.clip = null;
+            if (clip != null) Destroy(clip);
+        }
+    }
+
+    // ---------- Preparación en segundo plano (repartida entre fotogramas) ----------
+
+    private IEnumerator pendingGen;
+    private MusicSynth.Style? pendingStyle;
+    private float[] pendingData;
+    private readonly Queue<MusicSynth.Style> prefetchQueue = new Queue<MusicSynth.Style>();
+    private Coroutine prefetchRunner;
+
+    private static MusicSynth.Style? NextStyle(MusicSynth.Style style)
+    {
+        switch (style)
+        {
+            case MusicSynth.Style.Menu: return MusicSynth.StyleForRoom(1);
+            case MusicSynth.Style.Boss: return MusicSynth.Style.Victory;
+            case MusicSynth.Style.Victory: return null;
+        }
+        for (int room = 1; room < 10; room++)
+            if (MusicSynth.StyleForRoom(room) == style) return MusicSynth.StyleForRoom(room + 1);
+        return null;
+    }
+
+    private void Prefetch(MusicSynth.Style? style)
+    {
+        if (!style.HasValue || cache.ContainsKey(style.Value) || pendingStyle == style || prefetchQueue.Contains(style.Value)) return;
+        prefetchQueue.Enqueue(style.Value);
+        if (prefetchRunner == null) prefetchRunner = StartCoroutine(PrefetchRoutine());
+    }
+
+    private IEnumerator PrefetchRoutine()
+    {
+        // Esperamos a que pase el fundido y el montaje de la sala
+        yield return new WaitForSecondsRealtime(1.5f);
+        while (prefetchQueue.Count > 0)
+        {
+            MusicSynth.Style style = prefetchQueue.Dequeue();
+            if (cache.ContainsKey(style)) continue;
+            pendingStyle = style;
+            pendingData = null;
+            pendingGen = MusicSynth.GenerateSteps(style, d => pendingData = d);
+            while (pendingGen != null && pendingGen.MoveNext()) yield return null;
+            FinishPending();
+        }
+        prefetchRunner = null;
+    }
+
+    private void FinishPending()
+    {
+        if (pendingStyle.HasValue && pendingData != null && !cache.ContainsKey(pendingStyle.Value))
+            Store(pendingStyle.Value, pendingData);
+        pendingGen = null;
+        pendingStyle = null;
+        pendingData = null;
     }
 
     private IEnumerator Crossfade(AudioSource from, AudioSource to, float time)

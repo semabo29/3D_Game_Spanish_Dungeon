@@ -96,6 +96,14 @@ public class PlayerPowerUps : MonoBehaviour
         if (GameHUD.Instance != null) GameHUD.Instance.ShowToast(toast, c, 1.5f);
     }
 
+    // Abanico regalado (estampita del botijo): sin contar como power-up
+    public void GiveShield()
+    {
+        if (shield) return;
+        shield = true;
+        CreateShieldVisual();
+    }
+
     // Devuelve true si el abanico ha parado el golpe
     public bool ConsumeShield()
     {

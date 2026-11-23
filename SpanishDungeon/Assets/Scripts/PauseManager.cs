@@ -100,7 +100,8 @@ public class PauseManager : MonoBehaviour
                 "<size=24><color=#FFFFFF>Sala " + ps.currentRoom + " · " + GameHUD.GetRoomName(ps.currentRoom) +
                 "  ·  Tiempo " + RunStats.FormatTime(RunStats.ElapsedSeconds) +
                 "  ·  Monedas " + ps.Coins + "  ·  Enemigos " + RunStats.Kills +
-                "  ·  " + GameSettings.DifficultyName(GameSettings.Difficulty) + "</color></size>\n";
+                "  ·  " + GameSettings.DifficultyName(GameSettings.Difficulty) + "</color></size>\n" +
+                (Estampitas.Count > 0 ? "<size=22><color=#FFD27A>Estampitas: " + Estampitas.OwnedNames() + "</color></size>\n" : "");
             tipText.text = stats + "Consejo de la abuela: " + Tips[Random.Range(0, Tips.Length)];
         }
         Time.timeScale = 0f;

@@ -37,6 +37,7 @@ public static class Achievements
         new Def("gaviota",   "Atracado por una gaviota",      "Deja que una gaviota te robe una moneda."),
         new Def("modelito",  "Fashion victim",                "Ponle un sombrero a Torrento."),
         new Def("iberico",   "Ibérico de bellota",            "Completa la mazmorra en dificultad Ibérico."),
+        new Def("album",     "El álbum de la abuela",         "Consigue las 10 estampitas distintas (entre todas tus partidas)."),
         new Def("todo",      "Spanish Dungeon al completo",   "Desbloquea todos los demás logros."),
     };
 

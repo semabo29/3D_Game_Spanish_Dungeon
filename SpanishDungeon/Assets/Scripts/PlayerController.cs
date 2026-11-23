@@ -114,7 +114,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            float speed = moveSpeed * (powerUps != null ? powerUps.SpeedMultiplier : 1f);
+            float speed = moveSpeed * (powerUps != null ? powerUps.SpeedMultiplier : 1f) * Estampitas.SpeedMultiplier;
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
 
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 15f * Time.deltaTime);
@@ -346,7 +346,7 @@ public class PlayerController : MonoBehaviour
 
         RunStats.Kills++;
 
-        if (Time.time - lastKillTime <= comboWindow) comboCount++;
+        if (Time.time - lastKillTime <= comboWindow * Estampitas.ComboWindowMultiplier) comboCount++;
         else comboCount = 1;
         lastKillTime = Time.time;
         if (comboCount > RunStats.BestCombo) RunStats.BestCombo = comboCount;
@@ -363,7 +363,11 @@ public class PlayerController : MonoBehaviour
             Sfx.Play(SfxType.Combo, 0.8f, 1f + (comboCount - 2) * 0.08f);
             // Premio por combo: una moneda extra
             PlayerStats stats = GetComponent<PlayerStats>();
-            if (stats != null) stats.AddCoin();
+            if (stats != null)
+            {
+                stats.AddCoin();
+                if (Estampitas.Has(Estampitas.Id.Rosario)) stats.AddCoin();
+            }
         }
         else
         {

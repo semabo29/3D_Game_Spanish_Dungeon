@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
 // Banda sonora original generada por código: cada sala tiene su propio estilo
@@ -18,14 +19,17 @@ public static class MusicSynth
         public int beatsPerBar = 4;
         public int keyMidi = 57;              // La 3
         public int[] scale = Major;
-        public Chord[] partA, partB;          // 4 acordes por parte, 2 compases cada uno
+        public Chord[] partA, partB, partC;   // 4 acordes por parte, 2 compases cada uno (C = puente)
         public int seed = 1;
         public Lead lead = Lead.Brass;
+        public Lead lead2 = Lead.Flute;       // instrumento del puente
         public Accomp accomp = Accomp.Stabs;
         public Drums drums = Drums.March;
         public float leadGain = 0.32f;
         public bool castanets, palmas;
-        public int bars = 16;
+        public bool ornament;                 // adornos flamencos en la última vuelta
+        public int drive;                     // 0 = tranquilo, 1 = acción, 2 = mucha acción
+        public int bars = 40;
         public bool loop = true;
     }
 
@@ -56,75 +60,87 @@ public static class MusicSynth
                 s.bpm = 112; s.keyMidi = 55; s.scale = Major; s.seed = 11;
                 s.partA = new[] { M(0), M(7), M(5), M(7) };
                 s.partB = new[] { M(0), M(5), M(7), M(0) };
-                s.lead = Lead.Brass; s.accomp = Accomp.Stabs; s.drums = Drums.Paso; s.castanets = true;
+                s.partC = new[] { m(9), M(5), m(2), M(7) };
+                s.lead = Lead.Brass; s.lead2 = Lead.Pluck; s.accomp = Accomp.Stabs; s.drums = Drums.Paso; s.castanets = true;
                 break;
             case Style.Charanga:   // San Fermín: charanga de peñas
-                s.bpm = 138; s.keyMidi = 58; s.scale = Major; s.seed = 21;
+                s.bpm = 146; s.keyMidi = 58; s.scale = Major; s.seed = 21; s.drive = 1;
                 s.partA = new[] { M(0), M(7), M(0), M(7) };
                 s.partB = new[] { M(5), M(0), M(7), M(0) };
-                s.lead = Lead.Brass; s.accomp = Accomp.Stabs; s.drums = Drums.March; s.leadGain = 0.34f;
+                s.partC = new[] { m(9), M(5), M(2), M(7) };
+                s.lead = Lead.Brass; s.lead2 = Lead.Flute; s.accomp = Accomp.Stabs; s.drums = Drums.March; s.leadGain = 0.34f;
                 break;
             case Style.Pasodoble:  // Plaza de toros
-                s.bpm = 120; s.keyMidi = 52; s.scale = Phrygian; s.seed = 31;
+                s.bpm = 132; s.keyMidi = 52; s.scale = Phrygian; s.seed = 31; s.drive = 1; s.ornament = true;
                 s.partA = new[] { M(0), m(5), M(1), M(0) };
                 s.partB = new[] { M(0), m(5), M(8), M(0) };
-                s.lead = Lead.Brass; s.accomp = Accomp.Stabs; s.drums = Drums.Paso; s.castanets = true;
+                s.partC = new[] { m(5), M(3), M(8), M(1) };
+                s.lead = Lead.Brass; s.lead2 = Lead.Pluck; s.accomp = Accomp.Stabs; s.drums = Drums.March; s.castanets = true;
                 break;
             case Style.Rumba:      // Las Ramblas: rumba catalana
-                s.bpm = 112; s.keyMidi = 52; s.scale = Phrygian; s.seed = 41;
-                s.partA = new[] { m(5), M(3), M(1), M(0) };
-                s.partB = new[] { m(5), M(3), M(1), M(0) };
-                s.lead = Lead.Pluck; s.accomp = Accomp.Rumba; s.drums = Drums.Rumba; s.palmas = true; s.leadGain = 0.36f;
-                break;
-            case Style.Disco:      // Benidorm: chiringuito disco
-                s.bpm = 124; s.keyMidi = 57; s.scale = Major; s.seed = 51;
-                s.partA = new[] { M(0), m(9), M(5), M(7) };
-                s.partB = new[] { M(5), M(7), m(9), M(7) };
-                s.lead = Lead.Square; s.accomp = Accomp.Arp; s.drums = Drums.Disco;
-                break;
-            case Style.Mancha:     // La Mancha: guitarra y flauta, más pausado
-                s.bpm = 96; s.beatsPerBar = 3; s.keyMidi = 50; s.scale = Minor; s.seed = 61;
-                s.partA = new[] { m(0), M(10), M(8), M(7) };
-                s.partB = new[] { m(5), m(0), M(8), M(7) };
-                s.lead = Lead.Flute; s.accomp = Accomp.Strum; s.drums = Drums.Soft; s.leadGain = 0.3f;
-                break;
-            case Style.Carretera:  // A-7: rumba rockera de gasolinera
-                s.bpm = 132; s.keyMidi = 52; s.scale = Phrygian; s.seed = 71;
-                s.partA = new[] { M(0), M(1), M(0), M(1) };
-                s.partB = new[] { m(5), M(3), M(1), M(0) };
-                s.lead = Lead.Square; s.accomp = Accomp.Rumba; s.drums = Drums.Disco; s.palmas = true;
-                break;
-            case Style.NightDisco: // Magaluf de noche
-                s.bpm = 126; s.keyMidi = 53; s.scale = Minor; s.seed = 81;
-                s.partA = new[] { m(0), M(8), M(3), M(10) };
-                s.partB = new[] { m(5), M(8), M(10), m(0) };
-                s.lead = Lead.Square; s.accomp = Accomp.Arp; s.drums = Drums.Disco;
-                break;
-            case Style.Sevillanas: // Feria de Abril
-                s.bpm = 150; s.beatsPerBar = 3; s.keyMidi = 52; s.scale = Phrygian; s.seed = 91;
+                s.bpm = 124; s.keyMidi = 52; s.scale = Phrygian; s.seed = 41; s.drive = 1; s.ornament = true;
                 s.partA = new[] { m(5), M(3), M(1), M(0) };
                 s.partB = new[] { M(3), M(8), M(1), M(0) };
-                s.lead = Lead.Pluck; s.accomp = Accomp.Sevillanas; s.drums = Drums.Sevillanas; s.castanets = true; s.palmas = true;
+                s.partC = new[] { M(0), M(1), M(0), M(1) };
+                s.lead = Lead.Pluck; s.lead2 = Lead.Flute; s.accomp = Accomp.Rumba; s.drums = Drums.Rumba; s.palmas = true; s.leadGain = 0.36f;
+                break;
+            case Style.Disco:      // Benidorm: chiringuito disco
+                s.bpm = 128; s.keyMidi = 57; s.scale = Major; s.seed = 51; s.drive = 1;
+                s.partA = new[] { M(0), m(9), M(5), M(7) };
+                s.partB = new[] { M(5), M(7), m(9), M(7) };
+                s.partC = new[] { m(2), M(7), m(4), m(9) };
+                s.lead = Lead.Square; s.lead2 = Lead.Brass; s.accomp = Accomp.Arp; s.drums = Drums.Disco;
+                break;
+            case Style.Mancha:     // La Mancha: jota rápida de guitarra y flauta
+                s.bpm = 172; s.beatsPerBar = 3; s.keyMidi = 50; s.scale = Minor; s.seed = 61; s.drive = 1;
+                s.partA = new[] { m(0), M(10), M(8), M(7) };
+                s.partB = new[] { m(5), m(0), M(8), M(7) };
+                s.partC = new[] { M(3), M(10), m(5), M(7) };
+                s.lead = Lead.Flute; s.lead2 = Lead.Pluck; s.accomp = Accomp.Sevillanas; s.drums = Drums.Sevillanas; s.castanets = true; s.leadGain = 0.3f;
+                break;
+            case Style.Carretera:  // A-7: rumba rockera de gasolinera
+                s.bpm = 142; s.keyMidi = 52; s.scale = Phrygian; s.seed = 71; s.drive = 2; s.ornament = true;
+                s.partA = new[] { M(0), M(1), M(0), M(1) };
+                s.partB = new[] { m(5), M(3), M(1), M(0) };
+                s.partC = new[] { M(8), M(1), M(8), M(1) };
+                s.lead = Lead.Square; s.lead2 = Lead.Pluck; s.accomp = Accomp.Rumba; s.drums = Drums.Disco; s.palmas = true;
+                break;
+            case Style.NightDisco: // Magaluf de noche
+                s.bpm = 132; s.keyMidi = 53; s.scale = Minor; s.seed = 81; s.drive = 2;
+                s.partA = new[] { m(0), M(8), M(3), M(10) };
+                s.partB = new[] { m(5), M(8), M(10), m(0) };
+                s.partC = new[] { M(8), M(10), m(0), m(0) };
+                s.lead = Lead.Square; s.lead2 = Lead.Organ; s.accomp = Accomp.Arp; s.drums = Drums.Disco;
+                break;
+            case Style.Sevillanas: // Feria de Abril
+                s.bpm = 162; s.beatsPerBar = 3; s.keyMidi = 52; s.scale = Phrygian; s.seed = 91; s.drive = 1; s.ornament = true;
+                s.partA = new[] { m(5), M(3), M(1), M(0) };
+                s.partB = new[] { M(3), M(8), M(1), M(0) };
+                s.partC = new[] { M(0), m(5), M(1), M(0) };
+                s.lead = Lead.Pluck; s.lead2 = Lead.Flute; s.accomp = Accomp.Sevillanas; s.drums = Drums.Sevillanas; s.castanets = true; s.palmas = true;
                 break;
             case Style.Verano:     // Lloret: pop de verano
-                s.bpm = 116; s.keyMidi = 55; s.scale = Major; s.seed = 101;
+                s.bpm = 126; s.keyMidi = 55; s.scale = Major; s.seed = 101; s.drive = 1;
                 s.partA = new[] { M(0), M(7), m(9), M(5) };
                 s.partB = new[] { M(5), M(7), M(0), M(7) };
-                s.lead = Lead.Pluck; s.accomp = Accomp.Strum; s.drums = Drums.Disco; s.leadGain = 0.34f;
+                s.partC = new[] { m(9), m(4), M(5), M(7) };
+                s.lead = Lead.Pluck; s.lead2 = Lead.Square; s.accomp = Accomp.Strum; s.drums = Drums.Disco; s.leadGain = 0.34f;
                 break;
             case Style.Boss:       // El Congreso: marcha épica con órgano
-                s.bpm = 128; s.keyMidi = 50; s.scale = Minor; s.seed = 111;
+                s.bpm = 146; s.keyMidi = 50; s.scale = Minor; s.seed = 111; s.drive = 2;
                 s.partA = new[] { m(0), M(8), M(10), M(7) };
                 s.partB = new[] { m(5), m(0), M(8), M(7) };
-                s.lead = Lead.Brass; s.accomp = Accomp.Organ; s.drums = Drums.Epic; s.leadGain = 0.3f;
+                s.partC = new[] { m(0), M(1), m(0), M(7) };
+                s.lead = Lead.Brass; s.lead2 = Lead.Organ; s.accomp = Accomp.Organ; s.drums = Drums.Epic; s.leadGain = 0.3f;
                 break;
             case Style.Victory:
                 s.bpm = 132; s.keyMidi = 58; s.scale = Major; s.seed = 121; s.bars = 4; s.loop = false;
                 s.partA = new[] { M(0), M(5), M(7), M(0) };
-                s.partB = s.partA;
+                s.partB = s.partA; s.partC = s.partA;
                 s.lead = Lead.Brass; s.accomp = Accomp.Stabs; s.drums = Drums.March;
                 break;
         }
+        if (s.partC == null) s.partC = s.partB;
         return s;
     }
 
@@ -154,7 +170,7 @@ public static class MusicSynth
             case Style.Pasodoble: return "Pasodoble del miura despistado";
             case Style.Rumba: return "Rumba del mantero";
             case Style.Disco: return "Chiringuito Disco Inferno";
-            case Style.Mancha: return "Romance del hidalgo con ciática";
+            case Style.Mancha: return "Jota del hidalgo con ciática";
             case Style.Carretera: return "Rumba de área de servicio";
             case Style.NightDisco: return "Magaluf, 4:00 AM";
             case Style.Sevillanas: return "Sevillanas del rebujito";
@@ -166,67 +182,115 @@ public static class MusicSynth
 
     // ---------- Generación ----------
 
+    // Secciones de la canción: A, A' (con segunda voz), B (otra melodía),
+    // C (puente: parón y redoble que sube) y A'' (todo a tope, con adornos)
+    private const int SecA1 = 0, SecA2 = 1, SecB = 2, SecC = 3, SecA3 = 4;
+    private static readonly int[] Form = { SecA1, SecA2, SecB, SecC, SecA3 };
+
+    private class Motif
+    {
+        public float[] call, answer, altAnswer;
+        public int[] contour = new int[16];
+    }
+
+    private static Motif NewMotif(System.Random rng, int bpb, bool syncopated)
+    {
+        Motif mo = new Motif
+        {
+            call = RandomRhythm(rng, bpb, false, syncopated),
+            answer = RandomRhythm(rng, bpb, true, false),
+            altAnswer = RandomRhythm(rng, bpb, true, false),
+        };
+        for (int i = 0; i < mo.contour.Length; i++)
+            mo.contour[i] = rng.Next(0, 10) < 6 ? (rng.Next(0, 2) == 0 ? 1 : -1) : (rng.Next(0, 3) - 1) * 2;
+        return mo;
+    }
+
+    // Generación de golpe (para pruebas o si hace falta ya)
     public static float[] Generate(Style style)
+    {
+        float[] result = null;
+        IEnumerator it = GenerateSteps(style, r => result = r);
+        while (it.MoveNext()) { }
+        return result;
+    }
+
+    // Generación por trozos: un compás por paso, para repartirla entre fotogramas sin tirones
+    public static IEnumerator GenerateSteps(Style style, System.Action<float[]> done)
     {
         Song s = Define(style);
         System.Random rng = new System.Random(s.seed);
+        noiseSeed = 22222u + (uint)s.seed;
 
         float beat = 60f / s.bpm;
         int bpb = s.beatsPerBar;
+        int secLen = s.loop ? 8 : s.bars;
         int totalBeats = s.bars * bpb;
         int length = Mathf.CeilToInt(totalBeats * beat * Rate);
         if (!s.loop) length += Rate * 2; // cola final
         float[] mix = new float[length];
         Ctx c = new Ctx { buf = mix, loop = s.loop };
 
-        // Progresión completa: 16 compases = A A B A' (cada acorde dura 2 compases en A/B de 8)
-        Chord[] prog = new Chord[s.bars];
-        for (int bar = 0; bar < s.bars; bar++)
-        {
-            int section = (bar / 8) % 2;
-            Chord[] part = section == 0 ? s.partA : s.partB;
-            prog[bar] = part[(bar / 2) % 4];
-        }
-        if (!s.loop) for (int bar = 0; bar < s.bars; bar++) prog[bar] = s.partA[bar % 4];
-
-        // ----- Melodía: motivo de 2 compases reutilizado y adaptado a cada acorde -----
-        List<float[]> motifRhythm = new List<float[]>();
-        for (int k = 0; k < 2; k++) motifRhythm.Add(RandomRhythm(rng, bpb, k == 1));
-        int[] contour = new int[16];
-        for (int i = 0; i < contour.Length; i++) contour[i] = rng.Next(0, 10) < 6 ? (rng.Next(0, 2) == 0 ? 1 : -1) : (rng.Next(0, 3) - 1) * 2;
+        Motif motifA = NewMotif(rng, bpb, false);
+        Motif motifB = NewMotif(rng, bpb, true);
+        Motif motifC = NewMotif(rng, bpb, false);
 
         int leadBase = s.keyMidi + 12;
         int prevDegree = 7; // grado en índice de escala relativo (empieza en la octava)
-        for (int bar = 0; bar < s.bars; bar++)
-        {
-            Chord ch = prog[bar];
-            float[] rhythm = motifRhythm[bar % 2];
-            bool variation = (bar / 2) % 4 == 3;           // cada 4º par de compases varía
-            bool cadence = bar == s.bars - 1 || (bar % 8 == 7);
-            float t = BarStart(bar, bpb, beat);
-            for (int n = 0; n < rhythm.Length; n++)
-            {
-                float dur = rhythm[n];
-                if (dur < 0f) { t += -dur * beat; continue; } // silencio
-                int step = contour[(n + (variation ? 3 : 0)) % contour.Length];
-                int deg = prevDegree + step;
-                // Primera nota del compás: nota del acorde más cercana
-                if (n == 0 || (cadence && n == rhythm.Length - 1)) deg = NearestChordDegree(s.scale, ch, prevDegree);
-                deg = Mathf.Clamp(deg, 2, 13);
-                prevDegree = deg;
-                int midi = leadBase + DegreeToSemitone(s.scale, deg);
-                float f = MidiToFreq(midi);
-                float noteLen = dur * beat * (cadence && n == rhythm.Length - 1 ? 0.98f : 0.85f);
-                PlayLead(c, s.lead, t, f, noteLen, s.leadGain * (n == 0 ? 1f : 0.85f));
-                t += dur * beat;
-            }
-        }
 
-        // ----- Acompañamiento y bajo -----
         for (int bar = 0; bar < s.bars; bar++)
         {
-            Chord ch = prog[bar];
+            int sec = s.loop ? Form[Mathf.Min(bar / secLen, Form.Length - 1)] : SecA1;
+            int inSec = bar % secLen;
+            Chord[] part = sec == SecB ? s.partB : sec == SecC ? s.partC : s.partA;
+            Chord ch = s.loop ? part[(inSec / 2) % 4] : part[bar % 4];
             float t0 = BarStart(bar, bpb, beat);
+            bool breakdown = s.loop && sec == SecC && inSec < 4;
+            bool build = s.loop && sec == SecC && inSec >= 4;
+            bool lastBar = inSec == secLen - 1;
+
+            // ----- Melodía: motivo de 2 compases reutilizado y adaptado a cada acorde -----
+            Motif mo = sec == SecB ? motifB : sec == SecC ? motifC : motifA;
+            Lead leadInst = sec == SecC ? s.lead2 : s.lead;
+            int pair = inSec / 2;
+            bool isAnswer = inSec % 2 == 1;
+            float[] rhythm = !isAnswer ? mo.call : (pair == 3 && sec != SecA1 ? mo.altAnswer : mo.answer);
+            bool variation = pair == 3;
+            bool cadence = lastBar;
+            bool harmony = s.loop && (sec == SecA2 || sec == SecA3);
+            bool grace = s.ornament && sec == SecA3;
+            float secGain = breakdown ? 0.85f : 1f;
+            {
+                float t = t0;
+                for (int n = 0; n < rhythm.Length; n++)
+                {
+                    float dur = rhythm[n];
+                    if (dur < 0f) { t += -dur * beat; continue; } // silencio
+                    int step = mo.contour[(n + (variation ? 3 : 0) + (isAnswer ? 5 : 0)) % mo.contour.Length];
+                    int deg = prevDegree + step;
+                    // Primera nota del compás: nota del acorde más cercana
+                    if (n == 0 || (cadence && n == rhythm.Length - 1)) deg = NearestChordDegree(s.scale, ch, prevDegree);
+                    deg = Mathf.Clamp(deg, 2, 13);
+                    prevDegree = deg;
+                    float f = MidiToFreq(leadBase + DegreeToSemitone(s.scale, deg));
+                    float noteLen = dur * beat * (cadence && n == rhythm.Length - 1 ? 0.98f : 0.85f);
+                    float amp = s.leadGain * secGain * (n == 0 ? 1f : 0.85f);
+                    if (grace && n == 0 && dur >= 0.5f)
+                    {
+                        // Adorno: nota de paso rapidita desde arriba
+                        float g = beat * 0.12f;
+                        PlayLead(c, leadInst, t, MidiToFreq(leadBase + DegreeToSemitone(s.scale, deg + 1)), g * 0.9f, amp * 0.7f);
+                        PlayLead(c, leadInst, t + g, f, noteLen - g, amp);
+                    }
+                    else PlayLead(c, leadInst, t, f, noteLen, amp);
+                    // Segunda voz una tercera por debajo
+                    if (harmony && dur >= 0.5f)
+                        PlayLead(c, leadInst, t, MidiToFreq(leadBase + DegreeToSemitone(s.scale, deg - 2)), noteLen, amp * 0.42f);
+                    t += dur * beat;
+                }
+            }
+
+            // ----- Acompañamiento y bajo -----
             int root = s.keyMidi - 12 + ch.root;
             if (ch.root > 6) root -= 12;
             int third = ch.minor ? 3 : 4;
@@ -234,105 +298,96 @@ public static class MusicSynth
             if (ch.root > 7) for (int i = 0; i < 3; i++) chordMidi[i] -= 12;
 
             // Bajo
-            for (int b = 0; b < bpb; b++)
+            if (breakdown)
             {
-                float tb = t0 + b * beat;
-                switch (s.accomp)
+                Bass(c, t0, MidiToFreq(root), beat * bpb * 0.95f, 0.32f);
+            }
+            else if (s.drive > 0 && s.accomp != Accomp.Rumba && s.accomp != Accomp.Arp)
+            {
+                // Bajo de acción: corcheas que empujan, con salto a la quinta al final de cada frase
+                for (int i = 0; i < bpb * 2; i++)
                 {
-                    case Accomp.Arp:
-                        Bass(c, tb, MidiToFreq(root), beat * 0.45f, 0.34f);
-                        Bass(c, tb + beat * 0.5f, MidiToFreq(root + 12), beat * 0.4f, 0.26f);
-                        break;
-                    case Accomp.Organ:
-                        Bass(c, tb, MidiToFreq(root), beat * 0.9f, 0.34f);
-                        break;
-                    case Accomp.Rumba:
-                        if (b == 0 || b == 2) Bass(c, tb, MidiToFreq(root), beat * 0.7f, 0.36f);
-                        if (b == 1 || b == 3) Bass(c, tb + beat * 0.5f, MidiToFreq(root + 7), beat * 0.45f, 0.3f);
-                        break;
-                    default:
-                        if (bpb == 3) { if (b == 0) Bass(c, tb, MidiToFreq(root), beat * 0.9f, 0.36f); }
-                        else Bass(c, tb, MidiToFreq(b % 2 == 0 ? root : root + 7), beat * 0.8f, 0.34f);
-                        break;
+                    int note = root;
+                    if (i % 2 == 1) note = s.accomp == Accomp.Organ ? root : root + 12;
+                    if (isAnswer && i == bpb * 2 - 1) note = root + 7;
+                    Bass(c, t0 + i * beat * 0.5f, MidiToFreq(note), beat * 0.42f, i % 2 == 0 ? 0.34f : 0.24f);
+                }
+            }
+            else
+            {
+                for (int b = 0; b < bpb; b++)
+                {
+                    float tb = t0 + b * beat;
+                    switch (s.accomp)
+                    {
+                        case Accomp.Arp:
+                            Bass(c, tb, MidiToFreq(root), beat * 0.45f, 0.34f);
+                            Bass(c, tb + beat * 0.5f, MidiToFreq(root + 12), beat * 0.4f, 0.26f);
+                            break;
+                        case Accomp.Organ:
+                            Bass(c, tb, MidiToFreq(root), beat * 0.9f, 0.34f);
+                            break;
+                        case Accomp.Rumba:
+                            if (b == 0 || b == 2) Bass(c, tb, MidiToFreq(root), beat * 0.7f, 0.36f);
+                            if (b == 1 || b == 3) Bass(c, tb + beat * 0.5f, MidiToFreq(root + 7), beat * 0.45f, 0.3f);
+                            break;
+                        default:
+                            if (bpb == 3) { if (b == 0) Bass(c, tb, MidiToFreq(root), beat * 0.9f, 0.36f); }
+                            else Bass(c, tb, MidiToFreq(b % 2 == 0 ? root : root + 7), beat * 0.8f, 0.34f);
+                            break;
+                    }
                 }
             }
 
             // Acordes
-            switch (s.accomp)
+            if (breakdown)
             {
-                case Accomp.Stabs:
-                    for (int b = 0; b < bpb; b++)
-                        if (b % 2 == 1) foreach (int nm in chordMidi) Brass(c, t0 + b * beat, MidiToFreq(nm), beat * 0.35f, 0.09f);
-                    break;
-                case Accomp.Strum:
-                    for (int b = 0; b < bpb; b++) Strum(c, t0 + b * beat, chordMidi, b == 0 ? 0.16f : 0.1f, b % 2 == 1);
-                    break;
-                case Accomp.Rumba:
-                    float[] pattern = { 0f, 0.5f, 0.75f, 1.25f, 1.5f, 2f, 2.5f, 2.75f, 3.25f, 3.5f };
-                    for (int i = 0; i < pattern.Length; i++)
-                        Strum(c, t0 + pattern[i] * beat, chordMidi, (pattern[i] % 1f == 0f) ? 0.15f : 0.09f, i % 2 == 1);
-                    break;
-                case Accomp.Sevillanas:
-                    for (int b = 0; b < bpb; b++)
-                    {
-                        Strum(c, t0 + b * beat, chordMidi, b == 0 ? 0.17f : 0.11f, false);
-                        Strum(c, t0 + (b + 0.5f) * beat, chordMidi, 0.06f, true);
-                    }
-                    break;
-                case Accomp.Arp:
-                    for (int i = 0; i < bpb * 2; i++)
-                        Pluck(c, t0 + i * 0.5f * beat, MidiToFreq(chordMidi[i % 3] + 12), beat * 0.45f, 0.08f, 0.6f);
-                    for (int b = 0; b < bpb; b += 2) foreach (int nm in chordMidi) OrganNote(c, t0 + b * beat, MidiToFreq(nm), beat * 1.9f, 0.035f);
-                    break;
-                case Accomp.Organ:
-                    foreach (int nm in chordMidi) OrganNote(c, t0, MidiToFreq(nm), beat * bpb * 0.98f, 0.06f);
-                    break;
+                foreach (int nm in chordMidi) OrganNote(c, t0, MidiToFreq(nm), beat * bpb * 0.98f, 0.04f);
+                if (s.accomp != Accomp.Organ) Strum(c, t0, chordMidi, 0.12f, false);
             }
-
-            // Percusión
-            for (int b = 0; b < bpb; b++)
+            else
             {
-                float tb = t0 + b * beat;
-                bool fill = bar % 4 == 3 && b == bpb - 1;
-                switch (s.drums)
+                switch (s.accomp)
                 {
-                    case Drums.March:
-                        if (b % 2 == 0) Kick(c, tb, 0.5f);
-                        Snare(c, tb + beat * 0.5f, 0.12f);
-                        if (b % 2 == 1) Snare(c, tb, 0.3f);
-                        if (fill) for (int k = 0; k < 4; k++) Snare(c, tb + k * beat * 0.25f, 0.18f + k * 0.04f);
+                    case Accomp.Stabs:
+                        for (int b = 0; b < bpb; b++)
+                            if (b % 2 == 1) foreach (int nm in chordMidi) Brass(c, t0 + b * beat, MidiToFreq(nm), beat * 0.35f, 0.09f);
                         break;
-                    case Drums.Paso:
-                        if (b % 2 == 0) Kick(c, tb, 0.45f);
-                        if (b % 2 == 1) Snare(c, tb, 0.22f);
-                        if (fill) { Snare(c, tb + beat * 0.5f, 0.25f); Snare(c, tb + beat * 0.75f, 0.3f); }
+                    case Accomp.Strum:
+                        for (int b = 0; b < bpb; b++) Strum(c, t0 + b * beat, chordMidi, b == 0 ? 0.16f : 0.1f, b % 2 == 1);
                         break;
-                    case Drums.Rumba:
-                        if (b == 0 || b == 2) Kick(c, tb, 0.35f);
-                        Hat(c, tb + beat * 0.5f, 0.08f);
+                    case Accomp.Rumba:
+                        float[] pattern = { 0f, 0.5f, 0.75f, 1.25f, 1.5f, 2f, 2.5f, 2.75f, 3.25f, 3.5f };
+                        for (int i = 0; i < pattern.Length; i++)
+                            Strum(c, t0 + pattern[i] * beat, chordMidi, (pattern[i] % 1f == 0f) ? 0.15f : 0.09f, i % 2 == 1);
                         break;
-                    case Drums.Disco:
-                        Kick(c, tb, 0.55f);
-                        Hat(c, tb + beat * 0.5f, 0.12f);
-                        if (b % 2 == 1) Clap(c, tb, 0.22f);
-                        if (fill) { Snare(c, tb + beat * 0.5f, 0.2f); Snare(c, tb + beat * 0.75f, 0.25f); }
+                    case Accomp.Sevillanas:
+                        for (int b = 0; b < bpb; b++)
+                        {
+                            Strum(c, t0 + b * beat, chordMidi, b == 0 ? 0.17f : 0.11f, false);
+                            Strum(c, t0 + (b + 0.5f) * beat, chordMidi, 0.06f, true);
+                        }
                         break;
-                    case Drums.Soft:
-                        if (b == 0) Kick(c, tb, 0.3f);
-                        Hat(c, tb, 0.04f);
+                    case Accomp.Arp:
+                        for (int i = 0; i < bpb * 2; i++)
+                            Pluck(c, t0 + i * 0.5f * beat, MidiToFreq(chordMidi[i % 3] + 12), beat * 0.45f, 0.08f, 0.6f);
+                        for (int b = 0; b < bpb; b += 2) foreach (int nm in chordMidi) OrganNote(c, t0 + b * beat, MidiToFreq(nm), beat * 1.9f, 0.035f);
                         break;
-                    case Drums.Epic:
-                        if (b % 2 == 0) Kick(c, tb, 0.6f); else Snare(c, tb, 0.28f);
-                        Hat(c, tb + beat * 0.5f, 0.06f);
-                        if (fill) for (int k = 0; k < 6; k++) Snare(c, tb + k * beat / 6f, 0.15f + k * 0.03f);
-                        break;
-                    case Drums.Sevillanas:
-                        if (b == 0) Kick(c, tb, 0.35f);
+                    case Accomp.Organ:
+                        foreach (int nm in chordMidi) OrganNote(c, t0, MidiToFreq(nm), beat * bpb * 0.98f, 0.06f);
+                        // En la marcha del jefe, golpes de metal a contratiempo para meter tensión
+                        if (s.drive > 1 && sec != SecA1)
+                            for (int b = 0; b < bpb; b++) foreach (int nm in chordMidi) Brass(c, t0 + (b + 0.5f) * beat, MidiToFreq(nm), beat * 0.22f, 0.05f);
                         break;
                 }
-                if (s.palmas && (bpb == 3 ? b > 0 : b % 2 == 1)) Clap(c, tb, 0.16f);
-                if (s.castanets) Castanets(c, tb + beat * 0.5f, 0.12f, rng);
             }
+
+            yield return null;
+
+            // Percusión
+            Percussion(c, s, rng, t0, beat, bpb, sec, inSec, secLen, breakdown, build, lastBar);
+
+            yield return null;
         }
 
         // Final con acorde largo para la fanfarria de victoria
@@ -342,10 +397,109 @@ public static class MusicSynth
             int[] fin = { s.keyMidi, s.keyMidi + 4, s.keyMidi + 7, s.keyMidi + 12 };
             foreach (int nm in fin) Brass(c, tEnd, MidiToFreq(nm), 1.6f, 0.12f);
             Kick(c, tEnd, 0.6f);
+            Crash(c, tEnd, 0.2f);
         }
 
         Master(mix);
-        return mix;
+        done?.Invoke(mix);
+    }
+
+    private static void Percussion(Ctx c, Song s, System.Random rng, float t0, float beat, int bpb,
+                                   int sec, int inSec, int secLen, bool breakdown, bool build, bool lastBar)
+    {
+        bool action = s.drive > 0;
+
+        // Platillo al empezar cada sección
+        if (s.loop && inSec == 0 && sec != SecC && (action || sec == SecB)) Crash(c, t0, 0.2f);
+
+        if (breakdown && action)
+        {
+            // Parón: solo bombo al principio y charles suave
+            Kick(c, t0, 0.45f);
+            for (int k = 0; k < bpb * 2; k++) Hat(c, t0 + k * beat * 0.5f, 0.04f);
+            if (s.castanets) for (int b = 0; b < bpb; b++) Castanets(c, t0 + (b + 0.5f) * beat, 0.09f, rng);
+            return;
+        }
+
+        if (build && action)
+        {
+            // Redoble que sube: corcheas y luego semicorcheas, cada vez más fuerte
+            int sub = inSec >= secLen - 2 ? 4 : 2;
+            for (int b = 0; b < bpb; b++)
+            {
+                float tb = t0 + b * beat;
+                Kick(c, tb, 0.5f);
+                for (int k = 0; k < sub; k++)
+                {
+                    float prog = ((inSec - 4) * bpb * sub + b * sub + k) / (4f * bpb * sub);
+                    Snare(c, tb + k * beat / sub, 0.07f + 0.25f * Mathf.Clamp01(prog));
+                }
+            }
+            return;
+        }
+
+        for (int b = 0; b < bpb; b++)
+        {
+            float tb = t0 + b * beat;
+            bool fill = inSec % 4 == 3 && b == bpb - 1 && !(lastBar && action);
+            switch (s.drums)
+            {
+                case Drums.March:
+                    if (b % 2 == 0) Kick(c, tb, 0.5f);
+                    Snare(c, tb + beat * 0.5f, 0.12f);
+                    if (b % 2 == 1) Snare(c, tb, 0.3f);
+                    if (fill) for (int k = 0; k < 4; k++) Snare(c, tb + k * beat * 0.25f, 0.18f + k * 0.04f);
+                    break;
+                case Drums.Paso:
+                    if (b % 2 == 0) Kick(c, tb, 0.45f);
+                    if (b % 2 == 1) Snare(c, tb, 0.22f);
+                    if (fill) { Snare(c, tb + beat * 0.5f, 0.25f); Snare(c, tb + beat * 0.75f, 0.3f); }
+                    break;
+                case Drums.Rumba:
+                    if (b == 0 || b == 2) Kick(c, tb, 0.4f);
+                    if (action && (b == 1 || b == 3)) Snare(c, tb, 0.16f);
+                    Hat(c, tb + beat * 0.5f, 0.08f);
+                    break;
+                case Drums.Disco:
+                    Kick(c, tb, 0.55f);
+                    Hat(c, tb + beat * 0.5f, 0.12f);
+                    if (b % 2 == 1) Clap(c, tb, 0.22f);
+                    if (fill) { Snare(c, tb + beat * 0.5f, 0.2f); Snare(c, tb + beat * 0.75f, 0.25f); }
+                    break;
+                case Drums.Soft:
+                    if (b == 0) Kick(c, tb, 0.3f);
+                    Hat(c, tb, 0.04f);
+                    break;
+                case Drums.Epic:
+                    if (b % 2 == 0) Kick(c, tb, 0.6f); else Snare(c, tb, 0.28f);
+                    if (s.drive > 1) Kick(c, tb + beat * 0.5f, 0.32f); // doble bombo
+                    Hat(c, tb + beat * 0.5f, 0.06f);
+                    if (fill) for (int k = 0; k < 6; k++) Snare(c, tb + k * beat / 6f, 0.15f + k * 0.03f);
+                    break;
+                case Drums.Sevillanas:
+                    if (b == 0) Kick(c, tb, 0.4f);
+                    if (action && b > 0) Snare(c, tb, 0.1f);
+                    break;
+            }
+            if (s.palmas && (bpb == 3 ? b > 0 : b % 2 == 1)) Clap(c, tb, 0.16f);
+            if (s.castanets) Castanets(c, tb + beat * 0.5f, 0.12f, rng);
+        }
+
+        if (!action) return;
+
+        // Charles en corcheas (y semicorcheas en las partes fuertes de los temas más cañeros)
+        bool sixteenths = s.drive > 1 && (sec == SecB || sec == SecA3);
+        int hatSub = sixteenths ? 4 : 2;
+        for (int k = 0; k < bpb * hatSub; k++)
+            Hat(c, t0 + k * beat / hatSub, k % hatSub == 0 ? 0.035f : 0.055f);
+
+        // Redoble de timbales al final de cada sección
+        if (lastBar && s.loop)
+        {
+            float tl = t0 + (bpb - 1) * beat;
+            float[] toms = { 260f, 210f, 165f, 125f };
+            for (int k = 0; k < 4; k++) Tom(c, tl + k * beat * 0.25f, toms[k], 0.3f + k * 0.03f);
+        }
     }
 
     // ---------- Utilidades musicales ----------
@@ -376,7 +530,7 @@ public static class MusicSynth
     }
 
     // Ritmos de un compás en negras (valores negativos = silencios)
-    private static float[] RandomRhythm(System.Random rng, int bpb, bool answer)
+    private static float[] RandomRhythm(System.Random rng, int bpb, bool answer, bool syncopated)
     {
         if (bpb == 3)
         {
@@ -387,7 +541,8 @@ public static class MusicSynth
                 new[] { 1.5f, 0.5f, 1f },
                 new[] { 1f, 1f, 1f },
             };
-            return answer ? new[] { 2f, 1f } : r3[rng.Next(r3.Length)];
+            float[][] a3 = { new[] { 2f, 1f }, new[] { 1f, 2f }, new[] { 0.5f, 0.5f, 2f } };
+            return answer ? a3[rng.Next(a3.Length)] : r3[rng.Next(r3.Length)];
         }
         float[][] r4 =
         {
@@ -397,6 +552,14 @@ public static class MusicSynth
             new[] { 0.75f, 0.25f, 0.5f, 0.5f, 1f, 1f },
             new[] { 1f, 1f, 0.5f, 0.5f, 0.5f, 0.5f },
         };
+        float[][] synco =
+        {
+            new[] { -0.5f, 0.5f, 0.5f, 0.5f, 1f, 1f },
+            new[] { 0.5f, 1f, 0.5f, 1f, 1f },
+            new[] { 0.75f, 0.75f, 0.5f, 1f, 1f },
+            new[] { -0.5f, 1f, 0.5f, 0.5f, 0.5f, 1f },
+        };
+        if (syncopated && !answer) return synco[rng.Next(synco.Length)];
         float[][] answers =
         {
             new[] { 1f, 1f, 2f },
@@ -582,6 +745,39 @@ public static class MusicSynth
             float f = 45f + 90f * Mathf.Exp(-t * 30f);
             phase += f / Rate;
             Add(c, s0 + i, Mathf.Sin(phase * Mathf.PI * 2f) * Mathf.Exp(-t * 11f) * amp);
+        }
+    }
+
+    // Timbal: tono que cae rápido
+    private static void Tom(Ctx c, float start, float f, float amp)
+    {
+        int s0 = Mathf.RoundToInt(start * Rate);
+        int len = Mathf.RoundToInt(0.3f * Rate);
+        float phase = 0f;
+        for (int i = 0; i < len; i++)
+        {
+            float t = i / (float)Rate;
+            float fr = f * (1f + 0.6f * Mathf.Exp(-t * 25f));
+            phase += fr / Rate;
+            float v = Mathf.Sin(phase * Mathf.PI * 2f) + Noise() * 0.15f * Mathf.Exp(-t * 60f);
+            Add(c, s0 + i, v * Mathf.Exp(-t * 9f) * amp);
+        }
+    }
+
+    // Platillo: ruido agudo con cola larga
+    private static void Crash(Ctx c, float start, float amp)
+    {
+        int s0 = Mathf.RoundToInt(start * Rate);
+        int len = Mathf.RoundToInt(1.4f * Rate);
+        float prev = 0f, prev2 = 0f;
+        for (int i = 0; i < len; i++)
+        {
+            float t = i / (float)Rate;
+            float n = Noise();
+            float hp = n - 2f * prev + prev2;
+            prev2 = prev; prev = n;
+            float env = Mathf.Min(1f, t * 400f) * Mathf.Exp(-t * 3.2f);
+            Add(c, s0 + i, hp * 0.5f * env * amp);
         }
     }
 

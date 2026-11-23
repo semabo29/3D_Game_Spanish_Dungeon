@@ -84,7 +84,7 @@
 
 **Humor (nuevo)**
 - Frases de cada sala ("Esos no son gigantes, son molinos", "Radar a 300 metros. Sonría"…), gritos específicos para cada enemigo, **causa de la muerte** en la pantalla de Game Over ("pinchado como una aceituna", "víctima de un decreto ley"…), consejos de la abuela en el menú de pausa y frases en el menú principal.
-- 🏅 **Logros** con nombre propio (25 en total) ("Más rico que un emérito", "Gravedad 1 - Torrento 0", "Espantapalomas"…), con aviso en pantalla y menú de logros.
+- 🏅 **Logros** con nombre propio (26 en total) ("Más rico que un emérito", "Gravedad 1 - Torrento 0", "Espantapalomas"…), con aviso en pantalla y menú de logros.
 
 **Interfaz, accesibilidad y control (nuevo)**
 - ❤️ HUD nuevo: corazones y monedas en *pixel art*, barra de la lotería, progreso de salas, power-ups activos, latido y viñeta roja cuando te queda un corazón, fundido entre salas y tutorial en las primeras partidas.
@@ -92,6 +92,11 @@
 - 🎮 **Control más fluido**: se recuerda la tecla pulsada a mitad de paso, se puede mantener la tecla para avanzar y hay **soporte de mando** (stick o cruceta, *Start* para pausar).
 - ⚠️ **Avisos de peligro**: marca roja en el suelo de los pinchos y los radares parpadean antes de disparar.
 - 🔊 Efectos de sonido sintetizados por código (recoger, power-ups, romper, logros, palomas, truenos…).
+
+**Estampitas de la abuela (nuevo)**
+- 🙏 Al salir de las salas 1, 4 y 7 la abuela te ofrece **tres estampitas y eliges una**, que dura toda la partida: San Cristóbal (el suelo tarda más en hundirse), imán de Benidorm (las monedas vienen solas), corazón de oro, rosario de nácar (combos más largos), botijo (abanico gratis en cada sala), hucha de cerdito, cartera con cadena, pijama de franela, zapatillas de estar por casa y décimo bendecido. Cada partida sale una combinación distinta.
+- 📒 **Álbum**: consigue las 10 entre todas tus partidas para el logro «El álbum de la abuela».
+- 🎶 La banda sonora ahora tiene canciones el doble de largas, con estrofa, segunda voz, puente con parón y redoble, y una vuelta final con platillos y adornos; los temas de las salas van más rápidos y con bajo de acción.
 
 **Banda sonora, tienda y sucesos (nuevo)**
 - 🎺 **Banda sonora original generada por código**: un tema distinto para cada sala (charanga en San Fermín, pasodoble en la plaza, rumba en Las Ramblas, disco de chiringuito en Benidorm, guitarra y flauta en La Mancha, sevillanas en la Feria, marcha con órgano contra Pedro...), con fundido entre salas, aceleración en la fase final del jefe y fanfarria de victoria. En Opciones se puede volver a la música original y ajustar su volumen aparte.
@@ -110,7 +115,7 @@
 - ♿ Opción de **movimiento reducido**: sin montaje animado de las salas ni movimiento del fondo.
 
 **Sombreros y dificultad (nuevo)**
-- 🎩 **9 sombreros para Torrento** que se desbloquean con logros: boina, pañuelo rojo, cordobés, sombrero de paja, casco de obra, montera, peineta, flotador de guiri y, con los 25 logros, la corona. Se eligen en Opciones.
+- 🎩 **9 sombreros para Torrento** que se desbloquean con logros: boina, pañuelo rojo, cordobés, sombrero de paja, casco de obra, montera, peineta, flotador de guiri y, con todos los logros, la corona. Se eligen en Opciones.
 - 🎚️ **Dificultad**: *Turista* (+2 corazones, puntuación x0,75), *Normal* e *Ibérico* (un corazón menos, puntuación x1,5).
 
 **Correcciones**
@@ -350,7 +355,7 @@ Proyecto de la asignatura de Videojuegos de la FIB (UPC), curso 2025/26. Los mod
 
 **Humour (new)**
 - Per-room taglines, enemy-specific kill shouts, a **cause of death** on the Game Over screen, grandma's tips on the pause menu and splash lines on the main menu.
-- 🏅 **Achievements** with tongue-in-cheek names (25 in total), with on-screen pop-ups and an achievements menu.
+- 🏅 **Achievements** with tongue-in-cheek names (26 in total), with on-screen pop-ups and an achievements menu.
 
 **UI, accessibility and controls (new)**
 - ❤️ New HUD: pixel-art hearts and coins, lottery bar, room progress, active power-ups, heartbeat and red vignette on your last heart, fade between rooms and a tutorial for the first runs.
@@ -358,6 +363,11 @@ Proyecto de la asignatura de Videojuegos de la FIB (UPC), curso 2025/26. Los mod
 - 🎮 **Smoother controls**: inputs pressed mid-step are buffered, holding a key keeps you moving and there's **gamepad support** (stick or d-pad, *Start* to pause).
 - ⚠️ **Danger markers**: red floor marks on spike traps, and speed cameras blink before they fire.
 - 🔊 Code-synthesised sound effects (pickups, power-ups, smashing, achievements, pigeons, thunder…).
+
+**Grandma's holy cards (new)**
+- 🙏 After rooms 1, 4 and 7 grandma offers you **three holy cards and you pick one**, which lasts the whole run: Saint Christopher (the floor takes longer to crumble), a Benidorm fridge magnet (coins come to you), golden heart, mother-of-pearl rosary (longer combos), botijo (a free fan every room), piggy bank, chained wallet, flannel pyjamas, house slippers and a blessed lottery ticket. Every run gives a different combination.
+- 📒 **Album**: collect all 10 across your runs for the "Grandma's album" achievement.
+- 🎶 The soundtrack now has songs twice as long, with verse, a second voice, a bridge with a breakdown and drum roll, and a final round with cymbals and ornaments; the room themes are faster with a driving action bass.
 
 **Soundtrack, shop and events (new)**
 - 🎺 **Original code-generated soundtrack**: a different theme for every room (a brass *charanga* in San Fermín, a *pasodoble* at the bullring, Catalan rumba on Las Ramblas, beach-bar disco in Benidorm, guitar and flute in La Mancha, *sevillanas* at the Feria, an organ march against Pedro...), with crossfades between rooms, a speed-up in the boss's final phase and a victory fanfare. Options let you switch back to the original music and set its volume separately.
@@ -376,7 +386,7 @@ Proyecto de la asignatura de Videojuegos de la FIB (UPC), curso 2025/26. Los mod
 - ♿ **Reduced motion** option: no animated room assembly and no backdrop movement.
 
 **Hats and difficulty (new)**
-- 🎩 **9 hats for Torrento** unlocked through achievements: beret, red neckerchief, Cordoban hat, straw hat, hard hat, bullfighter's montera, peineta comb, a tourist's rubber ring and, with all 25 achievements, the crown. Pick one in Options.
+- 🎩 **9 hats for Torrento** unlocked through achievements: beret, red neckerchief, Cordoban hat, straw hat, hard hat, bullfighter's montera, peineta comb, a tourist's rubber ring and, with every achievement, the crown. Pick one in Options.
 - 🎚️ **Difficulty**: *Tourist* (+2 hearts, score x0.75), *Normal* and *Iberian* (one heart fewer, score x1.5).
 
 **Fixes**

@@ -94,6 +94,12 @@ public class MapGenerator : MonoBehaviour
             PlayerStats ps = PlayerController.Instance.GetComponent<PlayerStats>();
             if (ps != null) ModalMenu.OpenShop(ps, ps.currentRoom, null);
         }
+        // Modo pruebas: E ofrece estampitas
+        if (Input.GetKeyDown(KeyCode.E) && PlayerController.Instance != null)
+        {
+            PlayerStats ps = PlayerController.Instance.GetComponent<PlayerStats>();
+            if (ps != null) ModalMenu.OpenBlessing(ps, null);
+        }
 
         if (Input.GetKeyDown(KeyCode.Alpha1)) JumpToRoom(1);
         if (Input.GetKeyDown(KeyCode.Alpha2)) JumpToRoom(2);
@@ -286,6 +292,13 @@ public class MapGenerator : MonoBehaviour
         RoomClearBonus.Create(transform);
         MusicDirector.PlayRoom(layout.room);
 
+        // Estampita del botijo: cada sala empieza con un abanico
+        if (Estampitas.Has(Estampitas.Id.Botijo) && PlayerController.Instance != null)
+        {
+            PlayerPowerUps pu = PlayerController.Instance.GetComponent<PlayerPowerUps>();
+            if (pu != null) pu.GiveShield();
+        }
+
         if (assembleCoroutine != null) StopCoroutine(assembleCoroutine);
         // Con "movimiento reducido" la sala aparece directamente, sin montaje animado
         if (!GameSettings.ReduceMotion) assembleCoroutine = StartCoroutine(AssembleRoom(spawned, layout.start));
@@ -426,7 +439,8 @@ public class MapGenerator : MonoBehaviour
         // Sin derrumbe en las dos primeras salas ni en la del jefe
         if (roomNumber < 3 || roomNumber == mapFiles.Length) yield break;
 
-        yield return new WaitForSeconds(timeBeforeFalling);
+        yield return new WaitForSeconds(timeBeforeFalling + Estampitas.CrumbleDelayBonus);
+        float fallSpeed = this.fallSpeed * Estampitas.CrumbleSlowdown;
 
         if (GameHUD.Instance != null)
         {
