@@ -32,6 +32,11 @@ public static class Achievements
         new Def("bocata",    "Bocata de calamares",           "Cómete 3 bocadillos en total."),
         new Def("palomas",   "Espantapalomas",                "Espanta 20 palomas en total."),
         new Def("pata",      "Pata negra",                    "Encuentra un jamón."),
+        new Def("gatos",     "Amigo de los gatos",            "Espanta a 10 gatos callejeros en total."),
+        new Def("escoba",    "Escoba nueva barre bien",       "Limpia 5 salas de enemigos en una partida."),
+        new Def("gaviota",   "Atracado por una gaviota",      "Deja que una gaviota te robe una moneda."),
+        new Def("modelito",  "Fashion victim",                "Ponle un sombrero a Torrento."),
+        new Def("iberico",   "Ibérico de bellota",            "Completa la mazmorra en dificultad Ibérico."),
         new Def("todo",      "Spanish Dungeon al completo",   "Desbloquea todos los demás logros."),
     };
 
@@ -103,6 +108,9 @@ public static class Achievements
     public static void OnBocadillo() { if (AddCounter("bocadillos") >= 3) Unlock("bocata"); }
     public static void OnPigeon() { if (AddCounter("palomas") >= 20) Unlock("palomas"); }
     public static void OnJamon() => Unlock("pata");
+    public static void OnCat() { if (AddCounter("gatos") >= 10) Unlock("gatos"); }
+    public static void OnRoomCleared() { if (RunStats.RoomsCleared >= 5) Unlock("escoba"); }
+    public static void OnSeagullTheft() => Unlock("gaviota");
 
     public static void OnDeath(bool fell, int room)
     {
@@ -114,5 +122,6 @@ public static class Achievements
     {
         if (RunStats.DamageTaken == 0) Unlock("intocable");
         if (RunStats.ElapsedSeconds < 360f) Unlock("ave");
+        if (GameSettings.Difficulty == 2) Unlock("iberico");
     }
 }

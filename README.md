@@ -84,7 +84,7 @@
 
 **Humor (nuevo)**
 - Frases de cada sala ("Esos no son gigantes, son molinos", "Radar a 300 metros. Sonría"…), gritos específicos para cada enemigo, **causa de la muerte** en la pantalla de Game Over ("pinchado como una aceituna", "víctima de un decreto ley"…), consejos de la abuela en el menú de pausa y frases en el menú principal.
-- 🏅 **20 logros** con nombre propio ("Más rico que un emérito", "Gravedad 1 - Torrento 0", "Espantapalomas"…), con aviso en pantalla y menú de logros.
+- 🏅 **Logros** con nombre propio (25 en total) ("Más rico que un emérito", "Gravedad 1 - Torrento 0", "Espantapalomas"…), con aviso en pantalla y menú de logros.
 
 **Interfaz, accesibilidad y control (nuevo)**
 - ❤️ HUD nuevo: corazones y monedas en *pixel art*, barra de la lotería, progreso de salas, power-ups activos, latido y viñeta roja cuando te queda un corazón, fundido entre salas y tutorial en las primeras partidas.
@@ -98,9 +98,13 @@
 - 🐈 **Gatos callejeros** (atigrado, negro o blanco) que dormitan por la sala y salen por patas con un «¡Miau, pesao!» si te acercas.
 - 🧹 **Premio por sala limpia**: si acabas con todos los enemigos de una sala, +3 monedas y confeti.
 - 🗞️ **Titular de *El Chismoso*** en la pantalla final, según cómo hayas muerto (o ganado).
+- 🐦 **Gaviotas ladronas** en Benidorm y Lloret: de vez en cuando una se lanza en picado a tu casilla para robarte una moneda. La casilla se marca y se oye el graznido, así que si te apartas a tiempo la esquivas.
+- 🏅 **5 logros nuevos** (25 en total): gatos, salas limpias, gaviotas, sombreros y completar la mazmorra en *Ibérico*.
+- ⏸️ El menú de pausa muestra el **resumen de la partida** (sala, tiempo, monedas, enemigos y dificultad).
+- ♿ Opción de **movimiento reducido**: sin montaje animado de las salas ni movimiento del fondo.
 
 **Sombreros y dificultad (nuevo)**
-- 🎩 **9 sombreros para Torrento** que se desbloquean con logros: boina, pañuelo rojo, cordobés, sombrero de paja, casco de obra, montera, peineta, flotador de guiri y, con todos los logros, la corona. Se eligen en Opciones.
+- 🎩 **9 sombreros para Torrento** que se desbloquean con logros: boina, pañuelo rojo, cordobés, sombrero de paja, casco de obra, montera, peineta, flotador de guiri y, con los 25 logros, la corona. Se eligen en Opciones.
 - 🎚️ **Dificultad**: *Turista* (+2 corazones, puntuación x0,75), *Normal* e *Ibérico* (un corazón menos, puntuación x1,5).
 
 **Correcciones**
@@ -340,7 +344,7 @@ Proyecto de la asignatura de Videojuegos de la FIB (UPC), curso 2025/26. Los mod
 
 **Humour (new)**
 - Per-room taglines, enemy-specific kill shouts, a **cause of death** on the Game Over screen, grandma's tips on the pause menu and splash lines on the main menu.
-- 🏅 **20 achievements** with tongue-in-cheek names, with on-screen pop-ups and an achievements menu.
+- 🏅 **Achievements** with tongue-in-cheek names (25 in total), with on-screen pop-ups and an achievements menu.
 
 **UI, accessibility and controls (new)**
 - ❤️ New HUD: pixel-art hearts and coins, lottery bar, room progress, active power-ups, heartbeat and red vignette on your last heart, fade between rooms and a tutorial for the first runs.
@@ -354,9 +358,13 @@ Proyecto de la asignatura de Videojuegos de la FIB (UPC), curso 2025/26. Los mod
 - 🐈 **Stray cats** (ginger, black or white) dozing around the rooms that bolt with a hiss when you get close.
 - 🧹 **Room-clear bonus**: defeat every enemy in a room for +3 coins and confetti.
 - 🗞️ **A tabloid headline** on the end screen, based on how you died (or won).
+- 🐦 **Thieving seagulls** in Benidorm and Lloret: every so often one dives at your tile to steal a coin. The tile is marked and you hear the squawk, so step aside in time to dodge it.
+- 🏅 **5 new achievements** (25 in total): cats, cleared rooms, seagulls, hats and beating the dungeon on *Iberian*.
+- ⏸️ The pause menu shows a **run summary** (room, time, coins, kills and difficulty).
+- ♿ **Reduced motion** option: no animated room assembly and no backdrop movement.
 
 **Hats and difficulty (new)**
-- 🎩 **9 hats for Torrento** unlocked through achievements: beret, red neckerchief, Cordoban hat, straw hat, hard hat, bullfighter's montera, peineta comb, a tourist's rubber ring and, with every achievement, the crown. Pick one in Options.
+- 🎩 **9 hats for Torrento** unlocked through achievements: beret, red neckerchief, Cordoban hat, straw hat, hard hat, bullfighter's montera, peineta comb, a tourist's rubber ring and, with all 25 achievements, the crown. Pick one in Options.
 - 🎚️ **Difficulty**: *Tourist* (+2 hearts, score x0.75), *Normal* and *Iberian* (one heart fewer, score x1.5).
 
 **Fixes**

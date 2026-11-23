@@ -49,9 +49,13 @@ public class BackdropItem : MonoBehaviour
         }
 
         Vector3 p = basePos;
-        p.x -= CameraDelta.x * parallax;
-        p.y -= CameraDelta.y * parallax;
-        if (bobAmplitude > 0f) p.y += Mathf.Sin((Time.time + phase) * bobSpeed) * bobAmplitude;
+        bool still = GameSettings.ReduceMotion;
+        if (!still)
+        {
+            p.x -= CameraDelta.x * parallax;
+            p.y -= CameraDelta.y * parallax;
+        }
+        if (bobAmplitude > 0f && !still) p.y += Mathf.Sin((Time.time + phase) * bobSpeed) * bobAmplitude;
         transform.localPosition = p;
 
         if (spin != 0f) transform.Rotate(0f, 0f, spin * dt, Space.Self);

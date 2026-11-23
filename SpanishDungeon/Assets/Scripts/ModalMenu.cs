@@ -82,7 +82,7 @@ public class ModalMenu : MonoBehaviour
         dim.raycastTarget = true; // bloquea los clics a lo que hay debajo
 
         panel = Rect("Panel", root);
-        panel.sizeDelta = new Vector2(1180f, kind == Kind.Options ? 1010f : 900f);
+        panel.sizeDelta = new Vector2(1180f, 1010f);
         Image border = Img("Border", panel, new Color(1f, 0.78f, 0.15f));
         Stretch(border.rectTransform);
         Image back = Img("Back", panel, new Color(0.1f, 0.07f, 0.12f, 0.98f));
@@ -169,7 +169,7 @@ public class ModalMenu : MonoBehaviour
             int col = i / perColumn, row = i % perColumn;
 
             RectTransform cell = Rect("Ach" + i, panel);
-            Place(cell, new Vector2(0.5f, 1f), new Vector2(col == 0 ? -285f : 285f, -140f - row * 64f), new Vector2(550f, 58f), new Vector2(0.5f, 1f));
+            Place(cell, new Vector2(0.5f, 1f), new Vector2(col == 0 ? -285f : 285f, -140f - row * 58f), new Vector2(550f, 54f), new Vector2(0.5f, 1f));
             Image cb = Img("Back", cell, unlocked ? new Color(1f, 0.78f, 0.15f, 0.16f) : new Color(1f, 1f, 1f, 0.04f));
             Stretch(cb.rectTransform);
 

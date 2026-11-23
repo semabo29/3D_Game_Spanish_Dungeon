@@ -54,6 +54,7 @@ public class RoomClearBonus : MonoBehaviour
         if (stats == null || stats.IsDead || PlayerStats.GameEnded) return;
 
         RunStats.RoomsCleared++;
+        Achievements.OnRoomCleared();
         for (int i = 0; i < BonusCoins; i++) stats.AddCoin();
         Sfx.Play(SfxType.Combo, 0.9f, 0.8f);
         GameFeel.VoxelBurst(player.transform.position + Vector3.up * 0.8f, new Color(1f, 0.82f, 0.2f), 18, 5f);

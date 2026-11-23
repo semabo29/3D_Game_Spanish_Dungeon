@@ -94,11 +94,15 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           gh release delete dev-latest --cleanup-tag -y || true
+          sleep 5
           gh release create dev-latest SpanishDungeon-Windows.zip \
             --prerelease \
             --target "${{ github.sha }}" \
             --title "Spanish Dungeon - dev (última versión)" \
             --notes "Compilación automática de la rama dev (commit ${{ github.sha }}). Descarga SpanishDungeon-Windows.zip, descomprímelo y ejecuta SpanishDungeon.exe. Versión web: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          # gh sube los archivos a un borrador y luego lo publica; nos aseguramos de que quede publicada
+          gh release edit dev-latest --draft=false --prerelease
+          gh release view dev-latest --json isDraft,assets --jq '{draft: .isDraft, assets: [.assets[].name]}'
 
   deploy-web:
     name: Publicar WebGL (GitHub Pages)

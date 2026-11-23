@@ -86,7 +86,16 @@ public class PauseManager : MonoBehaviour
     {
         juegoPausado = true;
         if (panelPausa != null) panelPausa.SetActive(true);
-        if (tipText != null) tipText.text = "Consejo de la abuela: " + Tips[Random.Range(0, Tips.Length)];
+        if (tipText != null)
+        {
+            PlayerStats ps = FindAnyObjectByType<PlayerStats>();
+            string stats = ps == null ? "" :
+                "<size=24><color=#FFFFFF>Sala " + ps.currentRoom + " · " + GameHUD.GetRoomName(ps.currentRoom) +
+                "  ·  Tiempo " + RunStats.FormatTime(RunStats.ElapsedSeconds) +
+                "  ·  Monedas " + ps.Coins + "  ·  Enemigos " + RunStats.Kills +
+                "  ·  " + GameSettings.DifficultyName(GameSettings.Difficulty) + "</color></size>\n";
+            tipText.text = stats + "Consejo de la abuela: " + Tips[Random.Range(0, Tips.Length)];
+        }
         Time.timeScale = 0f;
         AudioListener.pause = true;
     }

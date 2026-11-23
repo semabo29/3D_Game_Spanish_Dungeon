@@ -263,7 +263,9 @@ public class MapGenerator : MonoBehaviour
         RoomClearBonus.Create(transform);
 
         if (assembleCoroutine != null) StopCoroutine(assembleCoroutine);
-        assembleCoroutine = StartCoroutine(AssembleRoom(spawned, layout.start));
+        // Con "movimiento reducido" la sala aparece directamente, sin montaje animado
+        if (!GameSettings.ReduceMotion) assembleCoroutine = StartCoroutine(AssembleRoom(spawned, layout.start));
+        else assembleCoroutine = null;
     }
 
     private static void AddEnemyAnimator(GameObject go)

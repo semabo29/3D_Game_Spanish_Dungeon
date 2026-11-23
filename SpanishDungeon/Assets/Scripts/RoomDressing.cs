@@ -93,6 +93,9 @@ public static class RoomDressing
             StrayCat.Create(parent, p.Value);
         }
 
+        // Gaviotas ladronas en las salas de playa
+        if (layout.room == 4 || layout.room == 9) SeagullThief.CreateSpawner(parent);
+
         BuildGarlands(layout, parent);
     }
 

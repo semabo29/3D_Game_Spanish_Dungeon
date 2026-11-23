@@ -26,10 +26,13 @@ public static class Hats
         new Def { name = "Montera", required = 10, joke = "Prestada de un torero. Sin devolución.", build = Montera },
         new Def { name = "Peineta", required = 13, joke = "Para ir de Feria como Dios manda.", build = Peineta },
         new Def { name = "Flotador", required = 16, joke = "Confiscado a un guiri. Por si acaso.", build = Flotador },
-        new Def { name = "Corona", required = 20, joke = "Para quien tiene TODOS los logros. Ni una cacería menos.", build = Corona },
+        new Def { name = "Corona", required = -1, joke = "Para quien tiene TODOS los logros. Ni una cacería menos.", build = Corona },
     };
 
-    public static bool IsUnlocked(int i) => i >= 0 && i < All.Length && Achievements.UnlockedCount >= All[i].required;
+    // required < 0 significa "todos los logros"
+    public static int Required(int i) => All[i].required < 0 ? Achievements.All.Count : All[i].required;
+
+    public static bool IsUnlocked(int i) => i >= 0 && i < All.Length && Achievements.UnlockedCount >= Required(i);
 
     public static int Next(int current, int delta)
     {
@@ -46,11 +49,11 @@ public static class Hats
     public static string Hint(int current)
     {
         string text = All[current].joke;
-        foreach (Def d in All)
+        for (int i = 0; i < All.Length; i++)
         {
-            if (Achievements.UnlockedCount < d.required)
+            if (Achievements.UnlockedCount < Required(i))
             {
-                text += "  (Siguiente: " + d.name + " con " + d.required + " logros)";
+                text += "  (Siguiente: " + All[i].name + " con " + Required(i) + " logros)";
                 break;
             }
         }

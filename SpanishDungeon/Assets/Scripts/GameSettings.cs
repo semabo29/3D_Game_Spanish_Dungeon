@@ -15,6 +15,7 @@ public static class GameSettings
     private static bool dangerMarkers = true;
     private static bool showTimer = true;
     private static bool ambientEffects = true;
+    private static bool reduceMotion = false;
     private static int difficulty = 1;       // 0 = turista, 1 = normal, 2 = ibérico
     private static int hat = 0;              // índice de Hats.All
 
@@ -33,6 +34,7 @@ public static class GameSettings
         dangerMarkers = PlayerPrefs.GetInt("SD_OPT_Danger", 1) == 1;
         showTimer = PlayerPrefs.GetInt("SD_OPT_Timer", 1) == 1;
         ambientEffects = PlayerPrefs.GetInt("SD_OPT_Ambient", 1) == 1;
+        reduceMotion = PlayerPrefs.GetInt("SD_OPT_ReduceMotion", 0) == 1;
         difficulty = Mathf.Clamp(PlayerPrefs.GetInt("SD_OPT_Difficulty", 1), 0, 2);
         hat = PlayerPrefs.GetInt("SD_OPT_Hat", 0);
         if (hat < 0 || hat >= Hats.All.Length || !Hats.IsUnlocked(hat)) hat = 0;
@@ -55,6 +57,7 @@ public static class GameSettings
         PlayerPrefs.SetInt("SD_OPT_Danger", dangerMarkers ? 1 : 0);
         PlayerPrefs.SetInt("SD_OPT_Timer", showTimer ? 1 : 0);
         PlayerPrefs.SetInt("SD_OPT_Ambient", ambientEffects ? 1 : 0);
+        PlayerPrefs.SetInt("SD_OPT_ReduceMotion", reduceMotion ? 1 : 0);
         PlayerPrefs.SetInt("SD_OPT_Difficulty", difficulty);
         PlayerPrefs.SetInt("SD_OPT_Hat", hat);
         PlayerPrefs.Save();
@@ -70,6 +73,7 @@ public static class GameSettings
     public static bool DangerMarkers { get { EnsureLoaded(); return dangerMarkers; } }
     public static bool ShowTimer { get { EnsureLoaded(); return showTimer; } }
     public static bool AmbientEffects { get { EnsureLoaded(); return ambientEffects; } }
+    public static bool ReduceMotion { get { EnsureLoaded(); return reduceMotion; } }
     public static int Difficulty { get { EnsureLoaded(); return difficulty; } }
     public static int Hat { get { EnsureLoaded(); return hat; } }
 
@@ -87,7 +91,7 @@ public static class GameSettings
 
     // ---------- Lista de opciones para el menú ----------
 
-    public const int OptionCount = 12;
+    public const int OptionCount = 13;
 
     public static string Label(int i)
     {
@@ -102,8 +106,9 @@ public static class GameSettings
             case 6: return "Avisos de peligro";
             case 7: return "Mostrar cronómetro";
             case 8: return "Efectos ambientales";
-            case 9: return "Dificultad";
-            case 10: return "Sombrero de Torrento";
+            case 9: return "Movimiento reducido";
+            case 10: return "Dificultad";
+            case 11: return "Sombrero de Torrento";
             default: return "Pantalla completa";
         }
     }
@@ -121,10 +126,11 @@ public static class GameSettings
             case 6: return "Marca en el suelo los pinchos y avisa antes de que dispare el radar.";
             case 7: return "Muestra el tiempo de la partida arriba del todo.";
             case 8: return "Confeti, polvo, hojas y luciérnagas del fondo.";
-            case 9: return Difficulty == 0 ? "Turista: +2 corazones, pero la puntuación vale x0,75. Se aplica en la siguiente partida."
+            case 9: return "Quita el montaje animado de las salas y el movimiento del fondo. Útil si te mareas.";
+            case 10: return Difficulty == 0 ? "Turista: +2 corazones, pero la puntuación vale x0,75. Se aplica en la siguiente partida."
                          : Difficulty == 2 ? "Ibérico: un corazón menos y puntuación x1,5. Para valientes. Se aplica en la siguiente partida."
                          : "Normal: la experiencia original. Se aplica en la siguiente partida.";
-            case 10: return Hats.Hint(Hat);
+            case 11: return Hats.Hint(Hat);
             default: return "Alterna entre ventana y pantalla completa.";
         }
     }
@@ -143,8 +149,9 @@ public static class GameSettings
             case 6: return YesNo(dangerMarkers);
             case 7: return YesNo(showTimer);
             case 8: return YesNo(ambientEffects);
-            case 9: return DifficultyName(difficulty);
-            case 10: return Hats.All[hat].name;
+            case 9: return YesNo(reduceMotion);
+            case 10: return DifficultyName(difficulty);
+            case 11: return Hats.All[hat].name;
             default: return YesNo(Screen.fullScreen);
         }
     }
@@ -165,8 +172,12 @@ public static class GameSettings
             case 6: dangerMarkers = !dangerMarkers; break;
             case 7: showTimer = !showTimer; break;
             case 8: ambientEffects = !ambientEffects; break;
-            case 9: difficulty = (difficulty + delta + 3) % 3; break;
-            case 10: hat = Hats.Next(hat, delta); break;
+            case 9: reduceMotion = !reduceMotion; break;
+            case 10: difficulty = (difficulty + delta + 3) % 3; break;
+            case 11:
+                hat = Hats.Next(hat, delta);
+                if (hat != 0) Achievements.Unlock("modelito");
+                break;
             default: Screen.fullScreen = !Screen.fullScreen; break;
         }
         Save();

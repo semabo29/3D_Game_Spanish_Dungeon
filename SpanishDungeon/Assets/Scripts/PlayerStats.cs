@@ -177,6 +177,15 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    // Una gaviota se lleva una moneda (no cuenta para la lotería)
+    public bool StealCoin()
+    {
+        if (isDead || GameEnded || coins <= 0) return false;
+        coins--;
+        UpdateUI();
+        return true;
+    }
+
     public void AddCoin()
     {
         if (isDead || GameEnded) return;

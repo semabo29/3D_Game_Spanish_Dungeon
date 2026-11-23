@@ -96,5 +96,6 @@ public class StrayCat : MonoBehaviour
         Sfx.Play(SfxType.Meow, 0.55f, Random.Range(0.9f, 1.25f));
         GameFeel.FloatingText(transform.position + Vector3.up * 0.4f, Lines[Random.Range(0, Lines.Length)], new Color(1f, 0.75f, 0.4f), 3f);
         GameFeel.Dust(transform.position, new Color(0.8f, 0.75f, 0.65f), 4);
+        Achievements.OnCat();
     }
 }
