@@ -28,9 +28,10 @@ public class DangerMarker : MonoBehaviour
     }
 
     // alpha: intensidad objetivo; pulse: parpadeo de aviso
-    public void Set(float alpha, bool pulsing)
+    // always: se ve aunque los avisos estén desactivados (forma parte del ataque, como el del jefe)
+    public void Set(float alpha, bool pulsing, bool always = false)
     {
-        target = GameSettings.DangerMarkers ? alpha : 0f;
+        target = (always || GameSettings.DangerMarkers) ? alpha : 0f;
         pulse = pulsing;
     }
 

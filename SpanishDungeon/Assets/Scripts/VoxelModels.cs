@@ -178,6 +178,19 @@ public static class VoxelModels
         return v.ToMesh(PropVoxel);
     });
 
+    // Sello de Hacienda gigante (ataque de Pedro)
+    public static Mesh Sello() => VoxelLib.Cached("sello", () =>
+    {
+        VoxelModel v = new VoxelModel();
+        Color rubber = C("#C8102E"), wood = C("#8B5A2B"), woodDark = C("#6B4220"), gold = C("#FFC400");
+        v.Box(0, 0, 0, 9, 1, 9, rubber);
+        v.Box(1, 2, 1, 8, 3, 8, woodDark);
+        v.Box(4, 4, 4, 5, 8, 5, wood);
+        v.Box(3, 9, 3, 6, 10, 6, wood);
+        v.Box(4, 11, 4, 5, 11, 5, gold);
+        return v.ToMesh(PropVoxel);
+    });
+
     public static Mesh Botijo() => VoxelLib.Cached("botijo", () =>
     {
         VoxelModel v = new VoxelModel();

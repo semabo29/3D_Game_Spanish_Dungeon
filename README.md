@@ -96,6 +96,7 @@
 **Estampitas de la abuela (nuevo)**
 - 🙏 Al salir de las salas 1, 4 y 7 la abuela te ofrece **tres estampitas y eliges una**, que dura toda la partida: San Cristóbal (el suelo tarda más en hundirse), imán de Benidorm (las monedas vienen solas), corazón de oro, rosario de nácar (combos más largos), botijo (abanico gratis en cada sala), hucha de cerdito, cartera con cadena, pijama de franela, zapatillas de estar por casa y décimo bendecido. Cada partida sale una combinación distinta.
 - 🔥 **Contador de combo** en el HUD con barra que se vacía, y **refuerzos**: desde la sala 3 puede colarse algún enemigo más (siempre en Ibérico, nunca en Turista), así ninguna partida es igual.
+- 🏛️ **Pedro tiene ataque especial**: el *Sello de Hacienda*. Se para, marca una cruz de casillas a tu alrededor y cae un sello gigante; en la fase final lanza dos.
 - 📒 **Álbum**: consigue las 10 entre todas tus partidas para el logro «El álbum de la abuela».
 - 🎶 La banda sonora ahora tiene canciones el doble de largas, con estrofa, segunda voz, puente con parón y redoble, y una vuelta final con platillos y adornos; los temas de las salas van más rápidos y con bajo de acción.
 
@@ -368,6 +369,7 @@ Proyecto de la asignatura de Videojuegos de la FIB (UPC), curso 2025/26. Los mod
 **Grandma's holy cards (new)**
 - 🙏 After rooms 1, 4 and 7 grandma offers you **three holy cards and you pick one**, which lasts the whole run: Saint Christopher (the floor takes longer to crumble), a Benidorm fridge magnet (coins come to you), golden heart, mother-of-pearl rosary (longer combos), botijo (a free fan every room), piggy bank, chained wallet, flannel pyjamas, house slippers and a blessed lottery ticket. Every run gives a different combination.
 - 🔥 **Combo meter** in the HUD with a draining bar, and **reinforcements**: from room 3 on an extra enemy may sneak in (always on Iberian, never on Tourist), so no two runs are alike.
+- 🏛️ **Pedro has a special attack**: the *Tax Office Stamp*. He stops, marks a cross of tiles around you and a giant stamp slams down; in the final phase he throws two.
 - 📒 **Album**: collect all 10 across your runs for the "Grandma's album" achievement.
 - 🎶 The soundtrack now has songs twice as long, with verse, a second voice, a bridge with a breakdown and drum roll, and a final round with cymbals and ornaments; the room themes are faster with a driving action bass.
 

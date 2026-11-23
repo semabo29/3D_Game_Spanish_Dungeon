@@ -27,6 +27,9 @@ public class Pedro : MonoBehaviour
     public float phase2SpeedMultiplier = 1.4f;
     public float phase2WaitMultiplier = 0.55f;
     private bool phase2 = false;
+    public bool Phase2 => phase2;
+    // Mientras lanza el sello de Hacienda no empieza pasos nuevos
+    [HideInInspector] public bool Casting;
     private float baseMoveSpeed;
     private float baseWaitTime;
 
@@ -40,6 +43,7 @@ public class Pedro : MonoBehaviour
         stats = GetComponent<PedroStats>();
         baseMoveSpeed = moveSpeed;
         baseWaitTime = waitTimePerTile;
+        if (GetComponent<PedroDecrees>() == null) gameObject.AddComponent<PedroDecrees>();
         if (audioSource != null && SonidoRisa != null)
         {
             audioSource.PlayOneShot(SonidoRisa, 2.0f);
@@ -55,7 +59,11 @@ public class Pedro : MonoBehaviour
             fleeTimer -= Time.deltaTime;
         }
 
-        if (!isMoving)
+        if (!isMoving && Casting)
+        {
+            // Quieto, lanzando el sello
+        }
+        else if (!isMoving)
         {
             waitTimer -= Time.deltaTime;
             if (waitTimer <= 0f)
