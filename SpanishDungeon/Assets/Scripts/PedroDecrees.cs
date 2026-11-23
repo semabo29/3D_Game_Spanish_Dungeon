@@ -82,7 +82,7 @@ public class PedroDecrees : MonoBehaviour
         foreach (Vector3 c in centers)
         {
             GameObject s = VoxelLib.Spawn("SelloHacienda", VoxelModels.Sello(), parent, new Vector3(c.x, 6f, c.z), Quaternion.identity);
-            s.transform.localScale = Vector3.one * 2.4f;
+            s.transform.localScale = Vector3.one * 1.7f;
             stamps.Add(s.transform);
         }
 
@@ -132,7 +132,7 @@ public class PedroDecrees : MonoBehaviour
         }
 
         foreach (DangerMarker m in markers) if (m != null) Destroy(m.gameObject);
-        yield return new WaitForSeconds(0.35f);
+        yield return new WaitForSeconds(0.25f);
         foreach (Transform s in stamps) if (s != null) Destroy(s.gameObject);
     }
 
