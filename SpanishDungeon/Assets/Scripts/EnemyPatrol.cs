@@ -89,6 +89,11 @@ public class EnemyPatrol : MonoBehaviour
     private void CheckPlayerCollision()
     {
         PlayerController player = PlayerController.Instance;
+        if (player != null)
+        {
+            PlayerStats ps = player.GetComponent<PlayerStats>();
+            if (ps == null || ps.IsInvincible || ps.IsDead) return;
+        }
 
         if (player != null)
         {

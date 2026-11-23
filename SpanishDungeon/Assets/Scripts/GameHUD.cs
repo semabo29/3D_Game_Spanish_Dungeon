@@ -712,7 +712,7 @@ public class GameHUD : MonoBehaviour
             "<size=30>" + reached + "  ·  Tiempo " + RunStats.FormatTime(RunStats.ElapsedSeconds) + "\n" +
             cause +
             "Monedas " + coins + "  ·  Enemigos " + RunStats.Kills + "  ·  Mejor combo x" + RunStats.BestCombo +
-            "  ·  Gordos " + RunStats.LotteryWins + "  ·  Destrozos " + RunStats.Smashes + "  ·  Salas limpias " + RunStats.RoomsCleared + "\n" +
+            "  ·  Gordos " + RunStats.LotteryWins + "  ·  Destrozos " + RunStats.Smashes + "  ·  Salas perfectas " + RunStats.RoomsCleared + "\n" +
             "Dificultad " + GameSettings.DifficultyName(GameSettings.Difficulty) + "  ·  Logros " + Achievements.UnlockedCount + "/" + Achievements.All.Count + "</size>";
         endStatsText.gameObject.SetActive(true);
 

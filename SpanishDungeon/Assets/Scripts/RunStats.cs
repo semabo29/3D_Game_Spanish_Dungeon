@@ -84,7 +84,45 @@ public static class RunStats
             PlayerPrefs.SetInt(KeyWins, Wins + 1);
             if (BestTime < 0f || ElapsedSeconds < BestTime) PlayerPrefs.SetFloat(KeyBestTime, ElapsedSeconds);
         }
+        AddTopRun(new TopRun { score = score, room = room, victory = victory, time = ElapsedSeconds, difficulty = GameSettings.Difficulty });
         PlayerPrefs.Save();
         return newRecord;
+    }
+
+    // ---------- Las 5 mejores partidas ----------
+
+    public struct TopRun
+    {
+        public int score, room, difficulty;
+        public bool victory;
+        public float time;
+    }
+
+    private const string KeyTopRuns = "SD_TopRuns";
+
+    public static System.Collections.Generic.List<TopRun> TopRuns()
+    {
+        var list = new System.Collections.Generic.List<TopRun>();
+        string raw = PlayerPrefs.GetString(KeyTopRuns, "");
+        foreach (string entry in raw.Split(';'))
+        {
+            string[] f = entry.Split('|');
+            if (f.Length < 5) continue;
+            if (!int.TryParse(f[0], out int sc) || !int.TryParse(f[1], out int rm) || !int.TryParse(f[3], out int tm) || !int.TryParse(f[4], out int df)) continue;
+            list.Add(new TopRun { score = sc, room = rm, victory = f[2] == "1", time = tm, difficulty = df });
+        }
+        return list;
+    }
+
+    private static void AddTopRun(TopRun run)
+    {
+        var list = TopRuns();
+        list.Add(run);
+        list.Sort((a, b) => b.score.CompareTo(a.score));
+        if (list.Count > 5) list.RemoveRange(5, list.Count - 5);
+        var parts = new System.Collections.Generic.List<string>();
+        foreach (TopRun r in list)
+            parts.Add(r.score + "|" + r.room + "|" + (r.victory ? "1" : "0") + "|" + Mathf.RoundToInt(r.time) + "|" + r.difficulty);
+        PlayerPrefs.SetString(KeyTopRuns, string.Join(";", parts));
     }
 }

@@ -101,10 +101,11 @@
 **Más vida en las salas (nuevo)**
 - 🏮 **Farolas fernandinas** voxel en lugar de los postes antiguos, que eran demasiado altos y tapaban la sala. De noche se encienden de verdad y parpadean un poco.
 - 🐈 **Gatos callejeros** (atigrado, negro o blanco) que dormitan por la sala y salen por patas con un «¡Miau, pesao!» si te acercas.
-- 🧹 **Premio por sala limpia**: si acabas con todos los enemigos de una sala, +3 monedas y confeti.
+- 🧹 **Sala perfecta**: si limpias una sala sin recibir ni un golpe, +3 monedas y confeti.
 - 🗞️ **Titular de *El Chismoso*** en la pantalla final, según cómo hayas muerto (o ganado).
 - 🐦 **Gaviotas ladronas** en Benidorm y Lloret: de vez en cuando una se lanza en picado a tu casilla para robarte una moneda. La casilla se marca y se oye el graznido, así que si te apartas a tiempo la esquivas.
-- 🏅 **5 logros nuevos** (25 en total): gatos, salas limpias, gaviotas, sombreros y completar la mazmorra en *Ibérico*.
+- 🏅 **5 logros nuevos** (25 en total): gatos, salas perfectas, gaviotas, sombreros y completar la mazmorra en *Ibérico*.
+- 🏆 **Tus 5 mejores partidas** en el menú principal (botón «Récords»).
 - ⏸️ El menú de pausa muestra el **resumen de la partida** (sala, tiempo, monedas, enemigos y dificultad).
 - ♿ Opción de **movimiento reducido**: sin montaje animado de las salas ni movimiento del fondo.
 
@@ -366,10 +367,11 @@ Proyecto de la asignatura de Videojuegos de la FIB (UPC), curso 2025/26. Los mod
 **Livelier rooms (new)**
 - 🏮 **Voxel street lamps** replace the old posts, which were too tall and blocked the view. At night they actually light up and flicker a little.
 - 🐈 **Stray cats** (ginger, black or white) dozing around the rooms that bolt with a hiss when you get close.
-- 🧹 **Room-clear bonus**: defeat every enemy in a room for +3 coins and confetti.
+- 🧹 **Perfect room**: clear a room without taking a hit for +3 coins and confetti.
 - 🗞️ **A tabloid headline** on the end screen, based on how you died (or won).
 - 🐦 **Thieving seagulls** in Benidorm and Lloret: every so often one dives at your tile to steal a coin. The tile is marked and you hear the squawk, so step aside in time to dodge it.
-- 🏅 **5 new achievements** (25 in total): cats, cleared rooms, seagulls, hats and beating the dungeon on *Iberian*.
+- 🏅 **5 new achievements** (25 in total): cats, perfect rooms, seagulls, hats and beating the dungeon on *Iberian*.
+- 🏆 **Your top 5 runs** on the main menu ("Récords" button).
 - ⏸️ The pause menu shows a **run summary** (room, time, coins, kills and difficulty).
 - ♿ **Reduced motion** option: no animated room assembly and no backdrop movement.
 

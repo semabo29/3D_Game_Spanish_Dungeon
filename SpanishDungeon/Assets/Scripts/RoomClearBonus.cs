@@ -1,16 +1,22 @@
 using UnityEngine;
 
-// Si eliminas a todos los enemigos de una sala te llevas un premio
+// Sala perfecta: si eliminas a todos los enemigos sin recibir ni un golpe, premio
 public class RoomClearBonus : MonoBehaviour
 {
     private const int BonusCoins = 3;
     private int initial = -1;
     private float timer;
     private bool done;
+    private int damageAtStart;
+
+    void Start()
+    {
+        damageAtStart = RunStats.DamageTaken;
+    }
 
     private static readonly string[] Shouts =
     {
-        "¡SALA LIMPIA!", "¡NI UNO EN PIE!", "¡ASÍ SE HACE, MAJO!", "¡LIMPIEZA GENERAL!", "¡QUÉ ARTE!",
+        "¡SALA PERFECTA!", "¡NI UN RASGUÑO!", "¡ASÍ SE HACE, MAJO!", "¡IMPECABLE!", "¡QUÉ ARTE!",
     };
 
     public static void Create(Transform mapRoot)
@@ -52,6 +58,7 @@ public class RoomClearBonus : MonoBehaviour
         if (player == null) return;
         PlayerStats stats = player.GetComponent<PlayerStats>();
         if (stats == null || stats.IsDead || PlayerStats.GameEnded) return;
+        if (RunStats.DamageTaken != damageAtStart) return; // te han dado: sin premio
 
         RunStats.RoomsCleared++;
         Achievements.OnRoomCleared();

@@ -62,6 +62,21 @@ public class MapGenerator : MonoBehaviour
         InputLocked = false;
     }
 
+    // Modo pruebas para la versión web: añade ?dev=1 a la URL
+    private static bool? devMode;
+    public static bool DevMode
+    {
+        get
+        {
+            if (!devMode.HasValue)
+            {
+                string url = Application.absoluteURL ?? "";
+                devMode = url.Contains("dev=1");
+            }
+            return devMode.Value;
+        }
+    }
+
     void Start()
     {
         LoadMapFromFile(0);
@@ -70,8 +85,15 @@ public class MapGenerator : MonoBehaviour
 
     void Update()
     {
-        if (!(Application.isEditor || Debug.isDebugBuild || debugRoomKeysInBuild)) return;
-        if (Time.timeScale == 0f) return;
+        if (!(Application.isEditor || Debug.isDebugBuild || debugRoomKeysInBuild || DevMode)) return;
+        if (Time.timeScale == 0f || ModalMenu.IsOpen) return;
+
+        // Modo pruebas: T abre el chiringuito
+        if (Input.GetKeyDown(KeyCode.T) && PlayerController.Instance != null)
+        {
+            PlayerStats ps = PlayerController.Instance.GetComponent<PlayerStats>();
+            if (ps != null) ModalMenu.OpenShop(ps, ps.currentRoom, null);
+        }
 
         if (Input.GetKeyDown(KeyCode.Alpha1)) JumpToRoom(1);
         if (Input.GetKeyDown(KeyCode.Alpha2)) JumpToRoom(2);

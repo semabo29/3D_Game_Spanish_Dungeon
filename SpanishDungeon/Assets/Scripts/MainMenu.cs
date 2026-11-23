@@ -42,6 +42,7 @@ public class MainMenu : MonoBehaviour
         {
             ModalMenu.InjectButton(panelPrincipal, "Opciones", () => { ReproducirClic(); ModalMenu.OpenOptions(); }, "Btn_Salir");
             ModalMenu.InjectButton(panelPrincipal, "Logros", () => { ReproducirClic(); ModalMenu.OpenAchievements(); }, "Btn_Salir");
+            ModalMenu.InjectButton(panelPrincipal, "Récords", () => { ReproducirClic(); ModalMenu.OpenRecords(); }, "Btn_Salir");
             CrearSplash();
         }
     }

@@ -13,7 +13,7 @@ public class ModalMenu : MonoBehaviour
     public static int ClosedFrame = -1;
     private static ModalMenu current;
 
-    private enum Kind { Options, Achievements, Shop }
+    private enum Kind { Options, Achievements, Shop, Records }
 
     private Kind kind;
     private Action onClose;
@@ -26,6 +26,7 @@ public class ModalMenu : MonoBehaviour
 
     public static void OpenOptions(Action onClose = null) => Open(Kind.Options, onClose);
     public static void OpenAchievements(Action onClose = null) => Open(Kind.Achievements, onClose);
+    public static void OpenRecords(Action onClose = null) => Open(Kind.Records, onClose);
 
     private PlayerStats shopper;
     private int shopRoom;
@@ -54,7 +55,7 @@ public class ModalMenu : MonoBehaviour
     {
         if (current != null) return;
         EnsureEventSystem();
-        GameObject go = new GameObject(kind == Kind.Options ? "OptionsMenu" : "AchievementsMenu");
+        GameObject go = new GameObject(kind + "Menu");
         ModalMenu m = go.AddComponent<ModalMenu>();
         m.kind = kind;
         m.onClose = onClose;
@@ -131,6 +132,11 @@ public class ModalMenu : MonoBehaviour
         {
             title.text = "EL CHIRINGUITO DE PACO";
             BuildShop();
+        }
+        else if (kind == Kind.Records)
+        {
+            title.text = "TUS MEJORES PARTIDAS";
+            BuildRecords();
         }
         else
         {
@@ -256,6 +262,37 @@ public class ModalMenu : MonoBehaviour
         RefreshShop();
     }
 
+    private void BuildRecords()
+    {
+        List<RunStats.TopRun> runs = RunStats.TopRuns();
+        string[] medals = { "1º", "2º", "3º", "4º", "5º" };
+        TextMeshProUGUI header = Txt("Header", panel, 26, new Color(0.75f, 0.75f, 0.8f), FontStyles.Bold);
+        header.text = "PUESTO        PUNTOS            SALA            TIEMPO          DIFICULTAD";
+        Place(header.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, -150f), new Vector2(1040f, 40f), new Vector2(0.5f, 1f));
+        for (int i = 0; i < 5; i++)
+        {
+            RectTransform row = Rect("Run" + i, panel);
+            Place(row, new Vector2(0.5f, 1f), new Vector2(0f, -200f - i * 90f), new Vector2(1040f, 80f), new Vector2(0.5f, 1f));
+            Image rb = Img("Back", row, i == 0 ? new Color(1f, 0.78f, 0.15f, 0.18f) : new Color(1f, 1f, 1f, 0.05f));
+            Stretch(rb.rectTransform);
+            TextMeshProUGUI t = Txt("Text", row, 34, i == 0 ? new Color(1f, 0.85f, 0.3f) : Color.white, FontStyles.Bold);
+            Stretch(t.rectTransform);
+            if (i < runs.Count)
+            {
+                RunStats.TopRun r = runs[i];
+                string room = r.victory ? "<color=#7CF08A>¡Ganada!</color>" : "Sala " + r.room;
+                t.text = medals[i] + "          " + r.score + "          " + room + "          " + RunStats.FormatTime(r.time) + "          " + GameSettings.DifficultyName(r.difficulty);
+            }
+            else
+            {
+                t.text = "<color=#777777>" + medals[i] + "          ---</color>";
+            }
+        }
+        TextMeshProUGUI foot = Txt("Foot", panel, 26, new Color(0.8f, 0.85f, 0.95f), FontStyles.Italic);
+        foot.text = runs.Count == 0 ? "Todavía no hay partidas. ¡A la mazmorra!" : "Victorias: " + RunStats.Wins + "   ·   Logros: " + Achievements.UnlockedCount + "/" + Achievements.All.Count;
+        Place(foot.rectTransform, new Vector2(0.5f, 0f), new Vector2(0f, 120f), new Vector2(1000f, 40f), new Vector2(0.5f, 0f));
+    }
+
     private void BuildAchievements()
     {
         List<Achievements.Def> all = Achievements.All;
@@ -310,7 +347,7 @@ public class ModalMenu : MonoBehaviour
             Close();
             return;
         }
-        if (kind == Kind.Achievements) return;
+        if (kind == Kind.Achievements || kind == Kind.Records) return;
 
         int v = 0, h = 0;
         if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W)) v = -1;

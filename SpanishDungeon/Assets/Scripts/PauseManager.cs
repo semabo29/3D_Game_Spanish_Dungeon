@@ -9,6 +9,7 @@ public class PauseManager : MonoBehaviour
 
     private bool juegoPausado = false;
     private TextMeshProUGUI tipText;
+    private bool tipOutlined;
 
     private static readonly string[] Tips =
     {
@@ -52,8 +53,8 @@ public class PauseManager : MonoBehaviour
         tipText.fontStyle = FontStyles.Italic;
         tipText.color = new Color(1f, 0.88f, 0.5f);
         tipText.enableWordWrapping = true;
-        tipText.outlineWidth = 0.2f;
-        tipText.outlineColor = new Color32(0, 0, 0, 255);
+        // El contorno se pone al abrir la pausa: con el panel oculto TextMeshPro aún no
+        // tiene material y cambiarlo lanzaría una excepción
         RectTransform rt = tipText.rectTransform;
         rt.anchorMin = new Vector2(0.1f, 0f);
         rt.anchorMax = new Vector2(0.9f, 0f);
@@ -88,6 +89,12 @@ public class PauseManager : MonoBehaviour
         if (panelPausa != null) panelPausa.SetActive(true);
         if (tipText != null)
         {
+            if (!tipOutlined)
+            {
+                tipOutlined = true;
+                tipText.outlineWidth = 0.2f;
+                tipText.outlineColor = new Color32(0, 0, 0, 255);
+            }
             PlayerStats ps = FindAnyObjectByType<PlayerStats>();
             string stats = ps == null ? "" :
                 "<size=24><color=#FFFFFF>Sala " + ps.currentRoom + " · " + GameHUD.GetRoomName(ps.currentRoom) +

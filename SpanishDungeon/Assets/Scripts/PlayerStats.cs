@@ -49,6 +49,8 @@ public class PlayerStats : MonoBehaviour
     public int CurrentHealth => currentHealth;
     public int Coins => coins;
     public bool IsDead => isDead;
+    // Tras un golpe, los enemigos te atraviesan sin hacerte nada ni desaparecer
+    public bool IsInvincible => isInvincible;
 
     void Start()
     {

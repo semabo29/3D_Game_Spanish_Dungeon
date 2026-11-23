@@ -121,6 +121,11 @@ public class Enemigo_basico : MonoBehaviour
         PlayerController player = PlayerController.Instance;
         if (player != null)
         {
+            PlayerStats ps = player.GetComponent<PlayerStats>();
+            if (ps == null || ps.IsInvincible || ps.IsDead) return;
+        }
+        if (player != null)
+        {
             float distanceX = Mathf.Abs(transform.position.x - player.transform.position.x);
             float distanceZ = Mathf.Abs(transform.position.z - player.transform.position.z);
 

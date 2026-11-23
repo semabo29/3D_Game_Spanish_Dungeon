@@ -33,7 +33,7 @@ public static class Achievements
         new Def("palomas",   "Espantapalomas",                "Espanta 20 palomas en total."),
         new Def("pata",      "Pata negra",                    "Encuentra un jamón."),
         new Def("gatos",     "Amigo de los gatos",            "Espanta a 10 gatos callejeros en total."),
-        new Def("escoba",    "Escoba nueva barre bien",       "Limpia 5 salas de enemigos en una partida."),
+        new Def("escoba",    "Escoba nueva barre bien",       "Supera 5 salas sin recibir daño en una partida."),
         new Def("gaviota",   "Atracado por una gaviota",      "Deja que una gaviota te robe una moneda."),
         new Def("modelito",  "Fashion victim",                "Ponle un sombrero a Torrento."),
         new Def("iberico",   "Ibérico de bellota",            "Completa la mazmorra en dificultad Ibérico."),

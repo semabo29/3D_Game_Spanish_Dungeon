@@ -138,7 +138,7 @@ public class Pedro : MonoBehaviour
         Vector3 nextPos = transform.position + (dir * gridSize);
 
         Vector3 boxSize = new Vector3(0.4f, 0.4f, 0.4f);
-        Collider[] objects = Physics.OverlapBox(nextPos + Vector3.up * 0.5f, boxSize, Quaternion.identity);
+        Collider[] objects = Physics.OverlapBox(nextPos + Vector3.up * 0.5f, boxSize, Quaternion.identity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
 
         foreach (Collider col in objects)
         {
@@ -149,7 +149,7 @@ public class Pedro : MonoBehaviour
         }
 
         Vector3 floorPos = nextPos + Vector3.down * 0.5f;
-        Collider[] floorObjects = Physics.OverlapBox(floorPos, new Vector3(0.3f, 0.1f, 0.3f), Quaternion.identity);
+        Collider[] floorObjects = Physics.OverlapBox(floorPos, new Vector3(0.3f, 0.1f, 0.3f), Quaternion.identity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
 
         bool hasFloor = false;
         foreach (Collider col in floorObjects)
