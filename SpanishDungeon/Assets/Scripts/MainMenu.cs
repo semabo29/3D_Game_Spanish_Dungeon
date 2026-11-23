@@ -35,6 +35,7 @@ public class MainMenu : MonoBehaviour
         Time.timeScale = 1f;
         AudioListener.pause = false;
         GameSettings.Apply();
+        MusicDirector.PlayMenu();
         MostrarRecords();
 
         if (panelPrincipal != null)

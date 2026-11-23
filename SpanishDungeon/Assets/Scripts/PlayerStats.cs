@@ -97,6 +97,7 @@ public class PlayerStats : MonoBehaviour
         AudioListener.pause = true; // Silenciamos el juego
 
         Achievements.OnVictory();
+        MusicDirector.PlayVictory();
         FinishRun(true);
 
         if (victoryPanel != null) victoryPanel.SetActive(true);
@@ -132,7 +133,18 @@ public class PlayerStats : MonoBehaviour
         GameFeel.FloatingText(transform.position, "-1", new Color(1f, 0.25f, 0.25f), 5f);
         if (GameHUD.Instance != null) GameHUD.Instance.FlashDamage();
 
-        if (currentHealth <= 0)
+        if (currentHealth <= 0 && powerUps != null && powerUps.ConsumeInsurance())
+        {
+            // El seguro del chiringuito te deja con un corazón
+            currentHealth = 1;
+            UpdateUI();
+            GameFeel.FloatingText(transform.position + Vector3.up * 0.6f, "¡EL SEGURO TE CUBRE!", new Color(0.5f, 0.9f, 1f), 5f);
+            if (GameHUD.Instance != null) GameHUD.Instance.ShowToast("Parte al seguro: sigues vivo de milagro", new Color(0.5f, 0.9f, 1f), 1.8f);
+            Sfx.Play(SfxType.ShieldBreak, 1f, 0.8f);
+            GameFeel.Hitstop(0.12f);
+            invincibilityRoutine = StartCoroutine(InvincibilityRoutine());
+        }
+        else if (currentHealth <= 0)
         {
             StartCoroutine(DieRoutine(0.5f, false));
         }
@@ -186,9 +198,36 @@ public class PlayerStats : MonoBehaviour
         return true;
     }
 
+    // Pagar en el chiringuito
+    public bool SpendCoins(int amount)
+    {
+        if (isDead || GameEnded || amount < 0 || coins < amount) return false;
+        coins -= amount;
+        UpdateUI();
+        return true;
+    }
+
+    // Premio gordo comprado en un décimo
+    public void WinLotteryPrize()
+    {
+        if (isDead || GameEnded) return;
+        WinLottery();
+        UpdateUI();
+    }
+
+    private bool doublingCoin;
+
     public void AddCoin()
     {
         if (isDead || GameEnded) return;
+        // Happy hour: cada moneda cuenta doble
+        if (RoomEvents.DoubleCoins && !doublingCoin)
+        {
+            doublingCoin = true;
+            AddCoin();
+            doublingCoin = false;
+            GameFeel.FloatingText(transform.position + Vector3.up * 1.2f, "x2", new Color(1f, 0.9f, 0.3f), 3.5f);
+        }
         coins++;
         RunStats.CoinsCollected++;
         Achievements.OnCoinCollected();

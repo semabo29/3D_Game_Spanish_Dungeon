@@ -109,6 +109,7 @@ public class MapGenerator : MonoBehaviour
         if (crumbleCoroutine != null) StopCoroutine(crumbleCoroutine);
         if (assembleCoroutine != null) StopCoroutine(assembleCoroutine);
 
+        RoomEvents.Clear();
         if (GameHUD.Instance != null) GameHUD.Instance.PlayRoomTransition();
         Sfx.Play(SfxType.Whoosh, 0.7f);
 
@@ -261,6 +262,7 @@ public class MapGenerator : MonoBehaviour
         Backdrop.ApplyTheme(layout.room);
         RoomDressing.Dress(layout, transform, coinPrefab);
         RoomClearBonus.Create(transform);
+        MusicDirector.PlayRoom(layout.room);
 
         if (assembleCoroutine != null) StopCoroutine(assembleCoroutine);
         // Con "movimiento reducido" la sala aparece directamente, sin montaje animado

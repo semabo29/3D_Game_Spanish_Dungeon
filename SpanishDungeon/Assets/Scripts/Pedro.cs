@@ -217,6 +217,7 @@ public class Pedro : MonoBehaviour
     private void EnterPhase2()
     {
         phase2 = true;
+        MusicDirector.SetIntensity(true);
         moveSpeed = baseMoveSpeed * phase2SpeedMultiplier;
         waitTimePerTile = baseWaitTime * phase2WaitMultiplier;
         if (GameHUD.Instance != null)

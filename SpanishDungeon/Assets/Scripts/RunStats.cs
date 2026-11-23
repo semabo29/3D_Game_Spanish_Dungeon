@@ -15,6 +15,7 @@ public static class RunStats
     public static int Smashes;
     public static int PowerUps;
     public static int RoomsCleared;
+    public static int ShopPurchases;
     public static string DeathCause = "";
     public static float StartTime;
     public static float EndTime = -1f;
@@ -38,6 +39,7 @@ public static class RunStats
         Smashes = 0;
         PowerUps = 0;
         RoomsCleared = 0;
+        ShopPurchases = 0;
         DeathCause = "";
         StartTime = Time.time;
         EndTime = -1f;

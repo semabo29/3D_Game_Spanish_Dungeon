@@ -10,6 +10,7 @@ public class PlayerPowerUps : MonoBehaviour
 
     private float speedTimer;
     private bool shield;
+    private bool insurance;
     private float siestaTimer;
     private Transform shieldVisual;
     private readonly List<Behaviour> sleeping = new List<Behaviour>();
@@ -19,6 +20,21 @@ public class PlayerPowerUps : MonoBehaviour
 
     public float SpeedMultiplier => speedTimer > 0f ? 1.6f : 1f;
     public bool HasShield => shield;
+    public bool HasInsurance => insurance;
+
+    // Seguro a todo riesgo del chiringuito
+    public void GiveInsurance()
+    {
+        insurance = true;
+        GameFeel.FloatingText(transform.position, "¡ASEGURADO!", new Color(0.5f, 0.9f, 1f), 5f);
+    }
+
+    public bool ConsumeInsurance()
+    {
+        if (!insurance) return false;
+        insurance = false;
+        return true;
+    }
     public bool SiestaActive => siestaTimer > 0f;
 
     void Awake()
@@ -193,7 +209,8 @@ public class PlayerPowerUps : MonoBehaviour
         string s = "";
         if (speedTimer > 0f) s += "<color=#FFD04A>CHURROS " + Mathf.CeilToInt(speedTimer) + "s</color>   ";
         if (shield) s += "<color=#FF5A64>ABANICO</color>   ";
-        if (siestaTimer > 0f) s += "<color=#8CC4FF>SIESTA " + Mathf.CeilToInt(siestaTimer) + "s</color>";
+        if (siestaTimer > 0f) s += "<color=#8CC4FF>SIESTA " + Mathf.CeilToInt(siestaTimer) + "s</color>   ";
+        if (insurance) s += "<color=#7FE3FF>SEGURO</color>";
         return s;
     }
 

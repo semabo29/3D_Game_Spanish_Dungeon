@@ -93,6 +93,11 @@
 - ⚠️ **Avisos de peligro**: marca roja en el suelo de los pinchos y los radares parpadean antes de disparar.
 - 🔊 Efectos de sonido sintetizados por código (recoger, power-ups, romper, logros, palomas, truenos…).
 
+**Banda sonora, tienda y sucesos (nuevo)**
+- 🎺 **Banda sonora original generada por código**: un tema distinto para cada sala (charanga en San Fermín, pasodoble en la plaza, rumba en Las Ramblas, disco de chiringuito en Benidorm, guitarra y flauta en La Mancha, sevillanas en la Feria, marcha con órgano contra Pedro...), con fundido entre salas, aceleración en la fase final del jefe y fanfarria de victoria. En Opciones se puede volver a la música original y ajustar su volumen aparte.
+- 🍺 **El chiringuito de Paco**: al salir de las salas 3, 6 y 9 paras a gastar monedas en bocadillos, caña y tapa (cura total), abanicos, churros, un **seguro a todo riesgo** que te salva una vez de morir (no cubre caídas: letra pequeña) y décimos de lotería.
+- 📰 **Sucesos de ÚLTIMA HORA**: algunas salas traen *happy hour* (monedas dobles), huelga de radares o lluvia de monedas.
+
 **Más vida en las salas (nuevo)**
 - 🏮 **Farolas fernandinas** voxel en lugar de los postes antiguos, que eran demasiado altos y tapaban la sala. De noche se encienden de verdad y parpadean un poco.
 - 🐈 **Gatos callejeros** (atigrado, negro o blanco) que dormitan por la sala y salen por patas con un «¡Miau, pesao!» si te acercas.
@@ -352,6 +357,11 @@ Proyecto de la asignatura de Videojuegos de la FIB (UPC), curso 2025/26. Los mod
 - 🎮 **Smoother controls**: inputs pressed mid-step are buffered, holding a key keeps you moving and there's **gamepad support** (stick or d-pad, *Start* to pause).
 - ⚠️ **Danger markers**: red floor marks on spike traps, and speed cameras blink before they fire.
 - 🔊 Code-synthesised sound effects (pickups, power-ups, smashing, achievements, pigeons, thunder…).
+
+**Soundtrack, shop and events (new)**
+- 🎺 **Original code-generated soundtrack**: a different theme for every room (a brass *charanga* in San Fermín, a *pasodoble* at the bullring, Catalan rumba on Las Ramblas, beach-bar disco in Benidorm, guitar and flute in La Mancha, *sevillanas* at the Feria, an organ march against Pedro...), with crossfades between rooms, a speed-up in the boss's final phase and a victory fanfare. Options let you switch back to the original music and set its volume separately.
+- 🍺 **Paco's beach bar**: after rooms 3, 6 and 9 you stop to spend coins on sandwiches, a beer and tapa (full heal), fans, churros, **fully comprehensive insurance** that saves you from one death (falls not covered: small print) and lottery tickets.
+- 📰 **BREAKING NEWS events**: some rooms bring a happy hour (double coins), a speed-camera strike or a shower of coins.
 
 **Livelier rooms (new)**
 - 🏮 **Voxel street lamps** replace the old posts, which were too tall and blocked the view. At night they actually light up and flicker a little.

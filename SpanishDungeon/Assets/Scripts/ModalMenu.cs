@@ -13,7 +13,7 @@ public class ModalMenu : MonoBehaviour
     public static int ClosedFrame = -1;
     private static ModalMenu current;
 
-    private enum Kind { Options, Achievements }
+    private enum Kind { Options, Achievements, Shop }
 
     private Kind kind;
     private Action onClose;
@@ -26,6 +26,29 @@ public class ModalMenu : MonoBehaviour
 
     public static void OpenOptions(Action onClose = null) => Open(Kind.Options, onClose);
     public static void OpenAchievements(Action onClose = null) => Open(Kind.Achievements, onClose);
+
+    private PlayerStats shopper;
+    private int shopRoom;
+    private TextMeshProUGUI coinsText;
+    private TextMeshProUGUI pacoText;
+    private readonly List<TextMeshProUGUI> rowPrices = new List<TextMeshProUGUI>();
+
+    // Chiringuito de Paco: el juego se congela mientras compras
+    public static void OpenShop(PlayerStats stats, int room, Action onClose)
+    {
+        if (current != null) { onClose?.Invoke(); return; }
+        Time.timeScale = 0f;
+        EnsureEventSystem();
+        GameObject go = new GameObject("ShopMenu");
+        ModalMenu m = go.AddComponent<ModalMenu>();
+        m.kind = Kind.Shop;
+        m.shopper = stats;
+        m.shopRoom = room;
+        m.onClose = () => { Time.timeScale = 1f; onClose?.Invoke(); };
+        current = m;
+        m.Build();
+        Sfx.Play(SfxType.PowerUp, 0.6f, 1.2f, true);
+    }
 
     private static void Open(Kind kind, Action onClose)
     {
@@ -104,17 +127,23 @@ public class ModalMenu : MonoBehaviour
             title.text = "OPCIONES";
             BuildOptions();
         }
+        else if (kind == Kind.Shop)
+        {
+            title.text = "EL CHIRINGUITO DE PACO";
+            BuildShop();
+        }
         else
         {
             title.text = "LOGROS  " + Achievements.UnlockedCount + "/" + Achievements.All.Count;
             BuildAchievements();
         }
 
-        Button closeBtn = Btn("Volver", panel, "VOLVER", Close);
+        Button closeBtn = Btn("Volver", panel, kind == Kind.Shop ? "SEGUIR" : "VOLVER", Close);
         Place((RectTransform)closeBtn.transform, new Vector2(0.5f, 0f), new Vector2(0f, 30f), new Vector2(300f, 64f), new Vector2(0.5f, 0f));
 
         TextMeshProUGUI keys = Txt("Keys", panel, 22, new Color(0.7f, 0.7f, 0.75f), FontStyles.Normal);
-        keys.text = kind == Kind.Options ? "Arriba/abajo: elegir   Izq./der.: cambiar   Esc: volver" : "Esc volver";
+        keys.text = kind == Kind.Options ? "Arriba/abajo: elegir   Izq./der.: cambiar   Esc: volver"
+                  : kind == Kind.Shop ? "Arriba/abajo: elegir   Enter: comprar   Esc: seguir" : "Esc volver";
         Place(keys.rectTransform, new Vector2(1f, 0f), new Vector2(-30f, 50f), new Vector2(420f, 30f), new Vector2(1f, 0f));
         keys.alignment = TextAlignmentOptions.Right;
     }
@@ -125,7 +154,7 @@ public class ModalMenu : MonoBehaviour
         {
             int index = i;
             RectTransform row = Rect("Row" + i, panel);
-            Place(row, new Vector2(0.5f, 1f), new Vector2(0f, -140f - i * 52f), new Vector2(1040f, 48f), new Vector2(0.5f, 1f));
+            Place(row, new Vector2(0.5f, 1f), new Vector2(0f, -136f - i * 45f), new Vector2(1040f, 41f), new Vector2(0.5f, 1f));
             Image rb = Img("Back", row, new Color(1f, 1f, 1f, 0.04f));
             Stretch(rb.rectTransform);
             rb.raycastTarget = true;
@@ -134,21 +163,21 @@ public class ModalMenu : MonoBehaviour
             rowBtn.onClick.AddListener(() => { selected = index; ChangeSelected(1); });
             rowBacks.Add(rb);
 
-            TextMeshProUGUI label = Txt("Label", row, 32, Color.white, FontStyles.Bold);
+            TextMeshProUGUI label = Txt("Label", row, 28, Color.white, FontStyles.Bold);
             label.text = GameSettings.Label(i);
             label.alignment = TextAlignmentOptions.Left;
-            Place(label.rectTransform, new Vector2(0f, 0.5f), new Vector2(24f, 0f), new Vector2(520f, 46f), new Vector2(0f, 0.5f));
+            Place(label.rectTransform, new Vector2(0f, 0.5f), new Vector2(24f, 0f), new Vector2(520f, 40f), new Vector2(0f, 0.5f));
 
             Button left = Btn("Left", row, "<", () => { selected = index; ChangeSelected(-1); });
-            Place((RectTransform)left.transform, new Vector2(1f, 0.5f), new Vector2(-420f, 0f), new Vector2(54f, 42f), new Vector2(1f, 0.5f));
+            Place((RectTransform)left.transform, new Vector2(1f, 0.5f), new Vector2(-420f, 0f), new Vector2(54f, 36f), new Vector2(1f, 0.5f));
             Button right = Btn("Right", row, ">", () => { selected = index; ChangeSelected(1); });
-            Place((RectTransform)right.transform, new Vector2(1f, 0.5f), new Vector2(-16f, 0f), new Vector2(54f, 42f), new Vector2(1f, 0.5f));
+            Place((RectTransform)right.transform, new Vector2(1f, 0.5f), new Vector2(-16f, 0f), new Vector2(54f, 36f), new Vector2(1f, 0.5f));
 
             TextMeshProUGUI value = Txt("Value", row, 32, new Color(1f, 0.85f, 0.3f), FontStyles.Bold);
             value.enableAutoSizing = true;
             value.fontSizeMin = 18f;
-            value.fontSizeMax = 32f;
-            Place(value.rectTransform, new Vector2(1f, 0.5f), new Vector2(-80f, 0f), new Vector2(280f, 46f), new Vector2(1f, 0.5f));
+            value.fontSizeMax = 28f;
+            Place(value.rectTransform, new Vector2(1f, 0.5f), new Vector2(-80f, 0f), new Vector2(280f, 40f), new Vector2(1f, 0.5f));
             rowValues.Add(value);
         }
 
@@ -156,6 +185,75 @@ public class ModalMenu : MonoBehaviour
         hintText.enableWordWrapping = true;
         Place(hintText.rectTransform, new Vector2(0.5f, 0f), new Vector2(0f, 110f), new Vector2(1000f, 60f), new Vector2(0.5f, 0f));
         Refresh();
+    }
+
+    private void BuildShop()
+    {
+        pacoText = Txt("Paco", panel, 30, new Color(1f, 0.93f, 0.75f), FontStyles.Italic);
+        pacoText.enableWordWrapping = true;
+        pacoText.text = "Paco: «" + Chiringuito.Greeting(shopRoom) + "»";
+        Place(pacoText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, -132f), new Vector2(1040f, 50f), new Vector2(0.5f, 1f));
+
+        coinsText = Txt("Coins", panel, 34, new Color(1f, 0.85f, 0.2f), FontStyles.Bold);
+        Place(coinsText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0f, -186f), new Vector2(1040f, 46f), new Vector2(0.5f, 1f));
+
+        for (int i = 0; i < Chiringuito.Items.Count; i++)
+        {
+            int index = i;
+            Chiringuito.Item it = Chiringuito.Items[i];
+            RectTransform row = Rect("Item" + i, panel);
+            Place(row, new Vector2(0.5f, 1f), new Vector2(0f, -250f - i * 84f), new Vector2(1040f, 76f), new Vector2(0.5f, 1f));
+            Image rb = Img("Back", row, new Color(1f, 1f, 1f, 0.04f));
+            Stretch(rb.rectTransform);
+            rb.raycastTarget = true;
+            Button rowBtn = rb.gameObject.AddComponent<Button>();
+            rowBtn.transition = Selectable.Transition.None;
+            rowBtn.onClick.AddListener(() => { selected = index; BuySelected(); });
+            rowBacks.Add(rb);
+
+            TextMeshProUGUI name = Txt("Name", row, 32, Color.white, FontStyles.Bold);
+            name.text = it.name;
+            name.alignment = TextAlignmentOptions.Left;
+            Place(name.rectTransform, new Vector2(0f, 1f), new Vector2(24f, -4f), new Vector2(760f, 40f), new Vector2(0f, 1f));
+
+            TextMeshProUGUI desc = Txt("Desc", row, 22, new Color(0.85f, 0.85f, 0.9f), FontStyles.Normal);
+            desc.text = it.desc;
+            desc.alignment = TextAlignmentOptions.Left;
+            Place(desc.rectTransform, new Vector2(0f, 0f), new Vector2(40f, 6f), new Vector2(820f, 30f), new Vector2(0f, 0f));
+
+            TextMeshProUGUI price = Txt("Price", row, 34, new Color(1f, 0.85f, 0.2f), FontStyles.Bold);
+            price.alignment = TextAlignmentOptions.Right;
+            Place(price.rectTransform, new Vector2(1f, 0.5f), new Vector2(-24f, 0f), new Vector2(220f, 50f), new Vector2(1f, 0.5f));
+            rowPrices.Add(price);
+        }
+
+        hintText = Txt("Hint", panel, 28, new Color(0.8f, 0.95f, 0.85f), FontStyles.Bold);
+        hintText.enableWordWrapping = true;
+        Place(hintText.rectTransform, new Vector2(0.5f, 0f), new Vector2(0f, 110f), new Vector2(1000f, 60f), new Vector2(0.5f, 0f));
+        hintText.text = "";
+        RefreshShop();
+    }
+
+    private void RefreshShop()
+    {
+        if (shopper == null) return;
+        coinsText.text = "Tus monedas: " + shopper.Coins + "     Corazones: " + shopper.CurrentHealth;
+        for (int i = 0; i < Chiringuito.Items.Count; i++)
+        {
+            Chiringuito.Item it = Chiringuito.Items[i];
+            bool canPay = shopper.Coins >= it.price && it.blocked(shopper) == null;
+            rowPrices[i].text = it.price + (it.price == 1 ? " moneda" : " monedas");
+            rowPrices[i].color = canPay ? new Color(1f, 0.85f, 0.2f) : new Color(0.55f, 0.5f, 0.45f);
+            rowBacks[i].color = i == selected ? new Color(1f, 0.78f, 0.15f, 0.22f) : new Color(1f, 1f, 1f, 0.04f);
+        }
+    }
+
+    private void BuySelected()
+    {
+        if (shopper == null || selected < 0 || selected >= Chiringuito.Items.Count) return;
+        string msg = Chiringuito.TryBuy(Chiringuito.Items[selected], shopper);
+        hintText.text = msg;
+        RefreshShop();
     }
 
     private void BuildAchievements()
@@ -212,7 +310,7 @@ public class ModalMenu : MonoBehaviour
             Close();
             return;
         }
-        if (kind != Kind.Options) return;
+        if (kind == Kind.Achievements) return;
 
         int v = 0, h = 0;
         if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W)) v = -1;
@@ -230,6 +328,20 @@ public class ModalMenu : MonoBehaviour
             if (v != 0 || h != 0) repeatTimer = 0.25f;
         }
         if (Mathf.Abs(ax) < 0.3f && Mathf.Abs(ay) < 0.3f) repeatTimer = 0f;
+
+        if (kind == Kind.Shop)
+        {
+            int count = Chiringuito.Items.Count;
+            if (v != 0)
+            {
+                selected = (selected + v + count) % count;
+                Sfx.Play(SfxType.Blip, 0.6f, 1f, true);
+                RefreshShop();
+            }
+            bool buy = Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.JoystickButton0);
+            if (buy) BuySelected();
+            return;
+        }
 
         if (v != 0)
         {

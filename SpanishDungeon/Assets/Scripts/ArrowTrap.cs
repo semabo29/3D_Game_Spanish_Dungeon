@@ -34,6 +34,14 @@ public class ArrowTrap : MonoBehaviour
 
     void Update()
     {
+        // Suceso "huelga de radares": no disparan en toda la sala
+        if (RoomEvents.RadarsOnStrike)
+        {
+            transform.localScale = baseScale;
+            Tint(new Color(0.6f, 0.6f, 0.65f));
+            timer = 0f;
+            return;
+        }
         timer += Time.deltaTime;
 
         // Aviso: el radar parpadea en rojo y se hincha justo antes de disparar
