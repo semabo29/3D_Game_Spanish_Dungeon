@@ -150,7 +150,7 @@ public class ModalMenu : MonoBehaviour
         TextMeshProUGUI keys = Txt("Keys", panel, 22, new Color(0.7f, 0.7f, 0.75f), FontStyles.Normal);
         keys.text = kind == Kind.Options ? "Arriba/abajo: elegir   Izq./der.: cambiar   Esc: volver"
                   : kind == Kind.Shop ? "Arriba/abajo: elegir   Enter: comprar   Esc: seguir" : "Esc volver";
-        Place(keys.rectTransform, new Vector2(1f, 0f), new Vector2(-30f, 50f), new Vector2(420f, 30f), new Vector2(1f, 0f));
+        Place(keys.rectTransform, new Vector2(1f, 0f), new Vector2(-24f, 8f), new Vector2(560f, 28f), new Vector2(1f, 0f));
         keys.alignment = TextAlignmentOptions.Right;
     }
 

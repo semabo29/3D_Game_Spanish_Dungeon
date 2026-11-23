@@ -211,6 +211,12 @@ public class PlayerPowerUps : MonoBehaviour
         if (shield) s += "<color=#FF5A64>ABANICO</color>   ";
         if (siestaTimer > 0f) s += "<color=#8CC4FF>SIESTA " + Mathf.CeilToInt(siestaTimer) + "s</color>   ";
         if (insurance) s += "<color=#7FE3FF>SEGURO</color>";
+        // Suceso de la sala activo, para que no se olvide
+        switch (RoomEvents.Current)
+        {
+            case RoomEvents.Kind.HappyHour: s += "   <color=#FFE680>HAPPY HOUR x2</color>"; break;
+            case RoomEvents.Kind.RadarStrike: s += "   <color=#C8C8D0>RADARES EN HUELGA</color>"; break;
+        }
         return s;
     }
 
