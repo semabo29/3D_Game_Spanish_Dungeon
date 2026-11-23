@@ -279,6 +279,8 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
+        SpawnReinforcements(layout);
+
         List<Transform> spawned = new List<Transform>();
         foreach (Transform child in transform)
         {
@@ -303,6 +305,41 @@ public class MapGenerator : MonoBehaviour
         // Con "movimiento reducido" la sala aparece directamente, sin montaje animado
         if (!GameSettings.ReduceMotion) assembleCoroutine = StartCoroutine(AssembleRoom(spawned, layout.start));
         else assembleCoroutine = null;
+    }
+
+    // Refuerzos: a partir de la sala 3 puede colarse algún enemigo más (de los que ya hay en la sala),
+    // así ninguna partida es igual. En Turista no hay; en Ibérico siempre.
+    private void SpawnReinforcements(RoomLayout layout)
+    {
+        if (layout.room < 3 || layout.room >= mapFiles.Length) return;
+        int difficulty = GameSettings.Difficulty;
+        if (difficulty == 0) return;
+        int extra = difficulty == 2 ? 1 + (Random.value < 0.4f ? 1 : 0) : (Random.value < 0.45f ? 1 : 0);
+        if (extra == 0) return;
+
+        List<GameObject> templates = new List<GameObject>();
+        foreach (Transform child in transform)
+        {
+            if (!child.gameObject.activeSelf) continue;
+            if (child.GetComponent<EnemyPatrol>() != null || child.GetComponent<Enemigo_basico>() != null || child.GetComponent<Guiri>() != null)
+                templates.Add(child.gameObject);
+        }
+        if (templates.Count == 0) return;
+
+        List<Vector3> cells = layout.floor.FindAll(p => p.x >= layout.start.x + 3f && p.x < layout.lines - 2.5f && layout.FarFromKeyCells(p, 2f));
+        foreach (GameObject t in templates)
+            cells.RemoveAll(p => Mathf.Abs(p.x - t.transform.position.x) + Mathf.Abs(p.z - t.transform.position.z) < 2f);
+
+        for (int i = 0; i < extra && cells.Count > 0; i++)
+        {
+            int k = Random.Range(0, cells.Count);
+            Vector3 cell = cells[k];
+            cells.RemoveAt(k);
+            layout.floor.Remove(cell);
+            GameObject template = templates[Random.Range(0, templates.Count)];
+            GameObject e = Instantiate(template, cell, template.transform.rotation, transform);
+            e.name = template.name;
+        }
     }
 
     private static void AddEnemyAnimator(GameObject go)

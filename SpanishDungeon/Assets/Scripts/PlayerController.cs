@@ -351,6 +351,7 @@ public class PlayerController : MonoBehaviour
         lastKillTime = Time.time;
         if (comboCount > RunStats.BestCombo) RunStats.BestCombo = comboCount;
         Achievements.OnCombo(comboCount);
+        if (GameHUD.Instance != null) GameHUD.Instance.SetCombo(comboCount, comboWindow * Estampitas.ComboWindowMultiplier);
 
         GameFeel.VoxelBurst(pos, color, 12, 4.5f);
         GameFeel.Shake(0.12f, 0.15f);

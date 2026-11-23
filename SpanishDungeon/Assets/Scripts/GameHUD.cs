@@ -263,6 +263,31 @@ public class GameHUD : MonoBehaviour
         tirt.anchoredPosition = new Vector2(0, -12);
         tirt.sizeDelta = new Vector2(400, 60);
 
+        // ---- Combo (debajo de la lotería) ----
+        comboGroup = NewRect("Combo", root);
+        comboGroup.anchorMin = comboGroup.anchorMax = comboGroup.pivot = new Vector2(1f, 1f);
+        comboGroup.anchoredPosition = new Vector2(-28f, -118f);
+        comboGroup.sizeDelta = new Vector2(300f, 80f);
+        comboText = CreateText("Text", comboGroup, 46, new Color(1f, 0.55f, 0.1f), FontStyles.Bold);
+        comboText.alignment = TextAlignmentOptions.Right;
+        RectTransform cotr = comboText.rectTransform;
+        cotr.anchorMin = cotr.anchorMax = cotr.pivot = new Vector2(1f, 1f);
+        cotr.anchoredPosition = Vector2.zero;
+        cotr.sizeDelta = new Vector2(300f, 52f);
+        Image comboBack = CreateImage("Back", comboGroup, new Color(0f, 0f, 0f, 0.6f));
+        RectTransform cbrt = comboBack.rectTransform;
+        cbrt.anchorMin = cbrt.anchorMax = cbrt.pivot = new Vector2(1f, 1f);
+        cbrt.anchoredPosition = new Vector2(0f, -56f);
+        cbrt.sizeDelta = new Vector2(220f, 14f);
+        comboFill = CreateImage("Fill", cbrt, new Color(1f, 0.55f, 0.1f));
+        RectTransform cfrt = comboFill.rectTransform;
+        cfrt.anchorMin = Vector2.zero;
+        cfrt.anchorMax = Vector2.one;
+        cfrt.pivot = new Vector2(1f, 0.5f);
+        cfrt.offsetMin = new Vector2(2, 2);
+        cfrt.offsetMax = new Vector2(-2, -2);
+        comboGroup.gameObject.SetActive(false);
+
         // ---- Lotería (arriba a la derecha) ----
         lotteryGroup = NewRect("Lottery", root);
         lotteryGroup.anchorMin = lotteryGroup.anchorMax = lotteryGroup.pivot = new Vector2(1f, 1f);
@@ -528,6 +553,7 @@ public class GameHUD : MonoBehaviour
         }
 
         UpdateTutorial();
+        UpdateCombo(dt);
 
         if (!showingAchievement && achievementQueue.Count > 0) StartCoroutine(AchievementRoutine(achievementQueue.Dequeue()));
     }
@@ -600,6 +626,37 @@ public class GameHUD : MonoBehaviour
         if (shownHealth >= 0 && current != shownHealth) heartPop = 1f;
         shownHealth = current;
         lowHealthState = current == 1 ? 1 : 0;
+    }
+
+    private RectTransform comboGroup;
+    private TextMeshProUGUI comboText;
+    private Image comboFill;
+    private int comboCount;
+    private float comboEnd, comboLength = 1f, comboPop;
+
+    // Contador de combo con barra que se vacía (tiempo de juego, no real)
+    public void SetCombo(int count, float window)
+    {
+        comboCount = count;
+        comboLength = Mathf.Max(0.1f, window);
+        comboEnd = Time.time + window;
+        comboPop = 1f;
+        if (comboText != null) comboText.text = "COMBO x" + count;
+    }
+
+    private void UpdateCombo(float dt)
+    {
+        if (comboGroup == null) return;
+        float left = comboEnd - Time.time;
+        bool show = comboCount >= 2 && left > 0f && !runEnded;
+        if (comboGroup.gameObject.activeSelf != show) comboGroup.gameObject.SetActive(show);
+        if (!show) return;
+        comboPop = Mathf.MoveTowards(comboPop, 0f, dt * 4f);
+        comboGroup.localScale = Vector3.one * (1f + comboPop * 0.35f);
+        comboFill.rectTransform.localScale = new Vector3(Mathf.Clamp01(left / comboLength), 1f, 1f);
+        Color c = Color.Lerp(new Color(1f, 0.85f, 0.2f), new Color(1f, 0.3f, 0.1f), Mathf.Clamp01((comboCount - 2) / 4f));
+        comboText.color = c;
+        comboFill.color = c;
     }
 
     public void SetCoins(int coins)
