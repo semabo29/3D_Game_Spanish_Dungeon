@@ -13,6 +13,9 @@ public class MainMenu : MonoBehaviour
     public AudioClip sonidoClic;
 
     private TextMeshProUGUI splash;
+    private RectTransform title;
+    private TextMeshProUGUI subtitle;
+    private float titleTime;
 
     private static readonly string[] Splashes =
     {
@@ -43,8 +46,74 @@ public class MainMenu : MonoBehaviour
             ModalMenu.InjectButton(panelPrincipal, "Opciones", () => { ReproducirClic(); ModalMenu.OpenOptions(); }, "Btn_Salir");
             ModalMenu.InjectButton(panelPrincipal, "Logros", () => { ReproducirClic(); ModalMenu.OpenAchievements(); }, "Btn_Salir");
             ModalMenu.InjectButton(panelPrincipal, "Récords", () => { ReproducirClic(); ModalMenu.OpenRecords(); }, "Btn_Salir");
+            CrearTitulo();
             CrearSplash();
+
+            // En el navegador no se puede cerrar el juego: fuera el botón de salir
+            if (Application.platform == RuntimePlatform.WebGLPlayer)
+            {
+                Transform salir = FindDeep(panelPrincipal.transform, "Btn_Salir");
+                if (salir != null) salir.gameObject.SetActive(false);
+            }
         }
+    }
+
+    private static Transform FindDeep(Transform t, string name)
+    {
+        if (t.name == name) return t;
+        foreach (Transform c in t)
+        {
+            Transform r = FindDeep(c, name);
+            if (r != null) return r;
+        }
+        return null;
+    }
+
+    // Título del juego: entra cayendo con rebote y luego se balancea un poco
+    private void CrearTitulo()
+    {
+        GameObject go = new GameObject("Titulo", typeof(RectTransform));
+        go.transform.SetParent(panelPrincipal.transform, false);
+        title = (RectTransform)go.transform;
+        title.anchorMin = title.anchorMax = new Vector2(0.5f, 0.5f);
+        title.anchoredPosition = new Vector2(0f, 330f);
+        title.sizeDelta = new Vector2(1400f, 230f);
+        title.SetAsFirstSibling();
+
+        TextMeshProUGUI shadow = NewText("Sombra", title, 150, new Color(0.35f, 0.02f, 0.05f, 0.9f));
+        shadow.text = "SPANISH DUNGEON";
+        shadow.rectTransform.anchoredPosition = new Vector2(8f, 22f);
+
+        TextMeshProUGUI main = NewText("Texto", title, 150, Color.white);
+        main.text = "<color=#E8102E>SPANISH</color> <color=#FFC400>DUNGEON</color>";
+        main.outlineWidth = 0.22f;
+        main.outlineColor = new Color32(40, 0, 0, 255);
+        main.rectTransform.anchoredPosition = new Vector2(0f, 30f);
+
+        subtitle = NewText("Subtitulo", title, 40, new Color(1f, 0.95f, 0.85f));
+        subtitle.text = "La mazmorra más castiza de la península";
+        subtitle.fontStyle = FontStyles.Italic | FontStyles.Bold;
+        subtitle.outlineWidth = 0.25f;
+        subtitle.outlineColor = new Color32(0, 0, 0, 255);
+        subtitle.rectTransform.anchoredPosition = new Vector2(0f, -78f);
+        titleTime = 0f;
+    }
+
+    private static TextMeshProUGUI NewText(string name, RectTransform parent, float size, Color color)
+    {
+        GameObject go = new GameObject(name, typeof(RectTransform));
+        go.transform.SetParent(parent, false);
+        TextMeshProUGUI t = go.AddComponent<TextMeshProUGUI>();
+        t.raycastTarget = false;
+        t.alignment = TextAlignmentOptions.Center;
+        t.fontSize = size;
+        t.fontStyle = FontStyles.Bold;
+        t.color = color;
+        t.enableWordWrapping = false;
+        RectTransform rt = t.rectTransform;
+        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.sizeDelta = new Vector2(1600f, 180f);
+        return t;
     }
 
     // Frase amarilla que late en una esquina del título
@@ -64,13 +133,24 @@ public class MainMenu : MonoBehaviour
         splash.text = Splashes[Random.Range(0, Splashes.Length)];
         RectTransform rt = splash.rectTransform;
         rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
-        rt.anchoredPosition = new Vector2(330f, 250f);
+        rt.anchoredPosition = new Vector2(560f, 215f);
         rt.sizeDelta = new Vector2(700f, 60f);
         rt.localRotation = Quaternion.Euler(0f, 0f, 14f);
     }
 
     void Update()
     {
+        if (title != null)
+        {
+            titleTime += Time.unscaledDeltaTime;
+            // Caída con rebote (0,7 s) y luego un balanceo suave
+            float k = Mathf.Clamp01(titleTime / 0.7f);
+            float bounce = 1f - Mathf.Pow(1f - k, 3f) * Mathf.Cos(k * 9f);
+            float y = Mathf.Lerp(700f, 330f, bounce);
+            float sway = GameSettings.ReduceMotion ? 0f : Mathf.Sin(Time.unscaledTime * 1.6f);
+            title.anchoredPosition = new Vector2(0f, y + (k >= 1f ? sway * 6f : 0f));
+            title.localRotation = Quaternion.Euler(0f, 0f, k >= 1f ? sway * 1.2f : 0f);
+        }
         if (splash != null)
         {
             float s = 1f + Mathf.Abs(Mathf.Sin(Time.unscaledTime * 6f)) * 0.08f;

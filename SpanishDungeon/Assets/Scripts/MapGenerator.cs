@@ -94,6 +94,12 @@ public class MapGenerator : MonoBehaviour
             PlayerStats ps = PlayerController.Instance.GetComponent<PlayerStats>();
             if (ps != null) ModalMenu.OpenShop(ps, ps.currentRoom, null);
         }
+        // Modo pruebas: V gana la partida (para probar la pantalla de victoria)
+        if (Input.GetKeyDown(KeyCode.V) && PlayerController.Instance != null)
+        {
+            PlayerStats ps = PlayerController.Instance.GetComponent<PlayerStats>();
+            if (ps != null && !PlayerStats.GameEnded) ps.WinGame();
+        }
         // Modo pruebas: E ofrece estampitas
         if (Input.GetKeyDown(KeyCode.E) && PlayerController.Instance != null)
         {
